@@ -12,5 +12,15 @@
             {{ error }}
         </div>
     {% endif %}
-    {% lorem 3 p random %}
+    <table>
+        {% for betreiber in users %}
+            <tr>
+                <td>{{betreiber.id}}
+                <td>{{betreiber.username}}</td>
+                <td>{{betreiber.first_name}}</td>
+                <td>{{betreiber.last_name}}</td>
+                <td>{{betreiber.email}}</td>
+            </tr>
+        {% endfor %}
+    </table>
 {% endblock content %}
