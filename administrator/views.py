@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import Group
 
 from .forms import LoginForm, BetreiberForm
 from .helpers import is_systemadmin, not_logged_in
@@ -75,12 +76,17 @@ def view_create_betreiber(request):
             first_name = form.cleaned_data['first_name']
             last_name = form.cleaned_data['last_name']
             email = form.cleaned_data['email']
-            new_user = User.objects.create(username, email, 'Hello123')
+            # TODO Random Passwort generieren 
+            password = 'Hello123'
+            new_user = User.objects.create_user(username, email, password)
             new_user.first_name = first_name
             new_user.last_name = last_name
+            new_user.is_staff = True
             new_user.save()
+            print(f'user created: {new_user}')
             # TODO Add user to betreiber group
-            new_user.groups.add('betreiber')
+            betreiber_group = Group.objects.get(name='betreiber')
+            new_user.groups.add(betreiber_group)
             return redirect(reverse('administrator:betreiberliste'))
         else:
             return render(request, 'administrator/newbetreiber.html', {
@@ -94,18 +100,52 @@ def view_create_betreiber(request):
 
 @login_required(login_url='administrator:login')
 @user_passes_test(is_systemadmin)
-def view_edit_betreiber(request):
+def view_edit_betreiber(request, edit_user_id):
     '''
     /PF0050/ Ein eingeloggter Administrator kann die Daten von Betreiberkonten editieren.
     '''
+    if request.method == 'POST':
+        try:
+            edit_user = User.objects.get(pk=edit_user_id)
+            form = BetreiberForm(request.POST, instance = edit_user)
+            if form.is_valid():
+                form.save()
+                return redirect(reverse('administrator:betreiberliste'))
+            else:
+                raise ValueError
+        except:
+            # TODO pass over the error message
+            print('[EDIT-Post]: Ein Fehler ist aufgetreten')
+            return redirect(reverse('administrator:betreiberliste'))
+    
+    try:
+        edit_user = User.objects.get(pk=edit_user_id)
+        form = BetreiberForm(instance=edit_user)
+        return render(request, 'administrator/editbetreiber.html', {
+            'betreiber': edit_user,
+            'form': form,
+        })
+    except:
+        # TODO pass over the error message
+        print('[EDIT-Get]: Ein Fehler ist aufgetreten')
+        return redirect(reverse('administrator:betreiberliste'))
+
+
 
 @login_required(login_url='administrator:login')
 @user_passes_test(is_systemadmin)
-def view_delete_betreiber(request):
+def view_delete_betreiber(request, delete_user_id):
     '''
     /PF0060/ Ein eingeloggter Administrator kann bestehende Betreiberkonten löschen.
     '''
-
+    if request.method == 'POST':
+        try:
+            delete_user = User.objects.get(pk=delete_user_id)
+            delete_user.delete()
+        except:
+            # TODO add error message to indicate we were unable to delete the requested user
+            pass
+    return redirect(reverse('administrator:betreiberliste'))
 
 def view_access_forbidden(request):
     logout(request)

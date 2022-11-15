@@ -15,13 +15,17 @@
     {% endblock %}
 </head>
 <body>
+    {% if user.is_authenticated %}
     <nav>
-
+        <a href="{% url 'administrator:logout'%}">Ausloggen</a>
     </nav>
+    {% endif %}
 
     <div class="content">
         {% block content %}
         {% endblock %}
-    </body>
+    </div>
+
+    
 </body>
 </html>
