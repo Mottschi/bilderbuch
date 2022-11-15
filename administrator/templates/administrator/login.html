@@ -7,11 +7,7 @@
 
 {% block content %}
     <h1>Login</h1>
-    {% if error %}
-        <div class='alert alert-danger'>
-            {{ error }}
-        </div>
-    {% endif %}
+
     <br>
     <form method='POST'>
         {% csrf_token %}

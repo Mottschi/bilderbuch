@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import Group
+from django.contrib import messages
 
 from .forms import LoginForm, BetreiberForm
 from .helpers import is_systemadmin, not_logged_in
@@ -29,11 +30,11 @@ def view_login(request):
                 return redirect(reverse('administrator:betreiberliste'))
             else:
                 print('unable to login')
+                # TODO Fehlermeldung soll den Grund beinhalten (allerdings tut das Form das eh, reicht das, oder umformen?)
+                messages.error(request, 'Fehler beim Einloggen')
                 return render(request, 'administrator/login.html', {
-                    'error': 'Fehler beim Einloggen',
                     'form': LoginForm(),
                 })
-
     return render(request, 'administrator/login.html', {
         'form': LoginForm(),
     })
@@ -76,21 +77,32 @@ def view_create_betreiber(request):
             first_name = form.cleaned_data['first_name']
             last_name = form.cleaned_data['last_name']
             email = form.cleaned_data['email']
-            # TODO Random Passwort generieren 
-            password = 'Hello123'
-            new_user = User.objects.create_user(username, email, password)
-            new_user.first_name = first_name
-            new_user.last_name = last_name
-            new_user.is_staff = True
-            new_user.save()
-            print(f'user created: {new_user}')
-            # TODO Add user to betreiber group
-            betreiber_group = Group.objects.get(name='betreiber')
-            new_user.groups.add(betreiber_group)
-            return redirect(reverse('administrator:betreiberliste'))
-        else:
+            if first_name and last_name and email:
+                # TODO Random Passwort generieren 
+                password = 'Hello123'
+                new_user = User.objects.create_user(username, email, password)
+                new_user.first_name = first_name
+                new_user.last_name = last_name
+                new_user.is_staff = True
+                new_user.save()
+                betreiber_group = Group.objects.get(name='betreiber')
+                new_user.groups.add(betreiber_group)
+                messages.success(request, f'Betreiberkonto "{username}" für {first_name} {last_name} ({email}) wurde erfolgreich erstellt.')
+                return redirect(reverse('administrator:betreiberliste'))
+            else:
+                messages.error(request, "Ein Fehler ist aufgetreten. Bitte stellen Sie sicher, alle Felder auszufuellen.")
+                return render(request, 'administrator/newbetreiber.html', {
+                    'form': form,
+                })
+
+        else:          
+            # TODO Grund fuer Fehler anzeigen, evtl. ueber form.errors?
+            print(type(form.errors))
+            print(form.errors)
+            for value in form.errors:
+                print(f'key: "{""}", value: "{value}"')
+            messages.error(request, f'Beim Erstellen des Benutzers ist ein Fehler aufgetreten.')
             return render(request, 'administrator/newbetreiber.html', {
-                'error': 'Ein Fehler ist aufgetreten: ',
                 'form': form,
             })
     
@@ -110,24 +122,25 @@ def view_edit_betreiber(request, edit_user_id):
             form = BetreiberForm(request.POST, instance = edit_user)
             if form.is_valid():
                 form.save()
+                messages.success(request, f'Das Betreiberkonto "{edit_user.username}" ({edit_user.first_name} {edit_user.last_name}) wurde erfolgreich aktualisiert.')
                 return redirect(reverse('administrator:betreiberliste'))
             else:
                 raise ValueError
         except:
-            # TODO pass over the error message
-            print('[EDIT-Post]: Ein Fehler ist aufgetreten')
-            return redirect(reverse('administrator:betreiberliste'))
+            messages.error(request, f'Die Änderungen am Betreiberkonto "{edit_user.username}" ({edit_user.first_name} {edit_user.last_name}) konnten nicht gespeichert werden.')
+            return render(request, 'administrator/editbetreiber.html', {
+                'form': form,
+            })
     
     try:
         edit_user = User.objects.get(pk=edit_user_id)
         form = BetreiberForm(instance=edit_user)
+        
         return render(request, 'administrator/editbetreiber.html', {
-            'betreiber': edit_user,
             'form': form,
         })
     except:
-        # TODO pass over the error message
-        print('[EDIT-Get]: Ein Fehler ist aufgetreten')
+        messages.error(request, "Das zu editierende Betreiberkonto konnte nicht gefunden werden.")
         return redirect(reverse('administrator:betreiberliste'))
 
 
@@ -142,9 +155,10 @@ def view_delete_betreiber(request, delete_user_id):
         try:
             delete_user = User.objects.get(pk=delete_user_id)
             delete_user.delete()
+            messages.success(request, f'Das Betreiberkonto "{delete_user.username}" ({delete_user.first_name} {delete_user.last_name}) wurde erfolgreich gelöscht.')
         except:
-            # TODO add error message to indicate we were unable to delete the requested user
-            pass
+            messages.error(request, f'Das angegebene Betreiberkonto konnte nicht gelöscht werden.')
+            
     return redirect(reverse('administrator:betreiberliste'))
 
 def view_access_forbidden(request):

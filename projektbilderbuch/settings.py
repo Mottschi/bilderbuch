@@ -85,6 +85,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'projektbilderbuch.wsgi.application'
 
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases

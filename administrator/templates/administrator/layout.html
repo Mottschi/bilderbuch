@@ -21,6 +21,17 @@
     </nav>
     {% endif %}
 
+    {% if messages %}
+        {% for message in messages %}
+            <div class='alert alert-{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}danger{% else %}success{% endif %}'>
+                {{ message }}
+                {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR and form.errors %}
+                    {{ form.errors }}
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+
     <div class="content">
         {% block content %}
         {% endblock %}
