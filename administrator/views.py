@@ -63,7 +63,7 @@ def view_display_betreiberliste(request):
     })
 
 @login_required(login_url='administrator:login')
-@user_passes_test(is_systemadmin)
+@user_passes_test(is_systemadmin, login_url='administrator:logout')
 def view_create_betreiber(request):
     '''
     /PF0030/ Ein eingeloggter Administrator kann neue Betreiberkonten für 
@@ -120,7 +120,7 @@ def view_create_betreiber(request):
     })
 
 @login_required(login_url='administrator:login')
-@user_passes_test(is_systemadmin)
+@user_passes_test(is_systemadmin, login_url='administrator:logout')
 def view_edit_betreiber(request, edit_user_id):
     '''
     /PF0050/ Ein eingeloggter Administrator kann die Daten von Betreiberkonten editieren.
@@ -155,7 +155,7 @@ def view_edit_betreiber(request, edit_user_id):
 
 
 @login_required(login_url='administrator:login')
-@user_passes_test(is_systemadmin)
+@user_passes_test(is_systemadmin, login_url='administrator:logout')
 def view_delete_betreiber(request, delete_user_id):
     '''
     /PF0060/ Ein eingeloggter Administrator kann bestehende Betreiberkonten löschen.
