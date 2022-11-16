@@ -80,7 +80,6 @@ def view_create_betreiber(request):
             email = form.cleaned_data['email']
             if first_name and last_name and email:
                 password = User.objects.make_random_password()
-                # TODO das zufaellig erstellte Passwort per E-Mail an die Adresse des neuen Betreibers senden
                 new_user = User.objects.create_user(username, email, password)
                 new_user.first_name = first_name
                 new_user.last_name = last_name
