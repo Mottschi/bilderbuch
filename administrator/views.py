@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import Group
 from django.contrib import messages
+from django.core.mail import send_mail
 
 from .forms import LoginForm, BetreiberForm
 from .helpers import is_systemadmin, not_logged_in
@@ -78,8 +79,8 @@ def view_create_betreiber(request):
             last_name = form.cleaned_data['last_name']
             email = form.cleaned_data['email']
             if first_name and last_name and email:
-                # TODO Random Passwort generieren 
-                password = 'Hello123'
+                password = User.objects.make_random_password()
+                # TODO das zufaellig erstellte Passwort per E-Mail an die Adresse des neuen Betreibers senden
                 new_user = User.objects.create_user(username, email, password)
                 new_user.first_name = first_name
                 new_user.last_name = last_name
@@ -88,6 +89,15 @@ def view_create_betreiber(request):
                 betreiber_group = Group.objects.get(name='betreiber')
                 new_user.groups.add(betreiber_group)
                 messages.success(request, f'Betreiberkonto "{username}" für {first_name} {last_name} ({email}) wurde erfolgreich erstellt.')
+
+                send_mail(
+                    'Betreiberkonto erstellt',
+                    f'Hallo {first_name} {last_name},\n\nIhr Betreiberkonto für Projekt Bilderbuch wurde erstellt.\n\nBenutzername: {username}\nPasswort: {password}\n\nMit freundlichen Grüßen,\nProjekt Bilderbuch Systemadmin {request.user.first_name}',
+                    'projekt.bilderbuch@gmail.com',
+                    [email],
+                    fail_silently=False,
+                )
+
                 return redirect(reverse('administrator:betreiberliste'))
             else:
                 messages.error(request, "Ein Fehler ist aufgetreten. Bitte stellen Sie sicher, alle Felder auszufuellen.")
