@@ -1,0 +1,22 @@
+{% extends 'administrator/layout.html' %}
+
+{% block script %}
+
+{% endblock %}
+
+
+{% block content %}
+    <h1>Betreiber erstellen</h1>
+    {% if error %}
+        <div class='alert alert-danger'>
+            {{ error }}
+            {{ form.errors }}
+        </div>
+    {% endif %}
+    <br>
+    <form method='POST'>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type=submit value='Betreiberkonto erstellen'>
+    </form>
+{% endblock content %}

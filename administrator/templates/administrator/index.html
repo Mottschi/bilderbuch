@@ -1,0 +1,46 @@
+{% extends 'administrator/layout.html' %}
+
+{% block script %}
+
+{% endblock %}
+
+
+{% block content %}
+    <h1>Index</h1>
+    {% if error %}
+        <div class='alert alert-danger'>
+            {{ error }}
+        </div>
+    {% endif %}
+    <div>
+        <a href="{% url 'administrator:create_betreiber' %}">Neuer Betreiber</a>
+    </div>
+    <div>
+        <h2>Betreiberliste:</h2>
+        <table>
+            <tr>
+                <th>Löschen</th>
+                <th>Username</th>
+                <th>Vorname</th>
+                <th>Nachname</th>
+                <th>E-Mail</th>
+                <th>Editieren</th>
+            </tr>
+            {% for betreiber in users %}
+                <tr>
+                    <form method='POST'>
+                        {% csrf_token %}
+                        <input type=hidden value='{{betreiber.id}}' name='betreiber_id'/>
+                        <td><input type=submit value='X' formaction="{% url 'administrator:delete_betreiber' betreiber.id %}"/>
+                        <td>{{betreiber.username}}</td>
+                        <td>{{betreiber.first_name}}</td>
+                        <td>{{betreiber.last_name}}</td>
+                        <td>{{betreiber.email}}</td>
+                        <td><input type=submit value='Edit' formaction="{% url 'administrator:edit_betreiber' betreiber.id %}" formmethod='GET'/>
+                    </form>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    
+{% endblock content %}
