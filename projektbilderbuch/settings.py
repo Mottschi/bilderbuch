@@ -85,6 +85,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'projektbilderbuch.wsgi.application'
 
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
@@ -146,3 +147,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Setting our custom User model for authorization
 AUTH_USER_MODEL = 'betreiber.User'
+
+# Setting up email backend for password emails
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = 'tmp/app-messages'

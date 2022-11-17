@@ -1,0 +1,17 @@
+{% extends 'administrator/layout.html' %}
+
+{% block script %}
+
+{% endblock %}
+
+
+{% block content %}
+    <h1>Login</h1>
+
+    <br>
+    <form method='POST'>
+        {% csrf_token %}
+        {{ form }}
+        <input type=submit value='Einloggen'>
+    </form>
+{% endblock content %}

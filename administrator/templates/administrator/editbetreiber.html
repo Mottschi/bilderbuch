@@ -1,0 +1,16 @@
+{% extends 'administrator/layout.html' %}
+
+{% block script %}
+
+{% endblock %}
+
+
+{% block content %}
+    <h1>Betreiber editieren</h1>
+    <br>
+    <form method='POST'>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type=submit value='Betreiberkonto editieren'>
+    </form>
+{% endblock content %}
