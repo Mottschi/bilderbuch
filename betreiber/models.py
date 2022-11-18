@@ -44,6 +44,12 @@ class Autor(models.Model):
     middle_name = models.CharField(max_length=30, blank=True, null=True)
     last_name = models.CharField(max_length=30)
 
+    class Meta:
+        ordering = ['last_name', 'first_name', 'middle_name']
+
+    def __str__(self):
+        return f'{self.first_name}{" " + self.middle_name if self.middle_name else ""} {self.last_name}'
+
 class Seite(models.Model):
     seitenzahl = models.PositiveSmallIntegerField()
     text = models.CharField(max_length=255)

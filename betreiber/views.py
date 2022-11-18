@@ -6,10 +6,10 @@ from django.contrib.auth.models import Group
 from django.contrib import messages
 from django.core.mail import send_mail
 
-from .forms import LoginForm, BetreiberForm, EndnutzerMandantenadminForm, PasswordResetForm
+from .forms import LoginForm, BetreiberForm, EndnutzerMandantenadminForm, PasswordResetForm, AutorForm
 from .helpers import is_betreiber, not_logged_in
 
-from betreiber.models import User
+from betreiber.models import User, Autor, Mandant, Buch, Seite, Aktivierungscode
 
 # Create your views here.
 @user_passes_test(not_logged_in, login_url='betreiber:index')
@@ -52,7 +52,8 @@ def view_logout(request):
 @user_passes_test(is_betreiber, login_url='betreiber:logout')
 def view_index(request):
     '''
-    Einstiegsseite Funktion beschreibung
+    Bei erfolgreichem Login wird der Benutzer auf die Hauptseite für Betreiber geleitet, 
+    auf der sich Zugänge zu den verschiedenen Verwaltungskategorien befinden. (/PB0050/)
     '''
     return render(request, 'betreiber/index.html')
 
@@ -99,69 +100,147 @@ def view_reset_password(request):
     })
 
 
+@login_required(login_url='betreiber:login')
+@user_passes_test(is_betreiber, login_url='betreiber:logout')
 def view_buchliste(request):
     '''
     /PF0201/ Der Mitarbeiter kann eine Liste aller Bücher einsehen.
     '''
 
+
+@login_required(login_url='betreiber:login')
+@user_passes_test(is_betreiber, login_url='betreiber:logout')
 def view_create_buch(request):
     '''
     /PF0210/ Der Mitarbeiter kann neue Bücher der Anwendung hinzufügen.
     '''
 
+
+@login_required(login_url='betreiber:login')
+@user_passes_test(is_betreiber, login_url='betreiber:logout')
 def view_edit_buch_metadaten(request, buch_id):
     '''
     /PF0220/ Der Mitarbeiter kann die Daten bestehender Bücher editieren.
     Teil 1 - Metadaten
     '''
 
+
+@login_required(login_url='betreiber:login')
+@user_passes_test(is_betreiber, login_url='betreiber:logout')
 def view_edit_buch_seitendaten(request, buch_id):
     '''
     /PF0220/ Der Mitarbeiter kann die Daten bestehender Bücher editieren.
     Teil 2 - Seitendaten
     '''
 
+
+@login_required(login_url='betreiber:login')
+@user_passes_test(is_betreiber, login_url='betreiber:logout')
 def view_delete_buch(request, buch_id):
     '''
     /PF0230/ Der Mitarbeiter kann Bücher aus der Anwendung löschen.
     '''
 
+
+@login_required(login_url='betreiber:login')
+@user_passes_test(is_betreiber, login_url='betreiber:logout')
 def view_generate_buchcodes(request, buch_id):
     '''
     /PF0240/ Der Mitarbeiter kann neue Aktivierungscodes für Bücher generieren und exportieren.
     '''
 
+
+@login_required(login_url='betreiber:login')
+@user_passes_test(is_betreiber, login_url='betreiber:logout')
 def view_autorenliste(request):
     '''
     /PF0260/ Autorenliste
     '''
+    autoren = Autor.objects.all()
+    return render(request, 'betreiber/autor/liste.html', {
+        'autoren': autoren,
+    })
 
+
+@login_required(login_url='betreiber:login')
+@user_passes_test(is_betreiber, login_url='betreiber:logout')
 def view_create_autor(request):
     '''
     /PF0270/ Neuer Autor
     '''
+    if request.method == 'POST':
+        form = AutorForm(request.POST)
+        if form.is_valid():
+            autor = form.save()
+            messages.success(request, f'Der Autor "{autor}" wurde erfolgreich registriert')
+            return redirect(reverse('betreiber:autorenliste'))
+        else:
+            messages.error(request, 'Es ist ein Fehler aufgetreten:')
+    else:
+        form = AutorForm()
 
+    return render(request, 'betreiber/autor/action.html', {
+        'form': form,
+        'action': 'erstellen'
+    })
+
+
+@login_required(login_url='betreiber:login')
+@user_passes_test(is_betreiber, login_url='betreiber:logout')
 def view_edit_autor(request, autor_id):
     '''
     /PF0280/ Autor editieren
     '''
+    try:
+        autor = Autor.objects.get(pk=autor_id)
+    except:
+        messages.error(request, "Der angegebene Autor konnte nicht gefunden werden.")
+        return redirect(reverse('betreiber:autorenliste'))
 
+    if request.method == 'POST':
+        form = AutorForm(request.POST, instance=autor)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Der Autor "{autor}" wurde erfolgreich aktualisiert')
+            return redirect(reverse('betreiber:autorenliste'))
+        else:
+            messages.error(request, 'Es ist ein Fehler aufgetreten:')
+    else:
+        form = AutorForm(instance=autor)
+
+    return render(request, 'betreiber/autor/action.html', {
+        'form': form,
+        'action': 'editieren'
+    })
+
+
+@login_required(login_url='betreiber:login')
+@user_passes_test(is_betreiber, login_url='betreiber:logout')
 def view_create_mandant(request):
     '''
     /PF0310/ Der Mitarbeiter kann neue Mandanten erstellen, dabei wird gleichzeitig 
     ein Benutzerkonto mit Adminrechten für den Mandanten erstellt.
     '''
 
+
+@login_required(login_url='betreiber:login')
+@user_passes_test(is_betreiber, login_url='betreiber:logout')
 def view_mandantenliste(request):
     '''
     /PF0320/ Der Mitarbeiter kann eine Liste aller Mandanten einsehen.
     '''
 
+
+@login_required(login_url='betreiber:login')
+@user_passes_test(is_betreiber, login_url='betreiber:logout')
 def view_edit_mandant(request, mandant_id):
     '''
     /PF0330/ Der Mitarbeiter kann Mandanten editieren.
     '''
 
+
+@login_required(login_url='betreiber:login')
+@user_passes_test(is_betreiber, login_url='betreiber:logout')
 def view_delete_mandant(request, mandant_id):
     '''
     /PF0340/ Der Mitarbeiter kann Mandanten löschen.
