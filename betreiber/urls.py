@@ -14,10 +14,11 @@ urlpatterns = [
     path("buch/delete/<int:buch_id>", views.view_delete_buch, name="delete_buch"),
     path("buch/generatecodes/<int:buch_id>", views.view_generate_buchcodes, name="generate_buchcodes"),
     path("autoren", views.view_autorenliste, name="autorenliste"),
-    path("autor/create", views.view_create_autor, name="create_autor"),
+    path("autor/add", views.view_create_autor, name="create_autor"),
     path("autor/edit/<int:autor_id>", views.view_edit_autor, name="edit_autor"),
-    path("mandant/create", views.view_create_mandant, name="create_mandant"),
+    path("mandant/add", views.view_create_mandant, name="create_mandant"),
     path("mandanten", views.view_mandantenliste, name="mandantenliste"),
     path("mandant/edit/<int:mandant_id>", views.view_edit_mandant, name="edit_mandant"),
     path("mandant/delete/<int:mandant_id>", views.view_delete_mandant, name="delete_mandant"),
+    path("buch/exportcodes/<int:buch_id>", views.view_export_buchcodes, name="view_export_buchcodes"),
 ]

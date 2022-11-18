@@ -6,6 +6,40 @@
 
 
 {% block content %}
-    <div><h1>Index</h1></div>
+    <div><h1>Bibliothek:</h1></div>
+
+    <div><a href="{% url 'betreiber:create_buch' %}">Neues Buch anlegen (+)</a></div>
+
+    <div>
+    {% if buecher %}
+        <table>
+            <tr>
+                <th>Bilddaten</th>
+                <th>Titelseitenpreview</th>
+                <th>Titel</th>
+                <th>Autor</th>
+                <th>Metadaten</th>
+                <th>Aktivierungscodes</th>
+                <th>Löschen</th>
+            </tr>
+
+            {% for buch in buecher %}
+                <tr>
+                    <td><a href="{% url 'betreiber:edit_buch_seitendaten' buch.id %}">Edit</a></td>
+                    <td>NoPic</td>
+                    <td>{{buch.title}}</td>
+                    <td>{{buch.autor}}</td>
+                    <td><a href="{% url 'betreiber:edit_buch_metadaten' buch.id %}">Edit</a></td>
+                    <td><a href='{% url "betreiber:generate_buchcodes" buch.id %}'>Generieren</a></td>
+                    <td><a href='{% url "betreiber:delete_buch" buch.id %}'>Löschen</a></td>
+                </tr>
+            {% endfor %}
+
+        </table>
+    {% else %}
+        Es wurden noch keine Bücher eingetragen.
+    {% endif %}
+    </div>
+    
     
 {% endblock content %}

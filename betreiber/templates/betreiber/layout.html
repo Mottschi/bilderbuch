@@ -17,6 +17,7 @@
 <body>
     {% if user.is_authenticated %}
     <nav>
+        <a href="{% url 'betreiber:index'%}">Index</a>
         <a href="{% url 'betreiber:logout'%}">Ausloggen</a>
     </nav>
     {% endif %}

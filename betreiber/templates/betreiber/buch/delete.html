@@ -1,0 +1,25 @@
+{% extends 'betreiber/layout.html' %}
+
+{% block script %}
+
+{% endblock %}
+
+
+{% block content %}
+    <div><h1>Buch löschen</h1></div>
+
+    <div><h3>Ausgewähltes Buch: {{buch}}</h3></div>
+
+    <div>
+        Beim Löschen werden das Buch, alle zugehörigen Seiten und deren Sprachaufzeichnungen unwiderruflich gelöscht.
+
+        Sind Sie sicher, dass die Löschung durchgeführt werden soll?
+        
+        <form action="" method='POST'>
+            {% csrf_token %}
+            <input type="submit" class='btn btn-success' value="Löschvorgang bestätigen"/>
+            <input type="submit" class='btn btn-danger' value="Löschvorgang abbrechen" formaction='{% url "betreiber:buchliste" %}'/>
+        </form>
+
+    </div>
+{% endblock content %}

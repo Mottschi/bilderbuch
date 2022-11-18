@@ -1,0 +1,24 @@
+{% extends 'betreiber/layout.html' %}
+
+{% block script %}
+
+{% endblock %}
+
+
+{% block content %}
+    <div><h1>Mandant löschen</h1></div>
+
+    <div><h3>Ausgewählter Mandant: {{mandant.name}}</h3></div>
+
+    <div>
+        Beim Löschen werden der Mandant, alle damit verbundenen Benutzer und deren Sprachaufzeichnungen unwiderruflich gelöscht.
+
+        Sind Sie sicher, dass die Löschung durchgeführt werden soll?
+        <form action="" method='POST'>
+            {% csrf_token %}
+            <input type="submit" class='btn btn-success' value="Löschvorgang bestätigen"/>
+            <input type="submit" class='btn btn-danger' value="Löschvorgang abbrechen" formaction='{% url "betreiber:mandantenliste" %}'/>
+        </form>
+
+    </div>
+{% endblock content %}

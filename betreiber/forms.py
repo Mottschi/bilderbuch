@@ -26,11 +26,10 @@ class SeitenForm(forms.ModelForm):
         model = Seite
         exclude = []
 
-
 class MandantenForm(forms.ModelForm):
     class Meta:
         model = Mandant
-        exclude = []
+        fields = ['name', 'phone', 'street', 'house_nr', 'postal_code', 'country']
 
 class EndnutzerMandantenadminForm(forms.ModelForm):
     class Meta:
@@ -39,3 +38,6 @@ class EndnutzerMandantenadminForm(forms.ModelForm):
 
 class PasswordResetForm(forms.Form):
     username = forms.CharField(max_length=150)
+
+class GenerateBuchcodesForm(forms.Form):
+    amount = forms.IntegerField(max_value=1000, step_size=100)

@@ -7,5 +7,13 @@
 
 {% block content %}
     <div><h1>Mandant editieren</h1></div>
-    
+
+    <div>
+        <form action="" method='POST'>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Mandant editieren"/>
+        </form>
+
+    </div>
 {% endblock content %}

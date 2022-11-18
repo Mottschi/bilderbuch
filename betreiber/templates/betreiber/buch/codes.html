@@ -1,0 +1,23 @@
+{% extends 'betreiber/layout.html' %}
+
+{% block script %}
+
+{% endblock %}
+
+
+{% block content %}
+    <div><h1>Aktivierungscodes</h1></div>
+
+    <div><h3>Ausgewähltes Buch: {{buch}}</h3></div>
+
+    <div>
+        Wieviele Codes für dieses Buch sollen generiert werden?
+        
+        <form action="" method='POST'>
+            {% csrf_token %}
+            {{form.as_p}}
+            <input type="submit" value="Erstellen und Exportieren">
+        </form>
+
+    </div>
+{% endblock content %}

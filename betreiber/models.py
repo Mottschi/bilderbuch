@@ -23,8 +23,21 @@ class Mandant(models.Model):
     postal_code = models.CharField(max_length=5)
     deletion = models.DateTimeField(null=True, blank=True, default=None)
     country = models.CharField(max_length = 2, choices=Country.choices, default=Country.GERMANY)
-    #NOTE: may need models.RESTRICT instead - something to look into if we run into problems with deletion of mandant
-    manager = models.ForeignKey('User', on_delete=models.PROTECT, related_name='verwalter')
+    manager = models.OneToOneField('User', on_delete=models.RESTRICT, related_name='verwalter')
+
+    @property
+    def user_count(self):
+        return User.objects.filter(mandant=self).count()
+
+    @property
+    def book_count(self):
+        return Aktivierungscode.objects.filter(mandant=self).count()
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'Mandanten'
 
 
 class Aktivierungscode(models.Model):
@@ -33,11 +46,20 @@ class Aktivierungscode(models.Model):
     was_exported = models.BooleanField(default=False)
     book = models.ForeignKey('Buch', on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f'{self.code} ({self.book})'
+
 class Buch(models.Model):
     thumbnail = models.CharField(max_length=150)
     title = models.CharField(max_length=40)
     author = models.ManyToManyField('Autor')
     age = models.PositiveSmallIntegerField()
+
+    class Meta:
+        verbose_name_plural = 'Bücher'
+
+    def __str__(self):
+        return self.title
 
 class Autor(models.Model):
     first_name = models.CharField(max_length=30)
@@ -46,6 +68,7 @@ class Autor(models.Model):
 
     class Meta:
         ordering = ['last_name', 'first_name', 'middle_name']
+        verbose_name_plural = 'Autoren'
 
     def __str__(self):
         return f'{self.first_name}{" " + self.middle_name if self.middle_name else ""} {self.last_name}'
@@ -55,6 +78,9 @@ class Seite(models.Model):
     text = models.CharField(max_length=255)
     picture = models.CharField(max_length=150)
     book = models.ForeignKey('Buch', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name_plural = 'Seiten'
 
 class Sprachaufnahme(models.Model):
     seite = models.ForeignKey('Seite', on_delete = models.CASCADE)
@@ -67,6 +93,7 @@ class Sprachaufnahme(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['language', 'recorded_by', 'seite'], name='SpezifischeSprachaufnahme')
         ]
+        verbose_name_plural = 'Seiten'
 
 class Sprache(models.Model):
     name = models.CharField(max_length=25)
@@ -74,7 +101,19 @@ class Sprache(models.Model):
     flag = models.CharField(max_length=150)
     users = models.ManyToManyField('User')
 
+    class Meta:
+        verbose_name_plural = 'Sprachen'
+
+    def __str__(self):
+        return self.name
+
 class Einladung(models.Model):
     code = models.UUIDField()
     is_used = models.BooleanField(default=False)
     mandant = models.ForeignKey('Mandant', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name_plural = 'Einladungen'
+
+    def __repr__(self):
+        return f'{"Unb" if not self.is_used else "B"}enutzte Einladung zu {self.mandant.name} - Code: {self.code}'
