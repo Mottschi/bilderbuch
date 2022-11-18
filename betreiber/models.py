@@ -23,7 +23,7 @@ class Mandant(models.Model):
     postal_code = models.CharField(max_length=5)
     deletion = models.DateTimeField(null=True, blank=True, default=None)
     country = models.CharField(max_length = 2, choices=Country.choices, default=Country.GERMANY)
-    #TODO may need models.RESTRICT instead - something to look into if we run into problems with deletion of mandant
+    #NOTE: may need models.RESTRICT instead - something to look into if we run into problems with deletion of mandant
     manager = models.ForeignKey('User', on_delete=models.PROTECT, related_name='verwalter')
 
 

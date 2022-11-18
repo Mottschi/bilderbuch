@@ -7,12 +7,6 @@
 
 {% block content %}
     <h1>Betreiber erstellen</h1>
-    {% if error %}
-        <div class='alert alert-danger'>
-            {{ error }}
-            {{ form.errors }}
-        </div>
-    {% endif %}
     <br>
     <form method='POST'>
         {% csrf_token %}

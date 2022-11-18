@@ -31,7 +31,7 @@ def view_login(request):
                 return redirect(reverse('administrator:betreiberliste'))
             else:
                 print('unable to login')
-                # TODO Fehlermeldung soll den Grund beinhalten (allerdings tut das Form das eh, reicht das, oder umformen?)
+                # TODO Fehlermeldung soll den Grund beinhalten
                 messages.error(request, 'Fehler beim Einloggen')
                 return render(request, 'administrator/login.html', {
                     'form': LoginForm(),

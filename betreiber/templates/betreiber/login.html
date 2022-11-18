@@ -1,0 +1,18 @@
+{% extends 'betreiber/layout.html' %}
+
+{% block script %}
+
+{% endblock %}
+
+
+{% block content %}
+    <h1>Login</h1>
+
+    <br>
+    <form method='POST'>
+        {% csrf_token %}
+        {{ form }}
+        <input type=submit value='Einloggen'>
+        <a href="{% url 'betreiber:reset_password' %}">Passwort vergessen?</a>
+    </form>
+{% endblock content %}
