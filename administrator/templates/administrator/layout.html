@@ -24,22 +24,22 @@
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
               <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="#">Betreiber</a>
+                <a class="nav-link active" aria-current="page" href="{%url 'administrator:betreiberliste'%} ">Betreiber</a>
               </li>
             </ul>
             <div class="container-fluid d-flex justify-content-end navbar font-monospace">
                 <div><a class="nav-link px-1" href="#">Impressum</a></div>
                 <div><a class="nav-link px-1" href="#">Datenschutz</a></div>
-                <div><a class="nav-link px-1" href="#">Logout</a></div>
+                {% if user.is_authenticated %}
+                <div><a class="nav-link px-1" href="{% url 'administrator:logout'%}">Logout</a></div>
+                {% endif %}
             </div>
           </div>
         </div>
       </nav>    
-    {% if user.is_authenticated %}
-    <nav>
-        <a href="{% url 'administrator:logout'%}">Ausloggen</a>
-    </nav>
-    {% endif %}
+    
+ 
+  
 
     {% if messages %}
         {% for message in messages %}
