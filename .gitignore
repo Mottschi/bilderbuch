@@ -134,6 +134,6 @@ dmypy.json
 .DS_Store
 
 # thumbnail pictures
-staticfiles/thumbnails/*.jpg
-staticfiles/thumbnails/*.png
-staticfiles/thumbnails/*.bmp
+*.jpg
+*.png
+*.bmp

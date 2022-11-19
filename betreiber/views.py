@@ -127,11 +127,21 @@ def view_create_buch(request):
         if form.is_valid():
             uploaded_file = request.FILES['file']
             buch = form.save()
-            filepath = os.path.join(conf_settings.STATIC_ROOT, 'thumbnails')
             filename = f'{buch.id}_{buch.title}_{uploaded_file.name}'
-            buch.thumbnail = os.path.join(filepath, filename)
-            buch.save()
-            handle_uploaded_file(uploaded_file, buch.thumbnail)
+
+            # NOTE Check this path setting once on production server
+            if conf_settings.DEBUG:
+                filepath = os.path.join('betreiber', 'thumbnails')
+                buch.thumbnail = os.path.join(filepath, filename)
+                buch.save()
+                filepath = os.path.join('betreiber', 'static', filepath, filename)
+
+            else:
+                filepath = os.path.join(conf_settings.STATIC_ROOT, 'thumbnails')
+                buch.thumbnail = os.path.join(filepath, filename)
+                buch.save()
+            
+            handle_uploaded_file(uploaded_file, filepath)
             return render(request, 'betreiber/buch/seitendaten.html', {
                 'buch': buch,
             })
@@ -150,7 +160,6 @@ def view_edit_buch_metadaten(request, buch_id):
     /PF0220/ Der Mitarbeiter kann die Daten bestehender Bücher editieren.
     Teil 1 - Metadaten
     '''
-    # TODO implementierung
     try:
         buch = Buch.objects.get(pk=buch_id)
     except:
@@ -161,6 +170,9 @@ def view_edit_buch_metadaten(request, buch_id):
         if form.is_valid():
             print('valid')
             form.save()
+            
+
+
             messages.success(request, f'Das Buch {buch.title} wurde erfolgreich aktualisiert')
             return redirect(reverse('betreiber:buchliste'))
         else:
@@ -168,11 +180,13 @@ def view_edit_buch_metadaten(request, buch_id):
             messages.error(request, f'Die Änderungen konnten nicht gespeichert werden.')
             return render(request, 'betreiber/buch/metadaten.html', {
                 'form': form,
+                'buch': buch,
             })
 
     form = BuchForm(instance=buch)
     return render(request, 'betreiber/buch/metadaten.html', {
         'form': form,
+        'buch': buch,
     })
 
 

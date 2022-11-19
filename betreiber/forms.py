@@ -17,11 +17,17 @@ class AutorForm(forms.ModelForm):
         exclude = []
 
 class BuchForm(forms.ModelForm):
-    file = forms.FileField()
+    file = forms.FileField(label='Thumbnail')
 
     class Meta:
         model = Buch
         fields = ['title', 'author', 'age']
+        labels = {
+            'title': 'Titel',
+            'author': 'Autoren',
+            'age': 'Altersfreigabe',
+        }
+        
 
 class SeitenForm(forms.ModelForm):
     class Meta:
@@ -32,6 +38,7 @@ class MandantenForm(forms.ModelForm):
     class Meta:
         model = Mandant
         fields = ['name', 'phone', 'street', 'house_nr', 'postal_code', 'country']
+        
 
 class EndnutzerMandantenadminForm(forms.ModelForm):
     class Meta:

@@ -1,12 +1,19 @@
 {% extends 'betreiber/layout.html' %}
+{% load static %}
 
 {% block script %}
-
+    <link rel="stylesheet" href="{% static 'betreiber/test.css' %}">
 {% endblock %}
 
 
 {% block content %}
     <div><h1>Metadaten editieren</h1></div>
+
+    <div>
+        <p>Buch: {{ buch.title}}</p>
+        <p>Aktuelles Thumbnail: <img src="{% static buch.thumbnail %}" alt="Aktuelles Thumbnail" width=100></p>
+        
+    </div>
 
     <div>
         <form action="" method='POST'>
