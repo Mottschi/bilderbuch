@@ -7,7 +7,7 @@ from django.contrib.auth.models import Group
 from django.contrib import messages
 from django.core.mail import send_mail
 
-from .forms import LoginForm, MandantenForm, EndnutzerMandantenadminForm, PasswordResetForm, AutorForm, GenerateBuchcodesForm, BuchForm
+from .forms import LoginForm, MandantenForm, EndnutzerMandantenadminForm, PasswordResetForm, AutorForm, GenerateBuchcodesForm, BuchForm, EditBuchForm
 from .helpers import is_betreiber, not_logged_in, handle_uploaded_file
 
 from betreiber.models import User, Autor, Mandant, Buch, Seite, Aktivierungscode
@@ -147,7 +147,7 @@ def view_create_buch(request):
             })
         else:
             messages.error(request, "Bitte das Form korrekt ausfüllen.")
-        
+
     return render(request, 'betreiber/buch/create.html', {
         'form': form,
     })
@@ -166,13 +166,37 @@ def view_edit_buch_metadaten(request, buch_id):
         messages.errors(request, "Das gewünschte Buch konnte nicht gefunden werden.")
         return redirect(reverse('betreiber:buchliste'))
     if request.method == 'POST':
-        form = BuchForm(request.POST, instance=buch)
+        form = EditBuchForm(request.POST, request.FILES, instance=buch)
         if form.is_valid():
-            print('valid')
             form.save()
+            try:
+                uploaded_file = request.FILES['file']
+
+                # step 1: delete old file
+                thumbnail = buch.thumbnail
+                if conf_settings.DEBUG:
+                    file_with_path = os.path.join('betreiber', 'static', thumbnail)
+                else:
+                    file_with_path = os.path.join(conf_settings.STATIC_ROOT, 'thumbnails', thumbnail)
+                if thumbnail and os.path.exists(file_with_path):
+                    os.remove(file_with_path)
+               
+               # step 2: save new file
+                filename = f'{buch.id}_{buch.title}_{uploaded_file.name}'
+                if conf_settings.DEBUG:
+                    filepath = os.path.join('betreiber', 'thumbnails')
+                    buch.thumbnail = os.path.join(filepath, filename)
+                    buch.save()
+                    filepath = os.path.join('betreiber', 'static', filepath, filename)
+
+                else:
+                    filepath = os.path.join(conf_settings.STATIC_ROOT, 'thumbnails')
+                    buch.thumbnail = os.path.join(filepath, filename)
+                    buch.save()
             
-
-
+                handle_uploaded_file(uploaded_file, filepath)
+            except:
+                print('no file uploaded')
             messages.success(request, f'Das Buch {buch.title} wurde erfolgreich aktualisiert')
             return redirect(reverse('betreiber:buchliste'))
         else:
@@ -183,7 +207,7 @@ def view_edit_buch_metadaten(request, buch_id):
                 'buch': buch,
             })
 
-    form = BuchForm(instance=buch)
+    form = EditBuchForm(instance=buch)
     return render(request, 'betreiber/buch/metadaten.html', {
         'form': form,
         'buch': buch,
@@ -261,7 +285,6 @@ def view_generate_buchcodes(request, buch_id):
                 amount = missing                
                 print('redoing', missing)
             print('after', Aktivierungscode.objects.all().count())
-            
     return render(request, 'betreiber/buch/codes.html', {'buch': buch, 'form': GenerateBuchcodesForm()})
 
 @login_required
@@ -449,14 +472,19 @@ def view_edit_mandant(request, mandant_id):
     # TODO Mandantenadmin Change fehlt noch
     try:
         mandant = Mandant.objects.get(pk=mandant_id)
-        form = MandantenForm(instance = mandant)
+        form = MandantenForm(instance=mandant)
     except:
         messages.error(request, f'Der zu editierende Mandant wurde nicht gefunden.')
         return redirect(reverse('betreiber:mandantenliste'))
     if request.method == 'POST':
+        form = MandantenForm(request.POST, instance=mandant)
         if form.is_valid():
             form.save()
             messages.success(request, f'Der Mandant "{mandant.name}" wurde erfolgreich aktualisiert.')
+            return redirect(reverse('betreiber:mandantenliste'))   
+        else:
+            messages.error(request, 'fehler')
+                
     return render(request, 'betreiber/mandant/edit.html', {
         'form': form,
     })
