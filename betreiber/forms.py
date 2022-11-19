@@ -17,9 +17,11 @@ class AutorForm(forms.ModelForm):
         exclude = []
 
 class BuchForm(forms.ModelForm):
+    file = forms.FileField()
+
     class Meta:
         model = Buch
-        exclude = []
+        fields = ['title', 'author', 'age']
 
 class SeitenForm(forms.ModelForm):
     class Meta:

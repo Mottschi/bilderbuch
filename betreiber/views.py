@@ -7,13 +7,13 @@ from django.contrib.auth.models import Group
 from django.contrib import messages
 from django.core.mail import send_mail
 
-from .forms import LoginForm, MandantenForm, EndnutzerMandantenadminForm, PasswordResetForm, AutorForm, GenerateBuchcodesForm
-from .helpers import is_betreiber, not_logged_in
+from .forms import LoginForm, MandantenForm, EndnutzerMandantenadminForm, PasswordResetForm, AutorForm, GenerateBuchcodesForm, BuchForm
+from .helpers import is_betreiber, not_logged_in, handle_uploaded_file
 
 from betreiber.models import User, Autor, Mandant, Buch, Seite, Aktivierungscode
+from django.conf import settings as conf_settings
 
-import random
-import string
+import random, os
 
 # Create your views here.
 @user_passes_test(not_logged_in, login_url='betreiber:index')
@@ -121,7 +121,23 @@ def view_create_buch(request):
     '''
     /PF0210/ Der Mitarbeiter kann neue Bücher der Anwendung hinzufügen.
     '''
-    # TODO implementierung
+    form = BuchForm()
+    if request.method == 'POST':
+        form = BuchForm(request.POST, request.FILES)
+        if form.is_valid():
+            uploaded_file = request.FILES['file']
+            buch = form.save()
+            filepath = os.path.join(conf_settings.STATIC_ROOT, 'thumbnails')
+            filename = f'{buch.id}_{buch.title}_{uploaded_file.name}'
+            buch.thumbnail = os.path.join(filepath, filename)
+            buch.save()
+            handle_uploaded_file(uploaded_file, buch.thumbnail)
+        else:
+            print('not valid')
+        
+    return render(request, 'betreiber/buch/create.html', {
+        'form': form,
+    })
 
 
 @login_required(login_url='betreiber:login')
@@ -132,6 +148,29 @@ def view_edit_buch_metadaten(request, buch_id):
     Teil 1 - Metadaten
     '''
     # TODO implementierung
+    try:
+        buch = Buch.objects.get(pk=buch_id)
+    except:
+        messages.errors(request, "Das gewünschte Buch konnte nicht gefunden werden.")
+        return redirect(reverse('betreiber:buchliste'))
+    if request.method == 'POST':
+        form = BuchForm(request.POST, instance=buch)
+        if form.is_valid():
+            print('valid')
+            form.save()
+            messages.success(request, f'Das Buch {buch.title} wurde erfolgreich aktualisiert')
+            return redirect(reverse('betreiber:buchliste'))
+        else:
+            print('invalid')
+            messages.error(request, f'Die Änderungen konnten nicht gespeichert werden.')
+            return render(request, 'betreiber/buch/metadaten.html', {
+                'form': form,
+            })
+
+    form = BuchForm(instance=buch)
+    return render(request, 'betreiber/buch/metadaten.html', {
+        'form': form,
+    })
 
 
 @login_required(login_url='betreiber:login')
@@ -142,6 +181,12 @@ def view_edit_buch_seitendaten(request, buch_id):
     Teil 2 - Seitendaten
     '''
     # TODO implementierung
+    try:
+        buch = Buch.objects.get(pk=buch_id)
+    except:
+        messages.errors(request, "Das gewünschte Buch konnte nicht gefunden werden.")
+        return redirect(reverse('betreiber:buchliste'))
+    return render(request, 'betreiber/buch/seitendaten.html')
 
 
 @login_required(login_url='betreiber:login')

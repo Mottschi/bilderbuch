@@ -132,3 +132,8 @@ dmypy.json
 .vscode/
 
 .DS_Store
+
+# thumbnail pictures
+staticfiles/thumbnails/*.jpg
+staticfiles/thumbnails/*.png
+staticfiles/thumbnails/*.bmp

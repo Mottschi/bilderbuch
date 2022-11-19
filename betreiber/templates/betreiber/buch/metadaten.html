@@ -6,6 +6,14 @@
 
 
 {% block content %}
-    <div><h1>{{ header }}</h1></div>
+    <div><h1>Metadaten editieren</h1></div>
+
+    <div>
+        <form action="" method='POST'>
+            {% csrf_token %}
+            {{form.as_p}}
+            <input type="submit" value="Speichern">
+        </form>
+    </div>
     
 {% endblock content %}
