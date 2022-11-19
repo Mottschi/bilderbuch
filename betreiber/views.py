@@ -132,8 +132,11 @@ def view_create_buch(request):
             buch.thumbnail = os.path.join(filepath, filename)
             buch.save()
             handle_uploaded_file(uploaded_file, buch.thumbnail)
+            return render(request, 'betreiber/buch/seitendaten.html', {
+                'buch': buch,
+            })
         else:
-            print('not valid')
+            messages.error(request, "Bitte das Form korrekt ausfüllen.")
         
     return render(request, 'betreiber/buch/create.html', {
         'form': form,
@@ -249,7 +252,7 @@ def view_generate_buchcodes(request, buch_id):
 
 @login_required
 @user_passes_test(is_betreiber, login_url='betreiber:logout')
-def view_export_buchcodes(request, buch_id):
+def api_export_buchcodes(request, buch_id):
     try:
         buch = Buch.objects.get(pk=buch_id)
     except:
