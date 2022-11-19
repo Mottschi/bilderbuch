@@ -8,11 +8,7 @@
 {% block content %}
 
     
-    {% if error %}
-        <div class='alert alert-danger'>
-            {{ error }}
-        </div>
-    {% endif %}
+
     <div>
         <a href="{% url 'administrator:create_betreiber' %}">Neuer Betreiber</a>
     </div>
