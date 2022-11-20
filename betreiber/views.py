@@ -304,6 +304,7 @@ def api_generate_buchcodes(request, buch_id):
         return JsonResponse(status=status, data={})
 
 
+# NOTE Diese Funktion hat bei der aktuellen Implementierung keinen Nutzen mehr
 @login_required
 @user_passes_test(is_betreiber, login_url='betreiber:logout')
 def api_export_buchcodes(request, buch_id):
