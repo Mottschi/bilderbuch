@@ -21,4 +21,5 @@ urlpatterns = [
     path("mandant/edit/<int:mandant_id>", views.view_edit_mandant, name="edit_mandant"),
     path("mandant/delete/<int:mandant_id>", views.view_delete_mandant, name="delete_mandant"),
     path("buch/exportcodes/<int:buch_id>", views.api_export_buchcodes, name="api_export_buchcodes"),
+    path("buch/generatecodes/<int:buch_id>/api", views.api_generate_buchcodes, name="api_generate_buchcodes"),
 ]

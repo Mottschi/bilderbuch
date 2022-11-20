@@ -260,32 +260,49 @@ def view_generate_buchcodes(request, buch_id):
     except:
         messages.error(request, 'Das gewünschte Buch konnte nicht gefunden werden.')
         return redirect(reverse('betreiber:buchliste'))
-
-    if request.method == 'POST':
-        alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-        def generate_key():
-            code = [random.choice(alphabet) for i in range(16)]
-            return ''.join(code)
-
-        form = GenerateBuchcodesForm(request.POST)
-        if form.is_valid():
-            amount = form.cleaned_data['amount']
-            print('before', Aktivierungscode.objects.all().count())
-            while amount > 0:
-                codes = set()
-                missing = 0
-                while len(codes) < amount:
-                    codes.add(generate_key())
-                for code in codes:
-                    try:
-                        Aktivierungscode.objects.create(code=code, book=buch)
-                    except:
-                        missing += 1
-                print('done', amount)
-                amount = missing                
-                print('redoing', missing)
-            print('after', Aktivierungscode.objects.all().count())
+        
     return render(request, 'betreiber/buch/codes.html', {'buch': buch, 'form': GenerateBuchcodesForm()})
+
+
+def api_generate_buchcodes(request, buch_id):
+    if request.method != 'POST':
+        status = 405
+        return JsonResponse(status=status, data={})
+
+    alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    def generate_key():
+        code = [random.choice(alphabet) for i in range(16)]
+        return ''.join(code)
+
+    try:
+        buch = Buch.objects.get(pk=buch_id)
+    except:
+        status = 404
+        return JsonResponse(status=status, data={})
+
+    form = GenerateBuchcodesForm(request.POST)
+    if form.is_valid():
+        amount = form.cleaned_data['amount']
+        while amount > 0:
+            codes = set()
+            good_codes = set()
+            missing = 0
+            while len(codes) < amount:
+                codes.add(generate_key())
+            for code in codes:
+                try:
+                    Aktivierungscode.objects.create(code=code, book=buch, was_exported=True)
+                    good_codes.add(code)
+                except:
+                    missing += 1
+            amount = missing                
+        status = 200
+        return JsonResponse(status=status, data={'codes': [code for code in good_codes], 'title': buch.title})
+    else:
+        print('form not valid')
+        status = 401
+        return JsonResponse(status=status, data={})
+
 
 @login_required
 @user_passes_test(is_betreiber, login_url='betreiber:logout')
@@ -302,7 +319,6 @@ def api_export_buchcodes(request, buch_id):
         code.save()
         codes.append(code.code)
     return JsonResponse(data={'codes': codes})
-
 
 
 @login_required(login_url='betreiber:login')

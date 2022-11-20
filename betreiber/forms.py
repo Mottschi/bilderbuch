@@ -2,14 +2,20 @@ from django import forms
 from betreiber.models import User, Autor, Buch, Seite, Mandant
 
 class LoginForm(forms.Form):
-	username = forms.CharField(max_length=150)
-	password = forms.CharField(widget=forms.PasswordInput)
+	username = forms.CharField(max_length=150, label='Benutzername')
+	password = forms.CharField(widget=forms.PasswordInput, label='Passwort')
 
 
 class BetreiberForm(forms.ModelForm):
 	class Meta:
 		model = User
 		fields = ['username', 'first_name', 'last_name', 'email']
+		labels = {
+            'username': 'Benutzername', 
+            'first_name': 'Vorname', 
+            'last_name': 'Nachname', 
+            'email': 'E-Mail',
+        }
 
 
 class AutorForm(forms.ModelForm):
@@ -57,4 +63,4 @@ class PasswordResetForm(forms.Form):
 
 
 class GenerateBuchcodesForm(forms.Form):
-    amount = forms.IntegerField(max_value=1000, step_size=100)
+    amount = forms.IntegerField(max_value=1000)

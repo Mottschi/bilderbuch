@@ -1,7 +1,9 @@
 {% extends 'betreiber/layout.html' %}
+{% load static %}
 
 {% block script %}
-
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="{% static 'betreiber/keygen.js' %}"></script>
 {% endblock %}
 
 
@@ -10,14 +12,13 @@
 
     <div><h3>Ausgewähltes Buch: {{buch}}</h3></div>
 
-    <div>
+    <div id='app'>
         Wieviele Codes für dieses Buch sollen generiert werden?
         
-        <form action="" method='POST'>
-            {% csrf_token %}
-            {{form.as_p}}
-            <input type="submit" value="Erstellen und Exportieren">
-        </form>
+        {% csrf_token %}
+        {{form.as_p}}
+        <button id='btnKeygen'>Erstellen und Exportieren</button>
+        
 
     </div>
 {% endblock content %}
