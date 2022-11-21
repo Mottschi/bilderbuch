@@ -1,7 +1,9 @@
 {% extends 'betreiber/layout.html' %}
+{% load static %}
 
 {% block script %}
-
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="{% static 'betreiber/editmandant.js' %}"></script>
 {% endblock %}
 
 
@@ -9,11 +11,43 @@
     <div><h1>Mandant editieren</h1></div>
 
     <div>
+        <h2>Mandantendaten</h2>
         <form action="" method='POST'>
             {% csrf_token %}
             {{ form.as_p }}
+            
+            <input type="hidden" name="manager" id='setManager' value="">
+
+            <select name='newAdmin' id='selectPromoteAdmin'>
+                {% for member in members %}
+                    <option value='{{member.id}}' {% if mandant.manager.username == member.username %}selected='selected'{% endif %}>
+                        {{member.username}}{% if mandant.manager.username == member.username %}(Admin){% endif %}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <div id="createAdmin">
+                {{mandantenadminform.as_p}}
+                <input id='submitCreateAdmin' type="submit" value="Erstellen">
+            </div>
+
+            <br>
+
             <input type="submit" value="Mandant editieren"/>
         </form>
 
+    </div>
+    
+    <div>
+        <h2>Mandantenadmin</h2>
+        <div>Optionen:
+            <button id='btnPromoteAdmin'>
+                Bestehendes Mandantenmitglied befördern
+            </button>
+
+            <button id='btnCreateAdmin'>
+                Neuen Mandantenadmin erstellen
+            </button>
+        </div>
     </div>
 {% endblock content %}

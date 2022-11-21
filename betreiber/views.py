@@ -7,7 +7,7 @@ from django.contrib.auth.models import Group
 from django.contrib import messages
 from django.core.mail import send_mail
 
-from .forms import LoginForm, MandantenForm, EndnutzerMandantenadminForm, PasswordResetForm, AutorForm, GenerateBuchcodesForm, BuchForm, EditBuchForm
+from .forms import LoginForm, MandantenForm, EndnutzerForm, PasswordResetForm, AutorForm, GenerateBuchcodesForm, BuchForm, EditBuchForm
 from .helpers import is_betreiber, not_logged_in, handle_uploaded_file
 
 from betreiber.models import User, Autor, Mandant, Buch, Seite, Aktivierungscode
@@ -395,7 +395,7 @@ def view_create_mandant(request):
     '''
     if request.method == 'POST':
         mandanten_form = MandantenForm(request.POST)
-        mandanten_admin_form = EndnutzerMandantenadminForm(request.POST)
+        mandanten_admin_form = EndnutzerForm(request.POST)
 
         if not mandanten_admin_form.is_valid():
             messages.error(request, 'Der Mandantenadmin konnte nicht erstellt werden.')
@@ -461,7 +461,7 @@ def view_create_mandant(request):
         })
 
     mandanten_form = MandantenForm()
-    mandanten_admin_form = EndnutzerMandantenadminForm()
+    mandanten_admin_form = EndnutzerForm()
     return render(request, 'betreiber/mandant/create.html', {
         'mandanten_form': mandanten_form,
         'admin_form': mandanten_admin_form,
@@ -486,7 +486,6 @@ def view_edit_mandant(request, mandant_id):
     '''
     /PF0330/ Der Mitarbeiter kann Mandanten editieren.
     '''
-    # TODO Mandantenadmin Change fehlt noch
     try:
         mandant = Mandant.objects.get(pk=mandant_id)
         form = MandantenForm(instance=mandant)
@@ -495,15 +494,84 @@ def view_edit_mandant(request, mandant_id):
         return redirect(reverse('betreiber:mandantenliste'))
     if request.method == 'POST':
         form = MandantenForm(request.POST, instance=mandant)
-        if form.is_valid():
-            form.save()
-            messages.success(request, f'Der Mandant "{mandant.name}" wurde erfolgreich aktualisiert.')
-            return redirect(reverse('betreiber:mandantenliste'))   
+        mandanten_admin_form = EndnutzerForm(request.POST)
+        if not form.is_valid():
+            messages.error(request, 'Ein Fehler ist aufgetreten.')
+            return render(request, 'betreiber/mandant/edit.html', {
+                'form': form,
+                'mandant': mandant,
+                'members': mandant.member.all(),
+                'mandantenadminform': mandanten_admin_form,
+            })
+
+        manager_id = request.POST.get('manager', None)
+        new_manager = None
+        if manager_id:
+            try:
+                manager_id = int(manager_id)
+                if manager_id != mandant.manager.id:
+                    new_manager = User.objects.get(pk=manager_id)
+                    assert new_manager.mandant == mandant
+            except Exception as e:
+                messages.error(request, f'Nicht in der Lage den neuen Mandantenadmin zu setzen: {e}')
+                return redirect(reverse('betreiber:mandantenliste'))
         else:
-            messages.error(request, 'fehler')
-                
+            if not mandanten_admin_form.is_valid():
+                messages.error(request, 'Wenn die Option "Neuen Mandantenadmin erstellen" gewählt wird, müssen auch alle Daten für den neuen Mandantenadmin angegeben werden.')
+                return render(request, 'betreiber/mandant/edit.html', {
+                    'form': form,
+                    'mandant': mandant,
+                    'members': mandant.member.all(),
+                    'mandantenadminform': mandanten_admin_form,
+                })
+
+            first_name = mandanten_admin_form.cleaned_data['first_name']
+            last_name = mandanten_admin_form.cleaned_data['last_name']
+            email = mandanten_admin_form.cleaned_data['email']
+
+            if not (first_name and last_name and email):
+                messages.error(request, 'Bitte alle Felder zum Mandantenadmin ausfüllen.')
+                return render(request, 'betreiber/mandant/edit.html', {
+                    'form': form,
+                    'mandant': mandant,
+                    'members': mandant.member.all(),
+                    'mandantenadminform': mandanten_admin_form,
+                })
+
+            username = mandanten_admin_form.cleaned_data['username']
+            password = User.objects.make_random_password()
+            mandanten_admin = User.objects.create_user(username, email, password)
+            mandanten_admin.first_name = first_name
+            mandanten_admin.last_name = last_name
+
+            endnutzer_group = Group.objects.get(name='endnutzer')
+            mandanten_admin.groups.add(endnutzer_group)
+
+            send_mail(
+                'Mandant und zugehöriges Administratorkonto erstellt',
+                f'Hallo {first_name} {last_name},\n\nIhr Mandantenadminkonto für Projekt Bilderbuch wurde erstellt.\n\nBenutzername: {username}\nPasswort: {password}\n\nMit freundlichen Grüßen,\nProjekt Bilderbuch Betreiber {request.user.first_name}',
+                'projekt.bilderbuch@gmail.com',
+                [email],
+                fail_silently=False,
+            )
+
+            mandanten_admin.mandant = mandant
+            mandanten_admin.save()
+            
+            new_manager = mandanten_admin
+
+        form.save()
+        if new_manager:
+            mandant.manager = new_manager
+            mandant.save()
+        messages.success(request, f'Der Mandant "{mandant.name}" wurde erfolgreich aktualisiert.')
+        return redirect(reverse('betreiber:mandantenliste'))
+
     return render(request, 'betreiber/mandant/edit.html', {
         'form': form,
+        'mandant': mandant,
+        'members': mandant.member.all(),
+        'mandantenadminform': EndnutzerForm(),
     })
 
 

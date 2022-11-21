@@ -7,8 +7,11 @@ class User(AbstractUser):
     '''
     Datenmodell fuer alle drei Anwendergruppen
     '''
-    mandant = models.ForeignKey('Mandant', on_delete=models.CASCADE, blank=True, null=True, default=None)
+    mandant = models.ForeignKey('Mandant', on_delete=models.CASCADE, blank=True, null=True, default=None, related_name='member')
     deletion = models.DateTimeField(null=True, blank=True, default = None)
+
+    class Meta:
+        ordering = ['username']
 
 class Mandant(models.Model):
     class Country(models.TextChoices):
