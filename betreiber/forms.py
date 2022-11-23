@@ -67,7 +67,6 @@ class SeitenEditForm(forms.ModelForm):
         widgets = {
             'text': forms.Textarea(attrs={'rows': 2, 'cols': 40})
         }
-        
 
 
 class MandantenForm(forms.ModelForm):

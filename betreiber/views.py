@@ -343,7 +343,7 @@ def api_update_buch_seite(request, buch_id, seite_id):
         old_picture = seite.picture
         print(old_picture)
         if conf_settings.DEBUG:
-            old_picturefile_with_path = os.path.join('betreiber', 'static', picture)
+            old_picturefile_with_path = os.path.join('betreiber', 'static', old_picture)
         else:
             raise NotImplementedError
 
