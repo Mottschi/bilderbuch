@@ -3,11 +3,12 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import Group
 from django.contrib import messages
 from django.core.mail import send_mail
 
-from .forms import LoginForm, MandantenForm, EndnutzerForm, PasswordResetForm, AutorForm, GenerateBuchcodesForm, BuchForm, EditBuchForm
+from .forms import LoginForm, MandantenForm, EndnutzerForm, PasswordResetForm, AutorForm, GenerateBuchcodesForm, BuchForm, EditBuchForm, SeitenForm
 from .helpers import is_betreiber, not_logged_in, handle_uploaded_file
 
 from betreiber.models import User, Autor, Mandant, Buch, Seite, Aktivierungscode
@@ -32,7 +33,6 @@ def view_login(request):
                 login(request, user)
                 return redirect(reverse('betreiber:index'))
             else:
-                print('unable to login')
                 # TODO Fehlermeldung soll den Grund beinhalten
                 messages.error(request, 'Fehler beim Einloggen')
                 return render(request, 'betreiber/login.html', {
@@ -96,8 +96,6 @@ def view_reset_password(request):
 
             messages.success(request, f'Das Passwort für das Betreiberkonto {username} wurde zurückgesetzt. Sie werden eine E-Mail mit weiteren Informationen erhalten.')
             return redirect(reverse('betreiber:login'))
-        else:
-            print('not valid')
     return render(request, 'betreiber/reset_password.html', {
         'form': PasswordResetForm(),
     })
@@ -142,9 +140,7 @@ def view_create_buch(request):
                 buch.save()
             
             handle_uploaded_file(uploaded_file, filepath)
-            return render(request, 'betreiber/buch/seitendaten.html', {
-                'buch': buch,
-            })
+            return redirect(reverse('betreiber:edit_buch_seitendaten', args=(buch.id,)))
         else:
             messages.error(request, "Bitte das Form korrekt ausfüllen.")
 
@@ -200,7 +196,6 @@ def view_edit_buch_metadaten(request, buch_id):
             messages.success(request, f'Das Buch {buch.title} wurde erfolgreich aktualisiert')
             return redirect(reverse('betreiber:buchliste'))
         else:
-            print('invalid')
             messages.error(request, f'Die Änderungen konnten nicht gespeichert werden.')
             return render(request, 'betreiber/buch/metadaten.html', {
                 'form': form,
@@ -227,8 +222,99 @@ def view_edit_buch_seitendaten(request, buch_id):
     except:
         messages.errors(request, "Das gewünschte Buch konnte nicht gefunden werden.")
         return redirect(reverse('betreiber:buchliste'))
-    return render(request, 'betreiber/buch/seitendaten.html')
+    return render(request, 'betreiber/buch/seitendaten.html', {
+        'buch': buch,
+        'form': SeitenForm(),
+        'seiten': buch.seiten.all(),
+    })
 
+
+@login_required(login_url='betreiber:login')
+@user_passes_test(is_betreiber, login_url='betreiber:logout')
+def api_delete_buch_seite(request, buch_id, seite_id):
+    '''
+    Teil der in /PF0210/ beschriebenen Schnittstelle zum Editieren und Löschen von Seiten
+    '''
+    if request.method != 'DELETE':
+        return JsonResponse(status=405, data={'error': 'Auf diesem Weg können keine Seiten gelöscht werden.'})
+    try:
+        buch = Buch.objects.get(pk=buch_id)
+        seite = Seite.objects.get(pk=seite_id)
+        seitenzahl = seite.seitenzahl
+        assert seite.book == buch
+        seite.delete()
+        for seite in buch.seiten.filter(seitenzahl__gt=seitenzahl):
+            seite.seitenzahl -= 1
+            seite.save()
+        status = 200
+    except:
+        status = 404
+
+    return JsonResponse(status=status, data={})
+
+
+@login_required(login_url='betreiber:login')
+@user_passes_test(is_betreiber, login_url='betreiber:logout')
+def api_create_buch_seite(request, buch_id):
+    if request.method != 'POST':
+        return JsonResponse(status=405, data={'error': 'Auf diesem Weg können keine Seiten erstellt werden.'})
+    
+    try:
+        buch = Buch.objects.get(pk=buch_id)
+    except:
+        return JsonResponse(status=400, data={'error': 'Das gewählte Buch konnte nicht gefunden werden.'})
+    
+    # Do stuff
+    form = SeitenForm(request.POST)
+
+    if not form.is_valid():
+        return JsonResponse(status=400, data={'error': 'Das Formular wurde nicht korrekt mit gültigen Daten ausgefüllt.'})
+    text = form.cleaned_data['text']
+    seitenzahl = len(buch.seiten.all()) + 1
+    seite = Seite.objects.create(text=text, picture='a', book=buch, seitenzahl=seitenzahl)
+    return JsonResponse(status=200, data={'seite': seite.serialize()})
+
+@login_required(login_url='betreiber:login')
+@user_passes_test(is_betreiber, login_url='betreiber:logout')
+def api_get_buch_seiten(request, buch_id):
+    try:
+        buch = Buch.objects.get(pk=buch_id)
+        seiten = buch.seiten.all()
+        seiten = [seite.serialize() for seite in seiten]
+        data = {'seiten': seiten}
+        status=200
+    except:
+        status = 404
+        data = {}
+    return JsonResponse(status=status, data=data)
+
+
+@login_required(login_url='betreiber:login')
+@user_passes_test(is_betreiber, login_url='betreiber:logout')
+def api_update_buch_seite(request, buch_id, seite_id):
+    if request.method != 'POST':
+        return JsonResponse(status=405, data={'error': 'Auf diesem Weg können keine Seiten aktualisiert werden.'})
+    
+    try:
+        buch = Buch.objects.get(pk=buch_id)
+    except:
+        return JsonResponse(status=404, data={'error': 'Das gewählte Buch konnte nicht gefunden werden.'})
+
+    try:
+        seite = Seite.objects.get(pk=seite_id)
+        assert seite.book == buch
+    except:
+        return JsonResponse(status=404, data={'error': 'Die angegebene Seite des Buchs konnte nicht gefunden werden.'})
+
+    # Do stuff
+    form = SeitenForm(request.POST, instance=seite)
+    if not form.is_valid():
+        return JsonResponse(status=400, data={'error': 'Das Formular wurde nicht korrekt mit gültigen Daten ausgefüllt.'})
+
+    seite = form.save()
+    
+    return JsonResponse(status=200, data={'seite': seite.serialize()})
+   
 
 @login_required(login_url='betreiber:login')
 @user_passes_test(is_betreiber, login_url='betreiber:logout')
@@ -299,7 +385,6 @@ def api_generate_buchcodes(request, buch_id):
         status = 200
         return JsonResponse(status=status, data={'codes': [code for code in good_codes], 'title': buch.title})
     else:
-        print('form not valid')
         status = 401
         return JsonResponse(status=status, data={})
 

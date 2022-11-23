@@ -47,9 +47,16 @@ class EditBuchForm(BuchForm):
 
 
 class SeitenForm(forms.ModelForm):
+    # file = forms.FileField(label='Bild')
+
+    # field_order = ['file', 'text']
     class Meta:
         model = Seite
-        exclude = []
+        fields = ['text']
+        widgets = {
+            'text': forms.Textarea(attrs={'rows': 2, 'cols': 40})
+        }
+        
 
 
 class MandantenForm(forms.ModelForm):
@@ -69,6 +76,9 @@ class EndnutzerForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['username', 'first_name', 'last_name', 'email']
+        help_texts = {
+            'username': None,
+        }
 
 
 class PasswordResetForm(forms.Form):

@@ -154,3 +154,4 @@ AUTH_USER_MODEL = 'betreiber.User'
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = 'tmp/app-messages'
 
+DATA_UPLOAD_MAX_NUMBER_FIELDS = None 

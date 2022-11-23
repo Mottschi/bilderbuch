@@ -1,6 +1,9 @@
 {% extends 'betreiber/layout.html' %}
+{% load static %}
 
 {% block script %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="{% static 'betreiber/seitendaten.js' %}"></script>
 
 {% endblock %}
 
@@ -8,12 +11,58 @@
 {% block content %}
     <div><h1>Seiten für {{buch.title}}</h1></div>
 
-    <div id='seiten_form'>
+    <div id='seiten_eingabe'>
+        <form action="" id='neueSeiteForm' enctype="multipart/form-data">
+            {% csrf_token %}
+            {{form}}
+            <button id='btnSavePage' type="submit">Speichern</button>
+            <button id='btnDiscardPage'>Abbrechen</button>
+        </form>
+        <input type="hidden" name="seitenzahl" id='hiddenSeitenzahl' value=''>
+        <input type="hidden" name="seiteID" id='hiddenSeiteID' value=''>
+        <input type="hidden" name="buch_id" id='hiddenBuchID' value='{{buch.id}}'>
 
-    </div>
-
-    <div id='seiten_tabelle'>
         
+    </div>
+    <br>
+    <div id='seiten_ausgabe'>
+        <table>
+        </table>
+        {% comment %} {% if seiten %}
+        <table>
+            <tr>
+                <th>Seite</th>
+                <th>Vorschau</th>
+                <th>Text</th>
+                <th>Edit</th>
+                <th>Löschen</th>
+            </tr>
+
+            {% for seite in seiten %}
+                <tr>
+                    <td>
+                        {{seite.seitenzahl}}
+                    </td>
+                    <td>
+
+                    </td>
+                    <td>
+                        {{seite.text}}
+                    </td>
+                    <td>
+                        <a id='editPageBtn'>Edit</a>
+                    </td>
+                    <td>
+                        <a href={% url 'betreiber:api_delete_buch_seite' buch.id seite.id %}>Löschen</a>
+                    </td>
+                </tr>
+            {% endfor %}
+
+        </table>
+
+        {% else %}
+            Es wurden noch keine Seiten angelegt.
+        {% endif%} {% endcomment %}
     </div>
 
     
