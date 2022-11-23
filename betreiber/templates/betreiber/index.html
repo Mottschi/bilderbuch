@@ -1,0 +1,17 @@
+{% extends 'betreiber/layout.html' %}
+
+{% block script %}
+
+{% endblock %}
+
+
+{% block content %}
+    <div><h1>Index für Betreiberfunktionen:</h1></div>
+
+    <a href="{% url 'betreiber:autorenliste' %}">Autoren</a>
+    <br>
+    <a href="{% url 'betreiber:mandantenliste' %}">Mandanten</a>
+    <br>
+    <a href="{% url 'betreiber:buchliste' %}">Bücher</a>
+    
+{% endblock content %}

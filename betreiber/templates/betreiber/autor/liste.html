@@ -1,0 +1,38 @@
+{% extends 'betreiber/layout.html' %}
+
+{% block script %}
+
+{% endblock %}
+
+
+{% block content %}
+    <div><h1>Autoren</h1></div>
+
+    <div><a href="{% url 'betreiber:create_autor' %}">Neuen Autor erstellen (+)</a></div>
+
+    <div>
+    {% if autoren %}
+        <table>
+            <tr>
+                <th>Editieren</th>
+                <th>Vorname</th>
+                <th>weitere Vornamen</th>
+                <th>Nachname</th>
+            </tr>
+
+            {% for autor in autoren %}
+                <tr>
+                    <td><a href="{% url 'betreiber:edit_autor' autor.id %}">Edit</a></td>
+                    <td>{{autor.first_name}}</td>
+                    <td>{% if autor.middle_name %}{{autor.middle_name}}{% endif %}</td>
+                    <td>{{autor.last_name}}</td>
+                </tr>
+            {% endfor %}
+
+        </table>
+    {% else %}
+        Es wurden noch keine Autoren registriert.
+    {% endif %}
+    </div>
+    
+{% endblock content %}

@@ -1,0 +1,23 @@
+{% extends 'betreiber/layout.html' %}
+
+{% block script %}
+
+{% endblock %}
+
+
+{% block content %}
+    <div><h1>Mandant erstellen</h1></div>
+
+    <div>
+        <form action="" method='POST'>
+            {% csrf_token %}
+            <p>Mandantendaten:</p>            
+            {{ mandanten_form.as_p }}
+            <br>
+            <p>Mandantenadmin:</p>
+            {{ admin_form.as_p }}
+            <input type="submit" value="Mandant erstellen"/>
+        </form>
+
+    </div>
+{% endblock content %}

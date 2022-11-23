@@ -1,0 +1,43 @@
+{% extends 'betreiber/layout.html' %}
+
+{% block script %}
+
+{% endblock %}
+
+
+{% block content %}
+    <div><h1>Mandantenliste:</h1></div>
+    <div><a href="{% url 'betreiber:create_mandant' %}">Neuen Mandanten erstellen (+)</a></div>
+
+    <div>
+    {% if mandanten %}
+        <table>
+            <tr>
+                <th>Editieren</th>
+                <th>Name</th>
+                <th>Adresse</th>
+                <th>Adminnutzer</th>
+                <th>Benutzer #</th>
+                <th>Bücher #</th>
+                <th>Löschen</th>
+            </tr>
+
+            {% for mandant in mandanten %}
+                <tr>
+                    <td><a href="{% url 'betreiber:edit_mandant' mandant.id %}">Edit</a></td>
+                    <td>{{mandant.name}}</td>
+                    <td>{{mandant.adresse}}</td>
+                    <td>{{mandant.manager.username}}</td>
+                    <td>{{mandant.user_count}}</td>
+                    <td>{{mandant.book_count}}</td>
+                    <td><a href="{% url 'betreiber:delete_mandant' mandant.id %}">Delete</a></td>
+                </tr>
+            {% endfor %}
+
+        </table>
+    {% else %}
+        Es wurden noch keine Mandanten registriert.
+    {% endif %}
+    </div>
+    
+{% endblock content %}

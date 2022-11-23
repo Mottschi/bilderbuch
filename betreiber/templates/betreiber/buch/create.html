@@ -1,0 +1,17 @@
+{% extends 'betreiber/layout.html' %}
+
+{% block script %}
+
+{% endblock %}
+
+
+{% block content %}
+    <div><h1>Buch anlegen</h1></div>
+
+    <form action="" method='POST' enctype="multipart/form-data">
+        {% csrf_token %}
+        {{form.as_p}}
+        <input type="submit" value="Speichern">
+    </form>
+    
+{% endblock content %}

@@ -5,23 +5,39 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projekt Bilderbuch - Endnutzer</title>
+    <title>Projekt Bilderbuch - Betreiber</title>
 
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
 
 
-    {% block head %}
+    {% block script %}
     {% endblock %}
 </head>
 <body>
+    {% if user.is_authenticated %}
     <nav>
-
+        <a href="{% url 'betreiber:index'%}">Index</a>
+        <a href="{% url 'betreiber:logout'%}">Ausloggen</a>
     </nav>
+    {% endif %}
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class='alert alert-{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}danger{% else %}success{% endif %}'>
+                {{ message }}
+                {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR and form.errors %}
+                    {{ form.errors }}
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
 
     <div class="content">
         {% block content %}
         {% endblock %}
-    </body>
+    </div>
+
+    
 </body>
 </html>
