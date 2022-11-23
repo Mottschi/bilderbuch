@@ -7,10 +7,16 @@
 
 {% block content %}
     <h1>Betreiber erstellen</h1>
-    <br>
     <form method='POST'>
         {% csrf_token %}
         {{ form.as_p }}
-        <input type=submit value='Betreiberkonto erstellen'>
+        <button class="btn btn-success" type=submit>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-check-square" width="22" height="22" viewBox="0 0 16 16">
+                <use xlink:href="#bi-check-square" />
+            </svg> Erstellen</button>
+        <a class="btn btn-secondary " href="{% url 'administrator:betreiberliste'%}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-reply-fill" viewBox="0 0 16 16">
+              <use xlink:href="#bi-reply-fill" />
+            </svg> Zurück</a>
     </form>
 {% endblock content %}
