@@ -8,7 +8,7 @@ from django.contrib.auth.models import Group
 from django.contrib import messages
 from django.core.mail import send_mail
 
-from .forms import LoginForm, MandantenForm, EndnutzerForm, PasswordResetForm, AutorForm, GenerateBuchcodesForm, BuchForm, EditBuchForm, SeitenForm
+from .forms import LoginForm, MandantenForm, EndnutzerForm, PasswordResetForm, AutorForm, GenerateBuchcodesForm, BuchForm, EditBuchForm, SeitenForm, SeitenEditForm
 from .helpers import is_betreiber, not_logged_in, handle_uploaded_file
 
 from betreiber.models import User, Autor, Mandant, Buch, Seite, Aktivierungscode
@@ -216,7 +216,7 @@ def view_edit_buch_seitendaten(request, buch_id):
     /PF0220/ Der Mitarbeiter kann die Daten bestehender Bücher editieren.
     Teil 2 - Seitendaten
     '''
-    # TODO implementierung
+    # handled via API instead
     try:
         buch = Buch.objects.get(pk=buch_id)
     except:
@@ -265,14 +265,28 @@ def api_create_buch_seite(request, buch_id):
         return JsonResponse(status=400, data={'error': 'Das gewählte Buch konnte nicht gefunden werden.'})
     
     # Do stuff
-    form = SeitenForm(request.POST)
+    form = SeitenForm(request.POST, request.FILES)
 
     if not form.is_valid():
+        print(form)
         return JsonResponse(status=400, data={'error': 'Das Formular wurde nicht korrekt mit gültigen Daten ausgefüllt.'})
     text = form.cleaned_data['text']
     seitenzahl = len(buch.seiten.all()) + 1
-    seite = Seite.objects.create(text=text, picture='a', book=buch, seitenzahl=seitenzahl)
+
+    
+    uploaded_file = request.FILES['file']
+    filename = f'{buch.id}_{seitenzahl}_{uploaded_file.name}'
+    # NOTE Check this path setting once on production server
+    if conf_settings.DEBUG:
+        filepath = os.path.join('betreiber', 'seiten')
+        picture = os.path.join(filepath, filename)
+        filepath = os.path.join('betreiber', 'static', picture)
+    else:
+        raise NotImplementedError
+    handle_uploaded_file(uploaded_file, filepath)
+    seite = Seite.objects.create(text=text, picture=picture, book=buch, seitenzahl=seitenzahl)
     return JsonResponse(status=200, data={'seite': seite.serialize()})
+
 
 @login_required(login_url='betreiber:login')
 @user_passes_test(is_betreiber, login_url='betreiber:logout')
@@ -292,6 +306,7 @@ def api_get_buch_seiten(request, buch_id):
 @login_required(login_url='betreiber:login')
 @user_passes_test(is_betreiber, login_url='betreiber:logout')
 def api_update_buch_seite(request, buch_id, seite_id):
+    print('UPDATING PAGE')
     if request.method != 'POST':
         return JsonResponse(status=405, data={'error': 'Auf diesem Weg können keine Seiten aktualisiert werden.'})
     
@@ -307,12 +322,41 @@ def api_update_buch_seite(request, buch_id, seite_id):
         return JsonResponse(status=404, data={'error': 'Die angegebene Seite des Buchs konnte nicht gefunden werden.'})
 
     # Do stuff
-    form = SeitenForm(request.POST, instance=seite)
+    form = SeitenEditForm(request.POST, request.FILES, instance=seite)
     if not form.is_valid():
         return JsonResponse(status=400, data={'error': 'Das Formular wurde nicht korrekt mit gültigen Daten ausgefüllt.'})
 
     seite = form.save()
-    
+
+    if request.FILES.get('file', None):
+        uploaded_file = request.FILES['file']
+        filename = f'{buch.id}_{seite.seitenzahl}_{uploaded_file.name}'
+        # NOTE Check this path setting once on production server
+        if conf_settings.DEBUG:
+            filepath = os.path.join('betreiber', 'seiten')
+            picture = os.path.join(filepath, filename)
+            filepath = os.path.join('betreiber', 'static', picture)
+        else:
+            raise NotImplementedError
+        
+        # delete old picture before saving the new one
+        old_picture = seite.picture
+        print(old_picture)
+        if conf_settings.DEBUG:
+            old_picturefile_with_path = os.path.join('betreiber', 'static', picture)
+        else:
+            raise NotImplementedError
+
+        print('old pic with path', old_picturefile_with_path)
+        print('old pic with path exists', os.path.exists(old_picturefile_with_path))
+        if old_picture and os.path.exists(old_picturefile_with_path):
+            print('deleting file', old_picturefile_with_path)
+            os.remove(old_picturefile_with_path)
+            
+        handle_uploaded_file(uploaded_file, filepath)
+        seite.picture = picture
+        seite.save()
+    print('SUCCESSFULLY UPDATED PAGE')
     return JsonResponse(status=200, data={'seite': seite.serialize()})
    
 

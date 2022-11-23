@@ -47,9 +47,20 @@ class EditBuchForm(BuchForm):
 
 
 class SeitenForm(forms.ModelForm):
-    # file = forms.FileField(label='Bild')
+    file = forms.FileField(label='Bild')
 
-    # field_order = ['file', 'text']
+    field_order = ['file', 'text']
+    class Meta:
+        model = Seite
+        fields = ['text']
+        widgets = {
+            'text': forms.Textarea(attrs={'rows': 2, 'cols': 40})
+        }
+
+class SeitenEditForm(forms.ModelForm):
+    file = forms.FileField(label='Bild', required=False)
+
+    field_order = ['file', 'text']
     class Meta:
         model = Seite
         fields = ['text']

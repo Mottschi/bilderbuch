@@ -23,6 +23,7 @@ def not_logged_in(user):
 # but extended to accept path/filename during function call
 def handle_uploaded_file(filedata, filename):
     print('saving file in', filename)
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
     with open(filename, 'wb+') as destination:
         for chunk in filedata.chunks():
             destination.write(chunk)

@@ -43,7 +43,11 @@ $(document).ready(()=>{
             row.insertCell().appendChild(document.createTextNode(pageNr));
     
             // TODO change to show picture instead of filename
-            row.insertCell().appendChild(document.createTextNode(imgUrl));
+            const imgElement = document.createElement('img');
+            imgElement.src = `/static/${imgUrl}`;
+            imgElement.width = 100;
+            imgElement.height = 100;
+            row.insertCell().appendChild(imgElement);
     
             row.insertCell().appendChild(document.createTextNode(text));
     
@@ -124,15 +128,21 @@ $(document).ready(()=>{
         event.preventDefault();
         $('#id_text').val('');
         $('#id_file').val('');
+        seiteID = null;
+        seitenzahl = null;
     });
 
     $('#btnSavePage').click((event)=>{
         event.preventDefault();
 
+        if ($('#id_file').val() === '' && seiteID === null) {
+            alert('Bitte Datei auswählen');
+            return false;
+        };
+
         let data = new FormData($('#neueSeiteForm').get(0));
         console.log(data)
-        
-
+                
                 
         if (seitenzahl === null) {
             method = 'POST';
