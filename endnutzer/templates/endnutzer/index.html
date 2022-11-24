@@ -1,0 +1,20 @@
+{% extends 'betreiber/layout.html' %}
+
+{% block script %}
+
+{% endblock %}
+
+
+{% block content %}
+    <div><h1>Index für Endnutzer:</h1></div>
+
+    <a href="{% url 'endnutzer:index' %}">Profilverwaltung</a>
+    <br>
+    <a href="{% url 'endnutzer:index' %}">Bibliothek</a>
+    <br>
+    {% if user.is_mandantenadmin %}
+    <a href="{% url 'endnutzer:index' %}">Mandantenverwaltung</a>
+    <br>
+    {% endif %}
+    
+{% endblock content %}

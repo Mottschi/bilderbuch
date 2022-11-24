@@ -13,6 +13,10 @@ class User(AbstractUser):
     class Meta:
         ordering = ['username']
 
+    @property
+    def is_mandantenadmin(self):
+        return self.mandant.manager == self
+
 class Mandant(models.Model):
     class Country(models.TextChoices):
         GERMANY = 'DE', _('Deutschland')
