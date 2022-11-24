@@ -561,11 +561,20 @@ def view_create_mandant(request):
         house_nr = mandanten_form.cleaned_data['house_nr']
         postal_code = mandanten_form.cleaned_data['postal_code']
         country = mandanten_form.cleaned_data['country']
+        city = mandanten_form.cleaned_data['city']
         manager = mandanten_admin
 
-        mandant = Mandant.objects.create(name=name, phone=phone, street=street, house_nr=house_nr, postal_code=postal_code, country=country, manager=manager)
-        mandanten_admin.mandant = mandant
-        mandanten_admin.save()
+        try:
+            mandant = Mandant.objects.create(name=name, phone=phone, street=street, house_nr=house_nr, postal_code=postal_code, country=country, manager=manager, city=city)
+            mandanten_admin.mandant = mandant
+            mandanten_admin.save()
+        except:
+            mandanten_admin.delete()
+            messages.error('Mandant konnte nicht erstellt werden.')
+            return render(request, 'betreiber/mandant/create.html', {
+                'mandanten_form': mandanten_form,
+                'admin_form': mandanten_admin_form,
+            })
 
         send_mail(
             'Mandant und zugehöriges Administratorkonto erstellt',
