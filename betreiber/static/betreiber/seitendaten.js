@@ -1,5 +1,3 @@
-
-
 $(document).ready(()=>{
     const csrfmiddlewaretoken = $('input[name="csrfmiddlewaretoken"]').val()
     const buchID = $('#hiddenBuchID').val()
@@ -15,7 +13,6 @@ $(document).ready(()=>{
         if (pages.length === 0) {
             const appDiv = $('table')
             appDiv.html('Es wurden noch keine Seiten erstellt.');
-            console.log('leeres buch')
             return;
         }
     
@@ -42,7 +39,6 @@ $(document).ready(()=>{
             const row = table.insertRow();
             row.insertCell().appendChild(document.createTextNode(pageNr));
     
-            // TODO change to show picture instead of filename
             const imgElement = document.createElement('img');
             imgElement.src = `/static/${imgUrl}`;
             imgElement.width = 100;
@@ -59,8 +55,6 @@ $(document).ready(()=>{
                 seitenzahl = pageNr;
                 $('#id_text').val(text);
                 $('#id_file').val('');
-    
-                console.log(`clicked on edit element for ${pageID}`)
             })
             row.insertCell().appendChild(editElement);
     
@@ -107,7 +101,6 @@ $(document).ready(()=>{
         $('table').replaceWith(table);
     }
 
-    console.log('starting')
     $.ajax({
         url: `/betreiber/buch/seiten/${buchID}`,
         data: {},
@@ -118,9 +111,9 @@ $(document).ready(()=>{
         tabelleZeichnen(seiten);
         
     }).fail(()=>{
-        console.log('unable to load pages')
+        alert('Die Seiten für dieses Buch konnten nicht geladen werden.')
     }).always(()=>{
-        console.log('done')
+        
     })
 
 
@@ -140,9 +133,7 @@ $(document).ready(()=>{
             return false;
         };
 
-        let data = new FormData($('#neueSeiteForm').get(0));
-        console.log(data)
-                
+        let data = new FormData($('#neueSeiteForm').get(0));                
                 
         if (seitenzahl === null) {
             method = 'POST';

@@ -1,10 +1,4 @@
-$(document).ready(() => {
-    // Once document is loaded, attach an event handler to the generate keys button
-    // event handler should deactivate the button, contact backend to generate keys, 
-    // and play the loading animation until it receives a response
-    // the response will include an array with the keys in the 'codes' value
-    // this array should then be turned into a blob to generate a text file and automatically download
-    console.log('ready')
+$(document).ready(() => {   
     
     $('#btnKeygen').click((event)=>{
         // get value from the number input field #id_amount
