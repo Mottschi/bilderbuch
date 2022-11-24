@@ -144,7 +144,8 @@ def view_edit_betreiber(request, edit_user_id):
     try:
         edit_user = User.objects.get(pk=edit_user_id)
         form = BetreiberForm(instance=edit_user)
-        
+        for key in form.fields:
+            form.fields[key].widget.attrs.update({'class': 'form-control'})
         return render(request, 'administrator/editbetreiber.html', {
             'form': form,
         })
