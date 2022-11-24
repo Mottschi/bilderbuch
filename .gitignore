@@ -135,5 +135,6 @@ dmypy.json
 
 # thumbnail pictures
 *.jpg
+*.jpeg
 *.png
 *.bmp

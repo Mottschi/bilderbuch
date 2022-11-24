@@ -6,12 +6,24 @@
 
 
 {% block content %}
-    <h1>Login</h1>
+<main class="form-signin w-100 m-auto text-center"></main>
+    <h1 class="h3 mb-3 fw-normal">Login</h1>
 
-    <br>
     <form method='POST'>
         {% csrf_token %}
-        {{ form }}
-        <input type=submit value='Einloggen'>
+            <!-- {{ form }} -->
+            <div class="form-floating">
+                {{ form.username}}
+                <label for="{{ form.username.id_for_label }}">Username</label>
+            </div>
+            <div class="form-floating">
+                {{ form.password}}
+                <label for="{{ form.password.id_for_label }}">Passwort</label>
+            </div>
+
+            <button class="w-100 btn btn-lg btn-primary" type="submit">Einloggen</button>
+            
+        
     </form>
+</main>    
 {% endblock content %}
