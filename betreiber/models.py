@@ -24,6 +24,7 @@ class Mandant(models.Model):
     street = models.CharField(max_length=50)
     house_nr = models.CharField(max_length=5)
     postal_code = models.CharField(max_length=5)
+    city = models.CharField(max_length=30, default='')
     deletion = models.DateTimeField(null=True, blank=True, default=None)
     country = models.CharField(max_length = 2, choices=Country.choices, default=Country.GERMANY)
     manager = models.OneToOneField('User', on_delete=models.RESTRICT, related_name='verwaltet')

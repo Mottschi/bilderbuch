@@ -72,7 +72,7 @@ class SeitenEditForm(forms.ModelForm):
 class MandantenForm(forms.ModelForm):
     class Meta:
         model = Mandant
-        fields = ['name', 'phone', 'street', 'house_nr', 'postal_code', 'country']
+        fields = ['name', 'phone', 'street', 'house_nr', 'postal_code', 'city', 'country']
         labels = {
             'name': 'Name', 
             'phone': 'Telefonnummer', 
@@ -80,6 +80,7 @@ class MandantenForm(forms.ModelForm):
             'house_nr': 'Hausnummer', 
             'postal_code': 'Postleitzahl', 
             'country': 'Land',
+            'city': 'Stadt',
         }
 
 class EndnutzerForm(forms.ModelForm):
