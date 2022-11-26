@@ -73,8 +73,6 @@ def view_create_betreiber(request):
         # validate form, retreive data, create new user and assign the betreiber group to it
         # then, if all that went successful, return to the betreiberliste with success message
         form = BetreiberForm(request.POST)
-        for key in form.fields:
-            form.fields[key].widget.attrs.update({'class': 'form-control'})
         if form.is_valid():
             username = form.cleaned_data['username']
             first_name = form.cleaned_data['first_name']
@@ -133,8 +131,6 @@ def view_edit_betreiber(request, edit_user_id):
         try:
             edit_user = User.objects.get(pk=edit_user_id)
             form = BetreiberForm(request.POST, instance = edit_user)
-            for key in form.fields:
-                form.fields[key].widget.attrs.update({'class': 'form-control'})
             if form.is_valid():
                 username = form.cleaned_data['username']
                 first_name = form.cleaned_data['first_name']
