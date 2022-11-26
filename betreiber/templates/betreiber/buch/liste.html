@@ -1,4 +1,5 @@
 {% extends 'betreiber/layout.html' %}
+{% load static %}
 
 {% block script %}
 
@@ -26,7 +27,7 @@
             {% for buch in buecher %}
                 <tr>
                     <td><a href="{% url 'betreiber:edit_buch_seitendaten' buch.id %}">Edit</a></td>
-                    <td>NoPic</td>
+                    <td><img src="{% static buch.thumbnail %}" alt="" width=100 height=100></td>
                     <td>{{buch.title}}</td>
                     <td>{{buch.autor}}</td>
                     <td><a href="{% url 'betreiber:edit_buch_metadaten' buch.id %}">Edit</a></td>

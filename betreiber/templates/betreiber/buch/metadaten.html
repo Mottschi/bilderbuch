@@ -1,7 +1,8 @@
 {% extends 'betreiber/layout.html' %}
+{% load static %}
 
 {% block script %}
-
+    <link rel="stylesheet" href="{% static 'betreiber/test.css' %}">
 {% endblock %}
 
 
@@ -9,7 +10,13 @@
     <div><h1>Metadaten editieren</h1></div>
 
     <div>
-        <form action="" method='POST'>
+        <p>Buch: {{ buch.title}}</p>
+        <p>Aktuelles Thumbnail: <img src="{% static buch.thumbnail %}" alt="Aktuelles Thumbnail" width=100></p>
+        
+    </div>
+
+    <div>
+        <form action="" method='POST' enctype="multipart/form-data">
             {% csrf_token %}
             {{form.as_p}}
             <input type="submit" value="Speichern">

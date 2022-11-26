@@ -7,8 +7,11 @@ class User(AbstractUser):
     '''
     Datenmodell fuer alle drei Anwendergruppen
     '''
-    mandant = models.ForeignKey('Mandant', on_delete=models.CASCADE, blank=True, null=True, default=None)
+    mandant = models.ForeignKey('Mandant', on_delete=models.CASCADE, blank=True, null=True, default=None, related_name='member')
     deletion = models.DateTimeField(null=True, blank=True, default = None)
+
+    class Meta:
+        ordering = ['username']
 
 class Mandant(models.Model):
     class Country(models.TextChoices):
@@ -21,9 +24,10 @@ class Mandant(models.Model):
     street = models.CharField(max_length=50)
     house_nr = models.CharField(max_length=5)
     postal_code = models.CharField(max_length=5)
+    city = models.CharField(max_length=30, default='')
     deletion = models.DateTimeField(null=True, blank=True, default=None)
     country = models.CharField(max_length = 2, choices=Country.choices, default=Country.GERMANY)
-    manager = models.OneToOneField('User', on_delete=models.RESTRICT, related_name='verwalter')
+    manager = models.OneToOneField('User', on_delete=models.RESTRICT, related_name='verwaltet')
 
     @property
     def user_count(self):
@@ -77,10 +81,21 @@ class Seite(models.Model):
     seitenzahl = models.PositiveSmallIntegerField()
     text = models.CharField(max_length=255)
     picture = models.CharField(max_length=150)
-    book = models.ForeignKey('Buch', on_delete=models.CASCADE)
+    book = models.ForeignKey('Buch', on_delete=models.CASCADE, related_name='seiten')
 
     class Meta:
         verbose_name_plural = 'Seiten'
+        constraints = [
+            models.UniqueConstraint(fields=['seitenzahl', 'book'], name='SpezifischeSeite')
+        ]
+        ordering = ['seitenzahl']
+
+    def serialize(self):
+        return {
+            'seitenzahl': self.seitenzahl,
+            'text': self.text,
+            'picture': self.picture,
+            'id': self.id}
 
 class Sprachaufnahme(models.Model):
     seite = models.ForeignKey('Seite', on_delete = models.CASCADE)
