@@ -8,8 +8,8 @@ from django.contrib.auth.models import Group
 from django.contrib import messages
 from django.core.mail import send_mail
 
-from .forms import LoginForm, PasswordResetForm
-from .helpers import is_endnutzer, not_logged_in, handle_uploaded_file
+from .forms import LoginForm, PasswordResetForm, MandantenForm
+from .helpers import is_endnutzer, not_logged_in, handle_uploaded_file, is_mandantenadmin
 
 from betreiber.models import User, Autor, Mandant, Buch, Seite, Aktivierungscode, Einladung
 from django.conf import settings as conf_settings
@@ -110,12 +110,19 @@ def view_registration(request, einladungscode):
     können gesprochene Sprachen mit angegeben werden. 
     '''
 
+
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
 def view_library(request):
     '''
     /PF0510/ Ein eingeloggter Benutzer kann die Bibliothek des Mandanten einsehen.
     '''
+    mandant = request.user.mandant
+    activated_codes = mandant.activated_codes.all()
+    library = [code.book for code in activated_codes]
+    return render(request, 'endnutzer/bibliothek/library.html', {
+        'buecher': library,
+    })
 
 
 def view_play_book(request):
@@ -185,54 +192,83 @@ def view_cancel_deletion(request):
 
 '''****************************Mandantenadmin****************************************'''
 
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
 def view_mandant_profile(request):
     '''
     /PF0810/ Einsehen der zum Mandanten gehörenden Daten.
     '''
+    mandant = request.user.mandant
+    form = MandantenForm(instance = mandant)
+    if request.method == 'POST':
+        '''
+        /PF0820/ Editieren der zum Mandanten gehörenden Daten.
+        '''
+        form = MandantenForm(request.POST, instance = mandant)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Mandantendetails geaendert')
+            return redirect(reverse('endnutzer:index'))
+    
+    return render(request, 'endnutzer/mandant/profile.html', {
+        'form': form,
+        })
 
-def view_edit_mandant(request):
-    '''
-    /PF0820/ Editieren der zum Mandanten gehörenden Daten.
-    '''
 
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
 def view_mandant_deletion(request):
     '''
     /PF0830/ Löschen des Mandanten und aller damit verbundenen Benutzerkonten.
     '''
 
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
 def view_cancel_mandant_deletion(request):
     '''
     /PF0831/ Löschen des Mandanten abbrechen.
     '''
 
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
 def view_user_accounts(request):
     '''
     /PF0910/ Einsehen einer Liste aller mit dem Mandanten verbundenen Benutzerkonten.
     '''
 
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
 def view_kick_user(request):
     '''
     /PF0920/ Entfernen von mit dem Mandanten verbundenen Benutzerkonten.
     '''
 
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
 def view_invite_user(request):
     '''
     /PF0930/ Versenden von Einladungslinks zur Erstellung von Benutzerkonten,
     die mit dem Mandanten verbunden sind.
     '''
-    
+
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')    
 def view_activate_book(request):
     '''
     /PF1010/ Aktivieren von Büchercodes, um Bücher der Bibliothek des Mandanten
     hinzuzufügen.
     '''
 
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
 def view_all_recordings(request):
     '''
     /PF1020/ Einsehen einer Liste aller öffentlichen Sprachaufzeichnungen, 
     die von mit dem Mandanten verbundenen Benutzerkonten getätigt wurden.
     '''
 
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
 def view_delete_recording(request):
     '''
     /PF1030/ Löschen von Sprachaufzeichnungen.

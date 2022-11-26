@@ -6,7 +6,7 @@ import os
 
 def is_betreiber(user):
     '''
-    Tests whether the user is in the systemadmin group.
+    Tests whether the user is in the betreiber group.
     Returns True if the user is in the group, otherwise False.
     '''
     return user.groups.filter(name='betreiber').exists()

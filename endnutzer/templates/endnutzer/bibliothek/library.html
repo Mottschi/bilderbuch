@@ -1,0 +1,18 @@
+{% extends 'endnutzer/layout.html' %}
+{% load static %}
+
+{% block script %}
+
+{% endblock %}
+
+
+{% block content %}
+    <div><h1>Bibliothek:</h1></div>
+
+    <ul>
+        {% for buch in buecher %}
+            <ul><img src="{% static buch.thumbnail %}" alt="" width=100>{{buch}} ({{buch.id}})</ul>
+        {% endfor %}
+    </ul>
+    
+{% endblock content %}

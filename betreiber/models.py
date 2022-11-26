@@ -50,7 +50,7 @@ class Mandant(models.Model):
 
 class Aktivierungscode(models.Model):
     code = models.CharField(max_length=16, unique=True)
-    mandant = models.ForeignKey('Mandant', on_delete=models.SET_NULL, blank=True, null=True, default=None)
+    mandant = models.ForeignKey('Mandant', on_delete=models.SET_NULL, blank=True, null=True, default=None, related_name='activated_codes')
     was_exported = models.BooleanField(default=False)
     book = models.ForeignKey('Buch', on_delete=models.CASCADE)
 

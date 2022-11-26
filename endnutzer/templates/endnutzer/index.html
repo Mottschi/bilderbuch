@@ -1,4 +1,4 @@
-{% extends 'betreiber/layout.html' %}
+{% extends 'endnutzer/layout.html' %}
 
 {% block script %}
 
@@ -10,7 +10,7 @@
 
     <a href="{% url 'endnutzer:index' %}">Profilverwaltung</a>
     <br>
-    <a href="{% url 'endnutzer:index' %}">Bibliothek</a>
+    <a href="{% url 'endnutzer:library' %}">Bibliothek</a>
     <br>
     {% if user.is_mandantenadmin %}
     <a href="{% url 'endnutzer:index' %}">Mandantenverwaltung</a>

@@ -6,10 +6,13 @@ import os
 
 def is_endnutzer(user):
     '''
-    Tests whether the user is in the systemadmin group.
+    Tests whether the user is in the endnutzer group.
     Returns True if the user is in the group, otherwise False.
     '''
     return user.groups.filter(name='endnutzer').exists()
+
+def is_mandantenadmin(user):
+    return is_endnutzer(user) and user.is_mandantenadmin
 
 def not_logged_in(user):
     '''
