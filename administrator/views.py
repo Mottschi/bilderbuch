@@ -141,14 +141,17 @@ def view_edit_betreiber(request, edit_user_id):
                 last_name = form.cleaned_data['last_name']
                 email = form.cleaned_data['email']
                 if first_name and last_name and email:
-
-
-
                     form.save()
                     messages.success(request, f'Das Betreiberkonto "{edit_user.username}" ({edit_user.first_name} {edit_user.last_name}) wurde erfolgreich aktualisiert.')
                     return redirect(reverse('administrator:betreiberliste'))
                 else:
-                    raise ValueError
+                    messages.error(request, 'Bitte alle Felder ausfüllen.')
+                    return render(request, 'administrator/editbetreiber.html', {
+                        'form': form,
+                    })
+
+            else:
+                raise ValueError
         except:
             messages.error(request, f'Die Änderungen am Betreiberkonto "{edit_user.username}" ({edit_user.first_name} {edit_user.last_name}) konnten nicht gespeichert werden.')
             return render(request, 'administrator/editbetreiber.html', {
