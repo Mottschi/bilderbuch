@@ -7,39 +7,44 @@
 
 {% block content %}
     <h1>Betreiber editieren</h1>
-
-    <form method='POST'>
-        {% csrf_token %}
-        <!-- {{ form.as_p }} -->
-        <div class="form-floating p-1">
-          {{ form.username}}
-          <label for="{{ form.username.id_for_label }}">Benutzername</label>
-        </div>
-        <div class="form-floating p-1">
-          {{ form.first_name}}
-          <label for="{{ form.first_name.id_for_label }}">Vorname</label>
-        </div>
-        <div class="form-floating p-1">
-          {{ form.last_name}}
-          <label for="{{ form.last_name.id_for_label }}">Nachname</label>
-        </div>
-        <div class="form-floating p-1">
-          {{ form.email}}
-          <label for="{{ form.email.id_for_label }}">E-Mail</label>
-        </div>
-        <div class="p-1">
-          <button class="btn btn-success " type=submit>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-check-square" width="22" height="22" viewBox="0 0 16 16">
-              <use xlink:href="#bi-check-square" />
-            </svg> Speichern</button>
-          <button class="btn btn-warning " type=reset >
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16">
-              <use xlink:href="#bi-arrow-counterclockwise" />
-            </svg> Zurücksetzen   </button>
-          <a class="btn btn-secondary " href="{% url 'administrator:betreiberliste'%}">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-reply-fill" viewBox="0 0 16 16">
-              <use xlink:href="#bi-reply-fill" />
-            </svg> Zurück</a>
-        </div>
-    </form>
+    <div class="row">
+      <div class ="col-2"></div>
+      <div class="col-md">
+        <form method='POST'>
+            {% csrf_token %}
+            <!-- {{ form.as_p }} -->
+            <div class="form-floating p-1">
+              {{ form.username}}
+              <label for="{{ form.username.id_for_label }}">Benutzername</label>
+            </div>
+            <div class="form-floating p-1">
+              {{ form.first_name}}
+              <label for="{{ form.first_name.id_for_label }}">Vorname</label>
+            </div>
+            <div class="form-floating p-1">
+              {{ form.last_name}}
+              <label for="{{ form.last_name.id_for_label }}">Nachname</label>
+            </div>
+            <div class="form-floating p-1">
+              {{ form.email}}
+              <label for="{{ form.email.id_for_label }}">E-Mail</label>
+            </div>
+            <div class="p-1">
+              <button class="btn btn-success " type=submit>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-check-square" width="22" height="22" viewBox="0 0 16 16">
+                  <use xlink:href="#bi-check-square" />
+                </svg> Speichern</button>
+              <button class="btn btn-warning " type=reset >
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16">
+                  <use xlink:href="#bi-arrow-counterclockwise" />
+                </svg> Zurücksetzen   </button>
+              <a class="btn btn-secondary " href="{% url 'administrator:betreiberliste'%}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-reply-fill" viewBox="0 0 16 16">
+                  <use xlink:href="#bi-reply-fill" />
+                </svg> Zurück</a>
+            </div>
+        </form>
+      </div>
+      <div class="col-2"></div>
+  </div>
 {% endblock content %}
