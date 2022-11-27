@@ -1,0 +1,23 @@
+{% extends 'endnutzer/layout.html' %}
+{% load static %}
+
+{% block script %}
+{% endblock %}
+
+
+{% block content %}
+    <h1>Neues Benutzerkonto erstellen</h1>
+    <div>
+        Willkommen bei Projekt Bilderbuch. Sie wurden eingeladen, dem Mandanten "{{ mandant.name }}" beizutreten.
+
+        Wenn Sie diese Einladung annehmen möchten, erstellen Sie sich einfach über folgendes Formular ein Benutzerkonto:
+    </div>
+
+    <div>
+        <form action="" method='POST'>
+            {% csrf_token %}
+            {{form.as_p}}
+            <button type="submit">Konto erstellen</button>
+        </form>
+    </div>
+{% endblock %}

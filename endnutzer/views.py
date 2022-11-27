@@ -3,18 +3,22 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import Group
+from django.contrib.auth.hashers import check_password
 from django.contrib import messages
 from django.core.mail import send_mail
+from django.db import IntegrityError
+from django.utils.timezone import now
 
-from .forms import LoginForm, PasswordResetForm, MandantenForm
+from .forms import LoginForm, PasswordResetForm, MandantenForm, EinladungsForm
+from .forms import EndnutzerForm, AktivierungsForm, LoeschForm
 from .helpers import is_endnutzer, not_logged_in, handle_uploaded_file, is_mandantenadmin
 
 from betreiber.models import User, Autor, Mandant, Buch, Seite, Aktivierungscode, Einladung
 from django.conf import settings as conf_settings
 
-import random, os
+import random, os, uuid
+from datetime import datetime, date, timedelta
 
 # Create your views here.
 @user_passes_test(not_logged_in, login_url='endnutzer:index')
@@ -102,13 +106,52 @@ def view_reset_password(request):
     })
 
 @user_passes_test(not_logged_in, login_url='endnutzer:index')
-def view_registration(request, einladungscode):
+def view_registration(request):
     '''
     /PF0410/ Ein Benutzer, der einen Einladungslink erhalten hat, kann sich 
     über diesen ein Benutzerkonto erstellen, unter Angabe des Realnamens, der 
     Emailadresse, eines Benutzernamens und des gewünschten Passworts. Optional 
     können gesprochene Sprachen mit angegeben werden. 
     '''
+    # TODO Sprachen
+    try:
+        einladung = Einladung.objects.get(code=request.GET['invite'])
+    except:
+        messages.error(request, "Einladung konnte nicht gefunden werden. Bitte beachten Sie, dass Einladungen nur zur Erstellung eines Kontos benutzt werden können, nicht für mehrere Konten.")
+        return redirect(reverse('endnutzer:login'))
+        
+    mandant = einladung.mandant
+    
+    if request.method == 'POST':
+        form = EndnutzerForm(request.POST)
+        if form.is_valid() and form.cleaned_data['first_name'] and form.cleaned_data['last_name'] and form.cleaned_data['email']:
+            username = form.cleaned_data['username']
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
+            password = form.cleaned_data['password']
+            email = form.cleaned_data['email']
+            user = User.objects.create_user(username, email, password)
+            user.first_name = first_name
+            user.last_name = last_name
+            user.mandant = mandant
+            endnutzer_group = Group.objects.get(name='endnutzer')
+            user.groups.add(endnutzer_group)
+            user.save()
+            messages.success(request, f'Ihr Benutzerkonto wurde erfolgreich erstellt.')
+            einladung.delete()
+            return redirect(reverse('endnutzer:login'))
+        else:
+            messages.error(request, 'Bitte korrigieren Sie Ihre Angaben und senden Sie das Formular erneut ab.')        
+    else:
+        form = EndnutzerForm()
+
+    return render(request, 'endnutzer/user/registration.html',{
+        'mandant': mandant,
+        'form': form,
+    })
+
+
+    
 
 
 @login_required(login_url='endnutzer:login')
@@ -210,7 +253,7 @@ def view_mandant_profile(request):
             messages.success(request, 'Mandantendetails geaendert')
             return redirect(reverse('endnutzer:index'))
     
-    return render(request, 'endnutzer/mandant/profile.html', {
+    return render(request, 'endnutzer/admin/mandant_profile.html', {
         'form': form,
         })
 
@@ -221,6 +264,42 @@ def view_mandant_deletion(request):
     '''
     /PF0830/ Löschen des Mandanten und aller damit verbundenen Benutzerkonten.
     '''
+    mandant = request.user.mandant
+    deletion_date = None if mandant.deletion is None else mandant.deletion + timedelta(days=30)
+    ready_for_deletion = deletion_date is not None and deletion_date < now()
+    if request.method == 'POST':
+        # first we verify passwort
+        form = LoeschForm(request.POST)
+        if not form.is_valid():
+            messages.error(request, "Es wurde kein Passwort angegeben.")
+            return render(request, 'endnutzer/admin/deletion.html', {'form': LoeschForm()})
+        password = form.cleaned_data['password']
+        if not check_password(password, request.user.password):
+            messages.error(request, 'Das Passwort war inkorrekt, daher konnte der Mandant nicht gelöscht werden.')
+            return render(request, 'endnutzer/admin/deletion.html', {'form': LoeschForm()})
+                
+        if deletion_date:
+            if ready_for_deletion:
+                mandant.delete()
+                messages.success(request, f'Der Mandant "{mandant.name} wurde erfolgreich gelöscht.')
+                return redirect(reverse('endnutzer:logout'))
+            else:
+                # Deletion request less then 30 days old
+                messages.error(request, 'Das Einleiten der Löschung ist noch keine 30 Tage her, daher kann die Löschung noch nicht durchgeführt werden.')
+                return redirect(reverse('endnutzer:mandantenprofil'))
+        else:
+            mandant.deletion = now()
+            mandant.save()
+            messages.success(request, "Der Löschvorgang wurde erfolgreich eingeleitet. Um die Löschung abzuschließen, warten Sie bitte 30 Tage ab und bestätigen Sie die Löschung anschließend erneut über diese Seite.")
+            return redirect(reverse('endnutzer:mandantenprofil'))
+    
+
+    return render(request, 'endnutzer/admin/deletion.html', {
+        'form': LoeschForm(),
+        'deletion_date': deletion_date,
+        'show_password_field': True if deletion_date is None or ready_for_deletion else False
+    })
+
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
@@ -228,6 +307,12 @@ def view_cancel_mandant_deletion(request):
     '''
     /PF0831/ Löschen des Mandanten abbrechen.
     '''
+    # NOTE Nach Beschreibung im Pflichtenheft erfordert das Abbrechen keine Passwort verifizierung, nur das Loeschen selbst
+    mandant = request.user.mandant
+    mandant.deletion = None
+    mandant.save()
+    messages.success(request, 'Der Löschvorgang für diesen Mandanten wurde abgebrochen.')
+    return redirect(reverse("endnutzer:mandantenprofil"))
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
@@ -235,13 +320,34 @@ def view_user_accounts(request):
     '''
     /PF0910/ Einsehen einer Liste aller mit dem Mandanten verbundenen Benutzerkonten.
     '''
+    mandant = request.user.mandant
+    users = mandant.member.all()
+    return render(request, 'endnutzer/admin/users.html', {
+        'users': users,
+    })
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
-def view_kick_user(request):
+def view_kick_user(request, user_id):
     '''
     /PF0920/ Entfernen von mit dem Mandanten verbundenen Benutzerkonten.
     '''
+    try:
+        target = User.objects.get(pk=user_id)
+    except:
+        messages.error(request, 'Der angegebene Benutzer konnte nicht gefunden werden.')
+        return redirect(reverse('endnutzer:benutzerliste'))
+    if target == target.mandant.manager:
+        messages.error(request, 'Der Mandantenadmin kann sich nicht selbst aus dem Mandanten entfernen.')
+        return redirect(reverse('endnutzer:benutzerliste'))
+    if request.method == 'POST':
+        target.delete()
+        messages.success(request, f'Der Benutzer {target.username} ({target.get_full_name()}) wurde erfolgreich entfernt.')
+        return redirect(reverse('endnutzer:benutzerliste'))
+    return render(request, 'endnutzer/admin/kick_user.html', {
+        'target': target,
+    })
+    
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
@@ -250,6 +356,40 @@ def view_invite_user(request):
     /PF0930/ Versenden von Einladungslinks zur Erstellung von Benutzerkonten,
     die mit dem Mandanten verbunden sind.
     '''
+    form = EinladungsForm()
+    if request.method == 'POST':
+        form = EinladungsForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            mandant = request.user.mandant
+            invite_code = None
+            while not invite_code:
+                invite_code = uuid.uuid4()
+                if Einladung.objects.filter(code=invite_code).exists():
+                    invite_code = None
+            einladung = Einladung.objects.create(code=invite_code, is_used=False, mandant=mandant)
+            if conf_settings.DEBUG:
+                invite_link = f'http://127.0.0.1:8000/registration?invite={invite_code}'
+            else:
+                # TODO Generate invite link to render platform
+                # can only be done once we know the host url
+                raise NotImplementedError
+            send_mail(
+                    'Einladung zu Projekt Bilderuch',
+                    f'Hallo,\n\nSie wurden eingeladen, dem Mandanten {mandant.name} im Projekt Bilderbuch beizutreten. Benutzen Sie dafür folgenden Link:\n\n{invite_link}\n\nMit freundlichen Grüßen,\nProjekt Bilderbuch',
+                    'projekt.bilderbuch@gmail.com',
+                    [email],
+                    fail_silently=True,
+                )
+            messages.success(request, "Einladung verschickt.")
+            return render(request, 'endnutzer/admin/einladung.html', {
+                'form': EinladungsForm(),
+            })
+        else:
+            messages.error(request, 'Die Einladung konnte nicht verschickt werden.')
+    return render(request, 'endnutzer/admin/einladung.html', {
+        'form': form,
+    })
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')    
@@ -258,6 +398,48 @@ def view_activate_book(request):
     /PF1010/ Aktivieren von Büchercodes, um Bücher der Bibliothek des Mandanten
     hinzuzufügen.
     '''
+    form = AktivierungsForm()
+    if request.method == 'POST':
+        # get the code from the form
+        try:
+            code = Aktivierungscode.objects.filter(code=request.POST['code'])[0]
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Der angegebene Code existiert nicht. Bitte überprüfen Sie die Schreibweise und versuchen Sie es erneut.')
+            return render(request, 'endnutzer/admin/activate_book.html', {
+                'form': form,
+            })
+        
+        if code.mandant is not None:
+            if code.mandant == request.user.mandant:
+                messages.error(request, 'Sie haben diesen Code bereits in Ihrem Mandant registriert.')
+                return render(request, 'endnutzer/admin/activate_book.html', {
+                    'form': form,
+                })
+
+            messages.error(request, 'Dieser Code ist aktuell bereits in einem Mandanten registriert und kann daher im Moment nicht erneut verwendet werden.')
+            return render(request, 'endnutzer/admin/activate_book.html', {
+                'form': form,
+            })
+    
+        try:
+            code.mandant = request.user.mandant
+            code.save()
+        except IntegrityError:
+            messages.error(request, f'Das Buch "{code.book}" zu dem dieser Code gehört wurde für diesen Mandanten bereits freigeschaltet.')
+            return render(request, 'endnutzer/admin/activate_book.html', {
+                'form': form,
+            })
+        except Exception as e:
+            messages.error(request, 'Der Code konnte nicht aktiviert werden.')
+            return render(request, 'endnutzer/admin/activate_book.html', {
+                'form': form,
+            })
+        messages.success(request, f'Das Buch "{code.book} wurde erfolgreich Ihrer Bibliothek hinzugefügt.')
+        return redirect(reverse('endnutzer:library'))
+    return render(request, 'endnutzer/admin/activate_book.html', {
+        'form': form,
+    })
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')

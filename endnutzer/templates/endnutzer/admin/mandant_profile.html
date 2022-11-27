@@ -1,0 +1,28 @@
+{% extends 'endnutzer/layout.html' %}
+{% load static %}
+
+{% block script %}
+{% endblock %}
+
+
+{% block content %}
+    <h1>Mandantenprofil</h1>
+    <div>
+        <form method='POST'>
+            {% csrf_token %}
+        {{form.as_p}}
+        <button type="submit">Speichern</button>
+        </form>    
+    </div>
+    <br>
+    <div>
+        <a href="{% url 'endnutzer:mandant_loeschen' %}" class='btn btn-primary'> 
+            {% if user.mandant.deletion %}
+                Mandant löschen/Löschung abbrechen
+            {% else %}
+                Mandant löschen
+            {% endif %}
+        </a>
+    </div>
+    
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'endnutzer/layout.html' %}
+{% load static %}
+
+{% block script %}
+{% endblock %}
+
+
+{% block content %}
+    <h1>Benutzer kicken - Sicherheitsabfrage</h1>
+    User {{target}} wirklich rausschmeissen? Alle seine Sprachaufnahmen werden dabei unwiderruflich geloescht werden.
+
+    <form action="" method='POST'>
+        {% csrf_token %}
+        <button type="submit">User Loeschen</button>
+        <button type="submit" formaction='{% url 'endnutzer:benutzerliste' %}' formmethod='GET'>Abbrechen</button>
+    </form>
+    
+{% endblock %}

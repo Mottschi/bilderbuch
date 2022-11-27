@@ -1,5 +1,5 @@
 from django import forms
-from betreiber.models import User, Buch, Seite, Sprachaufnahme, Mandant
+from betreiber.models import User, Buch, Seite, Sprachaufnahme, Mandant, Aktivierungscode
 
 
 class LoginForm(forms.Form):
@@ -22,3 +22,34 @@ class MandantenForm(forms.ModelForm):
             'country': 'Land',
             'city': 'Stadt',
         }
+
+class EinladungsForm(forms.Form):
+     email = forms.EmailField(label = 'E-Mail', required=True)
+
+class EndnutzerForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'password', 'first_name', 'last_name', 'email']
+        help_texts = {
+            'username': None,
+        }
+        widgets = {
+             'password': forms.PasswordInput,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+             field.required = True
+    
+
+class AktivierungsForm(forms.ModelForm):
+     class Meta:
+          model = Aktivierungscode
+          fields = ['code']
+          labels = {
+               'code': 'Aktivierungscode'
+          }
+
+class LoeschForm(forms.Form):
+    password = forms.CharField(widget=forms.PasswordInput, label='Passwort')

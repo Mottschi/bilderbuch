@@ -18,6 +18,14 @@
     {% if user.is_authenticated %}
     <nav>
         <a href="{% url 'endnutzer:index'%}">Index</a>
+        {% if user.is_mandantenadmin %}
+            <a href="{% url 'endnutzer:benutzerliste' %}">Benutzerliste</a>
+            <a href="{% url 'endnutzer:mandantenprofil' %}">Mandant bearbeiten</a>
+            <a href="{% url 'endnutzer:alle_aufzeichnungen' %}">Sprachaufnahmen</a>
+            <a href="{% url 'endnutzer:buch_aktivieren' %}">Buch freischalten</a>
+        {% else %}
+        
+        {% endif %}
         <a href="{% url 'endnutzer:logout'%}">Ausloggen</a>
     </nav>
     {% endif %}

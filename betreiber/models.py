@@ -56,6 +56,11 @@ class Aktivierungscode(models.Model):
 
     def __str__(self):
         return f'{self.code} ({self.book})'
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['mandant', 'book'], name='BuchPerMandant')
+        ]
 
 class Buch(models.Model):
     thumbnail = models.CharField(max_length=150)
@@ -127,7 +132,7 @@ class Sprache(models.Model):
         return self.name
 
 class Einladung(models.Model):
-    code = models.UUIDField()
+    code = models.UUIDField(unique=True)
     is_used = models.BooleanField(default=False)
     mandant = models.ForeignKey('Mandant', on_delete=models.CASCADE)
 

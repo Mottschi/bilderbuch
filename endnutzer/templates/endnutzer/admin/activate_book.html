@@ -1,0 +1,19 @@
+{% extends 'endnutzer/layout.html' %}
+{% load static %}
+
+{% block script %}
+{% endblock %}
+
+
+{% block content %}
+    <h1>Buch aktivieren</h1>
+
+
+    <div>
+        <form action="" method='POST'>
+            {% csrf_token %}
+            {{form}}
+            <button type="submit">Aktivieren</button>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'endnutzer/layout.html' %}
+{% load static %}
+
+{% block script %}
+{% endblock %}
+
+
+{% block content %}
+    <h1>Benutzer dieses Mandanten</h1>
+    <div>
+        <a href="{% url 'endnutzer:einladung' %}">Neuen Benutzer einladen</a>
+    </div>
+
+    <div>
+        <ul>
+            {% for entry in users %}
+                <li>
+                    {{entry}}
+                    {% if  entry != user %}
+                    <a href="{% url 'endnutzer:kick_user' entry.id %}">Loeschen</a>
+                    {% else %}
+                    (Admin)
+                    {% endif %}
+                    
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
