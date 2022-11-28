@@ -117,7 +117,6 @@ def view_registration(request):
     Emailadresse, eines Benutzernamens und des gewünschten Passworts. Optional 
     können gesprochene Sprachen mit angegeben werden. 
     '''
-    # TODO Sprachen
     try:
         einladung = Einladung.objects.get(code=request.GET['invite'])
     except:
@@ -146,7 +145,7 @@ def view_registration(request):
                 sprache = Sprache.objects.get(name=name)
                 user.sprachen.add(sprache)
             messages.success(request, f'Ihr Benutzerkonto wurde erfolgreich erstellt.')
-            #einladung.delete()
+            einladung.delete()
             return redirect(reverse('endnutzer:login'))
         else:
             messages.error(request, 'Bitte korrigieren Sie Ihre Angaben und senden Sie das Formular erneut ab.')        
@@ -264,6 +263,7 @@ def view_my_recordings(request):
     '''
     /PF0730/ Einsehen der eigenen Sprachaufzeichnungen.
     '''
+    raise NotImplementedError
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
@@ -271,13 +271,15 @@ def view_delete_recording(request):
     '''
     Teil von /PF0730/ - Löschen eigener Sprachaufzeichnungen
     '''
+    raise NotImplementedError
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
-def view_modify_recording_visibility(request):
+def api_modify_recording_visibility(request):
     '''
     /PF0740/ Modifizieren der Sichtbarkeit von Sprachaufzeichnungen. 
     '''
+    raise NotImplementedError
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
@@ -564,8 +566,10 @@ def view_all_recordings(request):
     /PF1020/ Einsehen einer Liste aller öffentlichen Sprachaufzeichnungen, 
     die von mit dem Mandanten verbundenen Benutzerkonten getätigt wurden.
     '''
+    raise NotImplementedError
     members = request.user.mandant.member.all()
     recordings = [member.recordings.filter(is_public = True) for member in members]
+    
 
 # TODO
 @login_required(login_url='endnutzer:login')
@@ -574,3 +578,4 @@ def view_delete_recording(request):
     '''
     /PF1030/ Löschen von Sprachaufzeichnungen.
     '''
+    raise NotImplementedError

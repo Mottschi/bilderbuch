@@ -21,9 +21,9 @@ urlpatterns = [
     path("user/profil/passwort", views.view_change_password, name='passwort_aendern'),
     path("user/profil", views.view_profile, name='userprofil'),
     path("user/profil", views.view_profile, name='userprofil'),
-    path("user/profil", views.view_profile, name='userprofil'),
-    path("user/profil", views.view_profile, name='userprofil'),
-    path("user/aufnahmen", views.view_profile, name='eigene_aufnahmen'),
+    path("user/aufnahmen/sichtbarkeit/<int:buch_id>", views.api_modify_recording_visibility, name='sichtbarkeit_toggle'),
+    path("user/aufnahmen", views.view_my_recordings, name='eigene_aufnahmen'),
+    path("user/aufnahmen/delete", views.view_delete_recording, name='eigene_aufnahme_loeschen'),
     path("user/loeschung/einleiten", views.view_account_deletion, name='account_loeschen'),
     path("user/loeschung/abbrechen", views.view_cancel_deletion, name='account_loeschung_abbrechen'),
 ]

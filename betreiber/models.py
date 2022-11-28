@@ -9,7 +9,7 @@ class User(AbstractUser):
     '''
     mandant = models.ForeignKey('Mandant', on_delete=models.CASCADE, blank=True, null=True, default=None, related_name='member')
     deletion = models.DateTimeField(null=True, blank=True, default = None)
-    sprachen = models.ManyToManyField('Sprache', related_name='users')
+    sprachen = models.ManyToManyField('Sprache', blank=True, related_name='users')
 
     class Meta:
         ordering = ['username']

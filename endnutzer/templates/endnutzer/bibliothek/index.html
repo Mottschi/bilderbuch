@@ -9,10 +9,15 @@
 {% block content %}
     <div><h1>Bibliothek:</h1></div>
 
-    <ul>
+    {% if buecher %}
+        <ul>
         {% for buch in buecher %}
-            <ul><img src="{% static buch.thumbnail %}" alt="" width=100>{{buch}} ({{buch.id}})</ul>
+            <li><img src="{% static buch.thumbnail %}" alt="" width=100>{{buch}} ({{buch.id}})</li>
         {% endfor %}
-    </ul>
+        </ul>
+    {% else %}
+        Es wurden noch keine Bücher der Bibliothek hinzugefügt.
+    {% endif %}
+    
     
 {% endblock content %}
