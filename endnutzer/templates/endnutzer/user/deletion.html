@@ -1,0 +1,36 @@
+{% extends 'endnutzer/layout.html' %}
+{% load static %}
+
+
+{% block script %}
+{% endblock %}
+
+
+{% block content %}
+    <h1>Benutzerkonto Löschen - Sicherheitsabfrage</h1>
+    <div>
+        Soll das Benutzerkonto ("{{user}}") wirklich gelöscht werden? Alle damit verbundenen Sprachaufnahmen werden dabei ebenfalls unwiderruflich geloescht werden.
+    </div>
+    <br>
+    <div>
+        
+    {% if deletion_date and not show_password_field %}
+
+        Es ist bereits ein Loeschvorgang am Laufen. Dieser wurde am  {{ user.deletion }} eingeleitet.
+
+        Die Löschung kann ab dem {{ deletion_date }} abgeschlossen werden.
+    
+    {% elif deletion_date %}
+        Die Löschung wurde vor mehr als 7 Tagen eingeleitet und kann nun abgeschlossen werden. Geben Sie Ihr Passwort ein, um die Löschung endgültig und unwiderruflich durchzuführen.
+    {% endif %}
+    </div>
+    <br>
+    <form action="" method='POST'>
+        {% csrf_token %}
+        {% if show_password_field %}{{ form.as_p}}
+        <button type="submit">Benutzerkonto Loeschen</button>{% endif %}
+        
+        <button type="submit" formaction='{% url 'endnutzer:account_loeschung_abbrechen' %}'>Abbrechen</button>
+    </form>
+    
+{% endblock %}

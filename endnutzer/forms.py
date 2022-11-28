@@ -1,13 +1,21 @@
 from django import forms
-from betreiber.models import User, Buch, Seite, Sprachaufnahme, Mandant, Aktivierungscode
+from betreiber.models import User, Buch, Seite, Sprachaufnahme, Mandant, Aktivierungscode, Sprache
 
 
 class LoginForm(forms.Form):
 	username = forms.CharField(max_length=150, label='Benutzername')
 	password = forms.CharField(widget=forms.PasswordInput, label='Passwort')
-	
+
+
 class PasswordResetForm(forms.Form):
     username = forms.CharField(max_length=150, label='Benutzername')
+
+    
+class PasswordChangeForm(forms.Form):
+    current_password = forms.CharField(widget=forms.PasswordInput, label='Aktuelles Passwort')
+    new_password = forms.CharField(widget=forms.PasswordInput, label='Neues Passwort')
+    new_password_comparison = forms.CharField(widget=forms.PasswordInput, label='Neues Passwort wiederholen')
+
 
 class MandantenForm(forms.ModelForm):
     class Meta:
@@ -23,13 +31,15 @@ class MandantenForm(forms.ModelForm):
             'city': 'Stadt',
         }
 
+        
 class EinladungsForm(forms.Form):
      email = forms.EmailField(label = 'E-Mail', required=True)
 
+     
 class EndnutzerForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['username', 'password', 'first_name', 'last_name', 'email']
+        fields = ['username', 'password', 'first_name', 'last_name', 'email', 'sprachen']
         help_texts = {
             'username': None,
         }
@@ -41,8 +51,22 @@ class EndnutzerForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
              field.required = True
-    
 
+    
+class EndnutzerEditForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email', 'sprachen']
+        help_texts = {
+            'username': None,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+             field.required = True
+
+             
 class AktivierungsForm(forms.ModelForm):
      class Meta:
           model = Aktivierungscode
@@ -51,5 +75,6 @@ class AktivierungsForm(forms.ModelForm):
                'code': 'Aktivierungscode'
           }
 
+          
 class LoeschForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput, label='Passwort')

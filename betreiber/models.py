@@ -9,6 +9,7 @@ class User(AbstractUser):
     '''
     mandant = models.ForeignKey('Mandant', on_delete=models.CASCADE, blank=True, null=True, default=None, related_name='member')
     deletion = models.DateTimeField(null=True, blank=True, default = None)
+    sprachen = models.ManyToManyField('Sprache', related_name='users')
 
     class Meta:
         ordering = ['username']
@@ -111,7 +112,7 @@ class Sprachaufnahme(models.Model):
     audio = models.CharField(max_length=150)
     is_public = models.BooleanField(default = False)
     language = models.ForeignKey('Sprache', on_delete = models.CASCADE)
-    recorded_by = models.ForeignKey('User', on_delete = models.CASCADE)
+    recorded_by = models.ForeignKey('User', on_delete = models.CASCADE, related_name='aufnahmen')
 
     class Meta:
         constraints = [
@@ -123,7 +124,6 @@ class Sprache(models.Model):
     name = models.CharField(max_length=25)
     code = models.CharField(max_length=2)
     flag = models.CharField(max_length=150)
-    users = models.ManyToManyField('User')
 
     class Meta:
         verbose_name_plural = 'Sprachen'

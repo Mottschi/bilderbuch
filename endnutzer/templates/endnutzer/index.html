@@ -8,13 +8,11 @@
 {% block content %}
     <div><h1>Index für Endnutzer:</h1></div>
 
-    <a href="{% url 'endnutzer:index' %}">Profilverwaltung</a>
-    <br>
     <a href="{% url 'endnutzer:library' %}">Bibliothek</a>
     <br>
-    {% if user.is_mandantenadmin %}
-    <a href="{% url 'endnutzer:index' %}">Mandantenverwaltung</a>
+    <a href="{% url 'endnutzer:userprofil' %}">Profil</a>
     <br>
-    {% endif %}
+    <a href="{% url 'endnutzer:eigene_aufnahmen' %}">Meine Aufnahmen</a>
+    <br>
     
 {% endblock content %}

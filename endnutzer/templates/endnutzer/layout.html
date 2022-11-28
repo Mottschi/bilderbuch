@@ -16,16 +16,20 @@
 </head>
 <body>
     {% if user.is_authenticated %}
-    <nav>
-        <a href="{% url 'endnutzer:index'%}">Index</a>
-        {% if user.is_mandantenadmin %}
-            <a href="{% url 'endnutzer:benutzerliste' %}">Benutzerliste</a>
-            <a href="{% url 'endnutzer:mandantenprofil' %}">Mandant bearbeiten</a>
-            <a href="{% url 'endnutzer:alle_aufzeichnungen' %}">Sprachaufnahmen</a>
-            <a href="{% url 'endnutzer:buch_aktivieren' %}">Buch freischalten</a>
-        {% else %}
+    <nav style='border: solid;'>
         
-        {% endif %}
+        <div>
+            <a href="{% url 'endnutzer:index'%}">Index</a>
+        </div>
+        <div>
+            {% if user.is_mandantenadmin %}
+                <a href="{% url 'endnutzer:benutzerliste' %}">Benutzerliste</a>
+                <a href="{% url 'endnutzer:mandantenprofil' %}">Mandant bearbeiten</a>
+                <a href="{% url 'endnutzer:alle_aufzeichnungen' %}">Sprachaufnahmen</a>
+                <a href="{% url 'endnutzer:buch_aktivieren' %}">Buch freischalten</a>  
+            {% endif %}
+        </div>
+        
         <a href="{% url 'endnutzer:logout'%}">Ausloggen</a>
     </nav>
     {% endif %}

@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.urls import reverse
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import Group
 from django.contrib.auth.hashers import check_password
@@ -10,11 +10,12 @@ from django.core.mail import send_mail
 from django.db import IntegrityError
 from django.utils.timezone import now
 
-from .forms import LoginForm, PasswordResetForm, MandantenForm, EinladungsForm
-from .forms import EndnutzerForm, AktivierungsForm, LoeschForm
+
+from .forms import LoginForm, PasswordResetForm, PasswordChangeForm, MandantenForm, EinladungsForm
+from .forms import EndnutzerForm, EndnutzerEditForm, AktivierungsForm, LoeschForm
 from .helpers import is_endnutzer, not_logged_in, handle_uploaded_file, is_mandantenadmin
 
-from betreiber.models import User, Autor, Mandant, Buch, Seite, Aktivierungscode, Einladung
+from betreiber.models import User, Autor, Mandant, Buch, Seite, Aktivierungscode, Einladung, Sprache
 from django.conf import settings as conf_settings
 
 import random, os, uuid
@@ -56,6 +57,7 @@ def view_logout(request):
     logout(request)
     return redirect(reverse('endnutzer:login'))
 
+
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
 def view_index(request):
@@ -65,6 +67,7 @@ def view_index(request):
     Verwaltungsoptionen angezeigt. (/PB0115/)
     '''
     return render(request, 'endnutzer/index.html')
+
 
 @user_passes_test(not_logged_in, login_url='endnutzer:index')
 def view_reset_password(request):
@@ -105,6 +108,7 @@ def view_reset_password(request):
         'form': PasswordResetForm(),
     })
 
+
 @user_passes_test(not_logged_in, login_url='endnutzer:index')
 def view_registration(request):
     '''
@@ -124,7 +128,7 @@ def view_registration(request):
     
     if request.method == 'POST':
         form = EndnutzerForm(request.POST)
-        if form.is_valid() and form.cleaned_data['first_name'] and form.cleaned_data['last_name'] and form.cleaned_data['email']:
+        if form.is_valid():
             username = form.cleaned_data['username']
             first_name = form.cleaned_data['first_name']
             last_name = form.cleaned_data['last_name']
@@ -137,8 +141,12 @@ def view_registration(request):
             endnutzer_group = Group.objects.get(name='endnutzer')
             user.groups.add(endnutzer_group)
             user.save()
+            
+            for name in form.cleaned_data['sprachen']:
+                sprache = Sprache.objects.get(name=name)
+                user.sprachen.add(sprache)
             messages.success(request, f'Ihr Benutzerkonto wurde erfolgreich erstellt.')
-            einladung.delete()
+            #einladung.delete()
             return redirect(reverse('endnutzer:login'))
         else:
             messages.error(request, 'Bitte korrigieren Sie Ihre Angaben und senden Sie das Formular erneut ab.')        
@@ -151,9 +159,6 @@ def view_registration(request):
     })
 
 
-    
-
-
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
 def view_library(request):
@@ -163,29 +168,38 @@ def view_library(request):
     mandant = request.user.mandant
     activated_codes = mandant.activated_codes.all()
     library = [code.book for code in activated_codes]
-    return render(request, 'endnutzer/bibliothek/library.html', {
+    return render(request, 'endnutzer/bibliothek/index.html', {
         'buecher': library,
     })
 
 
-def view_play_book(request):
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_endnutzer, login_url='endnutzer:logout')
+def view_play_book(request, buch_id):
     '''
     /PF0530/ Bücher sollen sich nach Auswahl einer der verfügbaren Sprachen abspielen 
     lassen.
     '''
 
-def view_play_page(request):
+
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_endnutzer, login_url='endnutzer:logout')
+def view_play_page(request, buch_id, seite_id):
     '''
     /PF0610/ Zur nächsten Seite blättern.
     /PF0620/ Zur vorherigen Seite blättern.
     '''
 
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_endnutzer, login_url='endnutzer:logout')
 def view_record_book(request):
     '''
     /PF0540/ Es soll sich eine neue Sprachaufzeichnung für ein Buch aufnehmen lassen, 
     unter Auswahl der benutzten Sprache.
     '''
 
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_endnutzer, login_url='endnutzer:logout')
 def view_record_page(request):
     '''
     In Verbindung mit /PF0540/
@@ -195,42 +209,138 @@ def view_record_page(request):
 
     '''
 
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_endnutzer, login_url='endnutzer:logout')
 def view_profile(request):
     '''
     /PF0710// Einsehen der persönlichen Daten, die mit dem Konto verbunden sind 
     (Realname, Emailadresse, Benutzername, gesprochene Sprachen).
     /PF0720/ Modifizieren der persönlichen Daten.
     '''
+    form = EndnutzerEditForm(instance=request.user)
+    if request.method == 'POST':
+        form = EndnutzerEditForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Die Daten für dieses Profil wurden aktualisiert.')
+            return redirect(reverse('endnutzer:index'))
+        messages.error(request, 'Bitte die Felder korrekt ausfüllen.')
+    return render(request, 'endnutzer/user/profile.html', {
+        'form': form,
+    })
 
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_endnutzer, login_url='endnutzer:logout')
 def view_change_password(request):
     '''
     /PF0721/ Modifizieren des Passworts
     '''
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.POST)
+        if form.is_valid():
+            fail = False
+            password = form.cleaned_data['current_password']
+            new_password = form.cleaned_data['new_password']
+            new_password_comparison = form.cleaned_data['new_password_comparison']
+            if not check_password(password, request.user.password):
+                fail = True
+                messages.error(request, 'Das alte Passwort ist nicht korrekt.')
+            if new_password != new_password_comparison:
+                fail = True
+                messages.error(request, 'Das neue Passwort stimmt nicht mit dem Vergleichspasswort überein.')
+            if fail:
+                return render(request, 'endnutzer/user/password.html', {'form': PasswordChangeForm()})
+            request.user.set_password(new_password)
+            request.user.save()
+            update_session_auth_hash(request, request.user)
+            messages.success(request, 'Das Passwort wurde erfolgreich geändert.')
+            return redirect(reverse('endnutzer:userprofil'))
+        messages.error('Bitte das Formular korrekt ausfüllen.')
+    return render(request, 'endnutzer/user/password.html', {'form': PasswordChangeForm()})
 
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_endnutzer, login_url='endnutzer:logout')
 def view_my_recordings(request):
     '''
     /PF0730/ Einsehen der eigenen Sprachaufzeichnungen.
     '''
 
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_endnutzer, login_url='endnutzer:logout')
 def view_delete_recording(request):
     '''
     Teil von /PF0730/ - Löschen eigener Sprachaufzeichnungen
     '''
 
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_endnutzer, login_url='endnutzer:logout')
 def view_modify_recording_visibility(request):
     '''
     /PF0740/ Modifizieren der Sichtbarkeit von Sprachaufzeichnungen. 
     '''
 
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_endnutzer, login_url='endnutzer:logout')
 def view_account_deletion(request):
     '''
     /PF0750/ Einleiten der Löschung des eigenen Benutzerkontos. 
     '''
+    user = request.user
+    if user.is_mandantenadmin:
+        messages.error(request, 'Es ist nicht möglich dieses Benutzerkonto zu löschen, solange es die Rolle des Mandantenadmin trägt. Bitte geben Sie die Leitung über den Mandanten zuerst an einen anderen Benutzer weiter oder löschen Sie den gesamten Mandanten.')
+        return redirect(reverse('endnutzer:userprofil'))
+    
+    deletion_date = None if user.deletion is None else user.deletion + timedelta(days=7)
+    ready_for_deletion = deletion_date is not None and deletion_date < now()
 
+    if request.method== 'POST':
+        form = LoeschForm(request.POST)
+        if not form.is_valid():
+            messages.error(request, "Es wurde kein Passwort angegeben.")
+            return render(request, 'endnutzer/user/deletion.html', {
+                'form': LoeschForm(),
+                'deletion_date': deletion_date,
+                'show_password_field': True if deletion_date is None or ready_for_deletion else False,
+            })
+        password = form.cleaned_data['password']
+        if not check_password(password, user.password):
+            messages.error(request, 'Das angegebene Passwort ist falsch.')
+            return render(request, 'endnutzer/user/deletion.html', {
+                'form': LoeschForm(),
+                'deletion_date': deletion_date,
+                'show_password_field': True if deletion_date is None or ready_for_deletion else False,
+            })
+        
+        if ready_for_deletion:
+            user.delete()
+            messages.success(request, f'Das Benutzerkonto "{user}" wurde erfolgreich gelöscht.')
+            return redirect(reverse('endnutzer:logout'))
+        elif deletion_date:
+            messages.error(request, 'Das Einleiten der Löschung ist noch keine 7 Tage her, daher kann die Löschung noch nicht durchgeführt werden.')
+            return redirect(reverse('endnutzer:userprofil'))
+        else:
+            user.deletion = now()
+            user.save()
+            messages.success(request, 'Der Löschvorgang wurde erfolgreich eingeleitet. Um die Löschung abzuschließen, warten Sie bitte 7 Tage ab und bestätigen Sie die Löschung anschließend erneut über diese Seite.')
+            return redirect(reverse('endnutzer:userprofil'))
+        
+    return render(request, 'endnutzer/user/deletion.html', {
+        'form': LoeschForm(),
+        'deletion_date': deletion_date,
+        'show_password_field': True if deletion_date is None or ready_for_deletion else False,
+    })
+
+
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_endnutzer, login_url='endnutzer:logout')
 def view_cancel_deletion(request):
     '''
     /PF0751/ Abbrechen der Löschung des Benutzerkontos
     '''
+    request.user.deletion = None
+    request.user.save()
+    messages.success(request, "Die Löschung wurde abgebrochen.")
+    return redirect(reverse('endnutzer:userprofil'))
 
 
 '''****************************Mandantenadmin****************************************'''
@@ -263,20 +373,27 @@ def view_mandant_profile(request):
 def view_mandant_deletion(request):
     '''
     /PF0830/ Löschen des Mandanten und aller damit verbundenen Benutzerkonten.
+    (Benutzerkonten werden durch Cascade geloescht, kein manuelles Loeschen notwendig)
     '''
     mandant = request.user.mandant
     deletion_date = None if mandant.deletion is None else mandant.deletion + timedelta(days=30)
     ready_for_deletion = deletion_date is not None and deletion_date < now()
     if request.method == 'POST':
-        # first we verify passwort
         form = LoeschForm(request.POST)
         if not form.is_valid():
-            messages.error(request, "Es wurde kein Passwort angegeben.")
-            return render(request, 'endnutzer/admin/deletion.html', {'form': LoeschForm()})
+            return render(request, 'endnutzer/admin/deletion.html', {
+                'form': LoeschForm(),
+                'deletion_date': deletion_date,
+                'show_password_field': True if deletion_date is None or ready_for_deletion else False,
+            })
         password = form.cleaned_data['password']
         if not check_password(password, request.user.password):
-            messages.error(request, 'Das Passwort war inkorrekt, daher konnte der Mandant nicht gelöscht werden.')
-            return render(request, 'endnutzer/admin/deletion.html', {'form': LoeschForm()})
+            messages.error(request, 'Das angegebene Passwort ist falsch.')
+            return render(request, 'endnutzer/admin/deletion.html', {
+                'form': LoeschForm(),
+                'deletion_date': deletion_date,
+                'show_password_field': True if deletion_date is None or ready_for_deletion else False,
+            })
                 
         if deletion_date:
             if ready_for_deletion:
@@ -284,7 +401,6 @@ def view_mandant_deletion(request):
                 messages.success(request, f'Der Mandant "{mandant.name} wurde erfolgreich gelöscht.')
                 return redirect(reverse('endnutzer:logout'))
             else:
-                # Deletion request less then 30 days old
                 messages.error(request, 'Das Einleiten der Löschung ist noch keine 30 Tage her, daher kann die Löschung noch nicht durchgeführt werden.')
                 return redirect(reverse('endnutzer:mandantenprofil'))
         else:
@@ -297,7 +413,7 @@ def view_mandant_deletion(request):
     return render(request, 'endnutzer/admin/deletion.html', {
         'form': LoeschForm(),
         'deletion_date': deletion_date,
-        'show_password_field': True if deletion_date is None or ready_for_deletion else False
+        'show_password_field': True if deletion_date is None or ready_for_deletion else False,
     })
 
 
@@ -307,7 +423,6 @@ def view_cancel_mandant_deletion(request):
     '''
     /PF0831/ Löschen des Mandanten abbrechen.
     '''
-    # NOTE Nach Beschreibung im Pflichtenheft erfordert das Abbrechen keine Passwort verifizierung, nur das Loeschen selbst
     mandant = request.user.mandant
     mandant.deletion = None
     mandant.save()
@@ -441,6 +556,7 @@ def view_activate_book(request):
         'form': form,
     })
 
+# TODO
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
 def view_all_recordings(request):
@@ -448,7 +564,10 @@ def view_all_recordings(request):
     /PF1020/ Einsehen einer Liste aller öffentlichen Sprachaufzeichnungen, 
     die von mit dem Mandanten verbundenen Benutzerkonten getätigt wurden.
     '''
+    members = request.user.mandant.member.all()
+    recordings = [member.recordings.filter(is_public = True) for member in members]
 
+# TODO
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
 def view_delete_recording(request):
