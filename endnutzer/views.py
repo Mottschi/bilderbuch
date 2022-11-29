@@ -173,7 +173,8 @@ def view_library(request):
     '''
     /PF0510/ Ein eingeloggter Benutzer kann die Bibliothek des Mandanten einsehen.
     '''
-    return render(request, 'endnutzer/bibliothek/index.html', {})
+    sprachen = Sprache.objects.all()
+    return render(request, 'endnutzer/bibliothek/index.html', {'sprachen': sprachen})
 
 
 @login_required(login_url='endnutzer:login')
@@ -209,7 +210,7 @@ def view_play_page(request, buch_id, seite_id):
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
-def view_record_book(request):
+def view_record_book(request, buch_id):
     '''
     /PF0540/ Es soll sich eine neue Sprachaufzeichnung für ein Buch aufnehmen lassen, 
     unter Auswahl der benutzten Sprache.
@@ -218,7 +219,7 @@ def view_record_book(request):
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
-def view_record_page(request):
+def view_record_page(request, buch_id, seite_id):
     '''
     In Verbindung mit /PF0540/
     /PF0660/ Zur nächsten Seite blättern. Zeigt die nächste Seite an.
