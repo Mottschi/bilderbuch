@@ -37,6 +37,10 @@ class EinladungsForm(forms.Form):
 
      
 class EndnutzerForm(forms.ModelForm):
+    password_comparison = forms.CharField(widget=forms.PasswordInput, label='Passwort wiederholen')
+
+    field_order = ['username', 'password', 'password_comparison', 'first_name', 'last_name', 'email', 'sprachen']
+
     class Meta:
         model = User
         fields = ['username', 'password', 'first_name', 'last_name', 'email', 'sprachen']

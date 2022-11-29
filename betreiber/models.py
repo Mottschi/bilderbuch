@@ -17,6 +17,11 @@ class User(AbstractUser):
     @property
     def is_mandantenadmin(self):
         return self.mandant.manager == self
+    
+    @property
+    def recordings(self):
+        # TODO
+        return 0
 
 class Mandant(models.Model):
     class Country(models.TextChoices):
@@ -74,6 +79,16 @@ class Buch(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def serialize(self):
+        return {
+            'thumbnail': self.thumbnail,
+            'title': self.title,
+            'age': self.age,
+            'authors': [author.serialize() for author in self.author.all()],
+            'id': self.id,
+        }
+
 
 class Autor(models.Model):
     first_name = models.CharField(max_length=30)
@@ -86,6 +101,14 @@ class Autor(models.Model):
 
     def __str__(self):
         return f'{self.first_name}{" " + self.middle_name if self.middle_name else ""} {self.last_name}'
+    
+    def serialize(self):
+        return {
+            'first_name': self.first_name,
+            'middle_name': self.middle_name,
+            'last_name': self.last_name,
+            'id': self.id,
+        }
 
 class Seite(models.Model):
     seitenzahl = models.PositiveSmallIntegerField()

@@ -12,18 +12,31 @@
     </div>
 
     <div>
-        <ul>
+        <table>
+            <thead>
+                <th>User</th>
+                <th>E-Mail</th>
+                <th>Vorname</th>
+                <th>Nachname</th>
+                <th>Aufnahmen</th>
+                <th>Löschen</th>
+            </thead>
             {% for entry in users %}
-                <li>
-                    {{entry}}
-                    {% if  entry != user %}
-                    <a href="{% url 'endnutzer:kick_user' entry.id %}">Loeschen</a>
-                    {% else %}
-                    (Admin)
-                    {% endif %}
-                    
-                </li>
+                <tr>
+                    <td>{{entry.username}}</td>
+                    <td>{{entry.email}}</td>
+                    <td>{{entry.first_name}}</td>
+                    <td>{{entry.last_name}}</td>
+                    <td>{{entry.recordings}}</td>
+                    <td>
+                        {% if  entry.is_mandantenadmin %}
+                            (Admin)
+                        {% else %}
+                            <a href="{% url 'endnutzer:kick_user' entry.id %}">Loeschen</a>
+                        {% endif %}
+                    </td>                   
+                </tr>
             {% endfor %}
-        </ul>
+        </table>
     </div>
 {% endblock %}

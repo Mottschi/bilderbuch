@@ -128,10 +128,19 @@ def view_registration(request):
     if request.method == 'POST':
         form = EndnutzerForm(request.POST)
         if form.is_valid():
+            password = form.cleaned_data['password']
+            password_comparison = form.cleaned_data['password_comparison']
+
+            if password != password_comparison:
+                messages.error(request, 'Die beiden Angaben zum Passwort stimmen nicht überein')
+                return render(request, 'endnutzer/user/registration.html',{
+                    'mandant': mandant,
+                    'form': form,
+                })
+
             username = form.cleaned_data['username']
             first_name = form.cleaned_data['first_name']
             last_name = form.cleaned_data['last_name']
-            password = form.cleaned_data['password']
             email = form.cleaned_data['email']
             user = User.objects.create_user(username, email, password)
             user.first_name = first_name
@@ -164,12 +173,19 @@ def view_library(request):
     '''
     /PF0510/ Ein eingeloggter Benutzer kann die Bibliothek des Mandanten einsehen.
     '''
+    return render(request, 'endnutzer/bibliothek/index.html', {})
+
+
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_endnutzer, login_url='endnutzer:logout')
+def api_library(request):
+    '''
+    /PF0510/ Ein eingeloggter Benutzer kann die Bibliothek des Mandanten einsehen.
+    '''
     mandant = request.user.mandant
     activated_codes = mandant.activated_codes.all()
-    library = [code.book for code in activated_codes]
-    return render(request, 'endnutzer/bibliothek/index.html', {
-        'buecher': library,
-    })
+    library = [code.book.serialize() for code in activated_codes]
+    return JsonResponse(status=200, data = {'library':library})
 
 
 @login_required(login_url='endnutzer:login')
@@ -179,6 +195,7 @@ def view_play_book(request, buch_id):
     /PF0530/ Bücher sollen sich nach Auswahl einer der verfügbaren Sprachen abspielen 
     lassen.
     '''
+    raise NotImplementedError
 
 
 @login_required(login_url='endnutzer:login')
@@ -188,6 +205,7 @@ def view_play_page(request, buch_id, seite_id):
     /PF0610/ Zur nächsten Seite blättern.
     /PF0620/ Zur vorherigen Seite blättern.
     '''
+    raise NotImplementedError
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
@@ -196,6 +214,7 @@ def view_record_book(request):
     /PF0540/ Es soll sich eine neue Sprachaufzeichnung für ein Buch aufnehmen lassen, 
     unter Auswahl der benutzten Sprache.
     '''
+    raise NotImplementedError
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
@@ -207,6 +226,7 @@ def view_record_page(request):
     /PF0680/ Aufnehmen. Erlaubt dem Benutzer eine Audioaufzeichnung für die aktuelle Seite aufzunehmen.
 
     '''
+    raise NotImplementedError
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
