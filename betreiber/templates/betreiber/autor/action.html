@@ -13,8 +13,15 @@
         <div class="col-md">
         <form action="" method='POST'>
             {% csrf_token %}
-            {{form.as_p}}
-            
+
+
+            {% for field in form.visible_fields %}
+            <div class="form-floating p-1">
+              {{ field }}
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            </div>
+            {% endfor %}
+
             <div class="p-1">
                 <button class="btn btn-success " type=submit>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-check-square" width="22" height="22" viewBox="0 0 16 16">
