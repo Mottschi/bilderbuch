@@ -215,6 +215,7 @@ def view_record_book(request, buch_id):
     /PF0540/ Es soll sich eine neue Sprachaufzeichnung für ein Buch aufnehmen lassen, 
     unter Auswahl der benutzten Sprache.
     '''
+    template = 'endnutzer/bibliothek/buch_aufnehmen.html'
     try:
         buch = Buch.objects.get(pk=buch_id)
     except:
@@ -228,7 +229,7 @@ def view_record_book(request, buch_id):
             password = request.POST['password']
         except:
             messages.error(request, 'Es wurde kein Passwort angegeben')
-            return render(request, 'endnutzer/bibliothek/aufnehmen.html', {
+            return render(request, template, {
                 'form': ConfirmForm(),
                 'sprachen': request.user.sprachen.all(),
                 'buch': buch,
@@ -236,7 +237,7 @@ def view_record_book(request, buch_id):
 
         if not check_password(password, request.user.password):
             messages.error(request, 'Das Passwort ist inkorrekt.')
-            return render(request, 'endnutzer/bibliothek/aufnehmen.html', {
+            return render(request, template, {
                 'form': ConfirmForm(),
                 'sprachen': request.user.sprachen.all(),
                 'buch': buch,
@@ -246,7 +247,7 @@ def view_record_book(request, buch_id):
             sprache = request.POST['sprache']
         except:
             messages.error(request, 'Es wurde keine Sprache ausgewählt.')
-            return render(request, 'endnutzer/bibliothek/aufnehmen.html', {
+            return render(request, template, {
                 'form': ConfirmForm(),
                 'sprachen': request.user.sprachen.all(),
                 'buch': buch,
@@ -256,7 +257,7 @@ def view_record_book(request, buch_id):
             sprache = Sprache.objects.get(name=sprache)
         except:
             messages.error(request, 'Es wurde keine existierende Sprache ausgewählt.')
-            return render(request, 'endnutzer/bibliothek/aufnehmen.html', {
+            return render(request, template, {
                 'form': ConfirmForm(),
                 'sprachen': request.user.sprachen.all(),
                 'buch': buch,
@@ -264,7 +265,7 @@ def view_record_book(request, buch_id):
 
         return redirect(reverse('endnutzer:seite_aufnehmen', args=(buch.id, 1, sprache.id)))
 
-    return render(request, 'endnutzer/bibliothek/aufnehmen.html', {
+    return render(request, template, {
         'form': ConfirmForm(),
         'sprachen': request.user.sprachen.all(),
         'buch': buch,
@@ -280,6 +281,7 @@ def view_record_page(request, buch_id, seite_id, sprache_id):
     /PF0680/ Aufnehmen. Erlaubt dem Benutzer eine Audioaufzeichnung für die aktuelle Seite aufzunehmen.
 
     '''
+    template = 'endnutzer/bibliothek/seite_aufnehmen.html'
     print(buch_id, seite_id, sprache_id)
     raise NotImplementedError
 

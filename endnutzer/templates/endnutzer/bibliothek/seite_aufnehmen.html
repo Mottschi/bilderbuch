@@ -1,0 +1,53 @@
+{% extends 'endnutzer/layout.html' %}
+{% load static %}
+
+{% block script %}
+    <style>         
+        .flag {
+            border: solid 1px;
+        }
+
+        .recordedPage {
+            color: green;
+            border: green 2px solid;
+        }
+
+        .unrecordedPage {
+            color: red;
+            border: red 2px solid;
+        }
+    </style>
+{% endblock %}
+
+
+{% block content %}
+    <div><h1>Aufnahme für {{buch.title}} Seite {{seite.seitenzahl}}:</h1></div>
+
+    <div class='row'>
+        <div class='col-1'>
+            {% if seite.seitenzahl > 1 %}
+                <a href="{% url endnutzer:seite_aufnehmen buch.id, seite.id, sprache.id %}">Zurueck</a>
+            {% else %}
+                {% comment "else" %}
+                    Do we want to show a greyed out page back symbol on first page? Or just leave it empty?
+                {% endcomment %}
+            {% endif %}
+        </div>
+        <div class='col-10'>
+            <img src="{% static seite.picture %}" alt="Bild fuer Seite {{seite.seitenzahl}}"/>
+        </div>
+        <div class='col-1'>
+            {% if seite.seitenzahl < buch.seiten.count %}
+                <a href="{% url '' %}">Vorwaerts</a>
+            {% else %}
+                {% comment "else" %}
+                    Do we want to show a greyed out page forward symbol on last page? Or just leave it empty?
+                {% endcomment %}
+            {% endif %}
+        </div>
+
+    </div>
+
+
+
+{% endblock content %}
