@@ -21,11 +21,11 @@
             
         </div>
         <div class='col-3'>
-            <label for="language">Sprache:</label>
+            <label for="language">Sprachaufnahmen in:</label>
             <select name='language' id='language'>
                 <option value="">--Alle Sprachen--</option>
                 {% for sprache in sprachen %}
-                    <option value='{{sprache}}'>{{sprache}}</option>
+                    <option value='{{sprache.id}}'>{{sprache}}</option>
                 {% endfor %}
             </select>
         </div>

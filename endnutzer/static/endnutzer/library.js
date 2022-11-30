@@ -45,17 +45,28 @@ $(document).ready(() => {
 
     $('#search').keyup((event) => {
         searchTerm = event.target.value.toLowerCase();
-        console.log(searchTerm);
         filtern();
     })
 
-    $('#filter').click(filtern);
+    $('#language').change((event)=>{
+        console.log(`Sprachfilter geaendert auf ${event.target.value}`)
+    })
 
     function filtern() {
         let buecher = allebuecher.filter((buch)=> (buch.age <= maxAge) && (buch.age >= minAge) &&
-            buch.title.toLowerCase().includes(searchTerm));
+            searchFilter(buch));
 
         drawLibrary(buecher);
+    }
+
+    function searchFilter(buch) {
+        if (buch.title.toLowerCase().includes(searchTerm)) return true;
+
+        for (let i = 0; i < buch.authors.length; i++) {
+            if (buch.authors[i].full_name.toLowerCase().includes(searchTerm)) return true;
+        }
+
+        return false;
     }
 
     function drawLibrary(buecher) {

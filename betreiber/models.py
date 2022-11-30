@@ -100,15 +100,20 @@ class Autor(models.Model):
         verbose_name_plural = 'Autoren'
 
     def __str__(self):
-        return f'{self.first_name}{" " + self.middle_name if self.middle_name else ""} {self.last_name}'
+        return self.full_name
     
     def serialize(self):
         return {
             'first_name': self.first_name,
             'middle_name': self.middle_name,
             'last_name': self.last_name,
+            'full_name': self.full_name,
             'id': self.id,
         }
+
+    @property
+    def full_name(self):
+        return f'{self.first_name}{" " + self.middle_name if self.middle_name else ""} {self.last_name}'
 
 class Seite(models.Model):
     seitenzahl = models.PositiveSmallIntegerField()
