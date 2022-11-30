@@ -80,5 +80,6 @@ class AktivierungsForm(forms.ModelForm):
           }
 
           
-class LoeschForm(forms.Form):
+class ConfirmForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput, label='Passwort')
+

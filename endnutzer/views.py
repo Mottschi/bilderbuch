@@ -12,7 +12,7 @@ from django.utils.timezone import now
 
 
 from .forms import LoginForm, PasswordResetForm, PasswordChangeForm, MandantenForm, EinladungsForm
-from .forms import EndnutzerForm, EndnutzerEditForm, AktivierungsForm, LoeschForm
+from .forms import EndnutzerForm, EndnutzerEditForm, AktivierungsForm, ConfirmForm
 from .helpers import is_endnutzer, not_logged_in, handle_uploaded_file, is_mandantenadmin
 
 from betreiber.models import User, Autor, Mandant, Buch, Seite, Aktivierungscode, Einladung, Sprache
@@ -215,11 +215,64 @@ def view_record_book(request, buch_id):
     /PF0540/ Es soll sich eine neue Sprachaufzeichnung für ein Buch aufnehmen lassen, 
     unter Auswahl der benutzten Sprache.
     '''
-    raise NotImplementedError
+    try:
+        buch = Buch.objects.get(pk=buch_id)
+    except:
+        messages.error(request, 'Das gewählte Buch konnte nicht gefunden werden')
+        return redirect(reverse('endnutzer:library'))
+
+    # TODO check whether book is actually in mandants library
+
+    if request.method == 'POST':
+        try:
+            password = request.POST['password']
+        except:
+            messages.error(request, 'Es wurde kein Passwort angegeben')
+            return render(request, 'endnutzer/bibliothek/aufnehmen.html', {
+                'form': ConfirmForm(),
+                'sprachen': request.user.sprachen.all(),
+                'buch': buch,
+            })
+
+        if not check_password(password, request.user.password):
+            messages.error(request, 'Das Passwort ist inkorrekt.')
+            return render(request, 'endnutzer/bibliothek/aufnehmen.html', {
+                'form': ConfirmForm(),
+                'sprachen': request.user.sprachen.all(),
+                'buch': buch,
+            })
+
+        try:
+            sprache = request.POST['sprache']
+        except:
+            messages.error(request, 'Es wurde keine Sprache ausgewählt.')
+            return render(request, 'endnutzer/bibliothek/aufnehmen.html', {
+                'form': ConfirmForm(),
+                'sprachen': request.user.sprachen.all(),
+                'buch': buch,
+            })
+        
+        try:
+            sprache = Sprache.objects.get(name=sprache)
+        except:
+            messages.error(request, 'Es wurde keine existierende Sprache ausgewählt.')
+            return render(request, 'endnutzer/bibliothek/aufnehmen.html', {
+                'form': ConfirmForm(),
+                'sprachen': request.user.sprachen.all(),
+                'buch': buch,
+            })
+
+        return redirect(reverse('endnutzer:seite_aufnehmen', args=(buch.id, 1, sprache.id)))
+
+    return render(request, 'endnutzer/bibliothek/aufnehmen.html', {
+        'form': ConfirmForm(),
+        'sprachen': request.user.sprachen.all(),
+        'buch': buch,
+    })
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
-def view_record_page(request, buch_id, seite_id):
+def view_record_page(request, buch_id, seite_id, sprache_id):
     '''
     In Verbindung mit /PF0540/
     /PF0660/ Zur nächsten Seite blättern. Zeigt die nächste Seite an.
@@ -227,6 +280,7 @@ def view_record_page(request, buch_id, seite_id):
     /PF0680/ Aufnehmen. Erlaubt dem Benutzer eine Audioaufzeichnung für die aktuelle Seite aufzunehmen.
 
     '''
+    print(buch_id, seite_id, sprache_id)
     raise NotImplementedError
 
 @login_required(login_url='endnutzer:login')
@@ -317,11 +371,11 @@ def view_account_deletion(request):
     ready_for_deletion = deletion_date is not None and deletion_date < now()
 
     if request.method== 'POST':
-        form = LoeschForm(request.POST)
+        form = ConfirmForm(request.POST)
         if not form.is_valid():
             messages.error(request, "Es wurde kein Passwort angegeben.")
             return render(request, 'endnutzer/user/deletion.html', {
-                'form': LoeschForm(),
+                'form': ConfirmForm(),
                 'deletion_date': deletion_date,
                 'show_password_field': True if deletion_date is None or ready_for_deletion else False,
             })
@@ -329,7 +383,7 @@ def view_account_deletion(request):
         if not check_password(password, user.password):
             messages.error(request, 'Das angegebene Passwort ist falsch.')
             return render(request, 'endnutzer/user/deletion.html', {
-                'form': LoeschForm(),
+                'form': ConfirmForm(),
                 'deletion_date': deletion_date,
                 'show_password_field': True if deletion_date is None or ready_for_deletion else False,
             })
@@ -348,7 +402,7 @@ def view_account_deletion(request):
             return redirect(reverse('endnutzer:userprofil'))
         
     return render(request, 'endnutzer/user/deletion.html', {
-        'form': LoeschForm(),
+        'form': ConfirmForm(),
         'deletion_date': deletion_date,
         'show_password_field': True if deletion_date is None or ready_for_deletion else False,
     })
@@ -402,10 +456,10 @@ def view_mandant_deletion(request):
     deletion_date = None if mandant.deletion is None else mandant.deletion + timedelta(days=30)
     ready_for_deletion = deletion_date is not None and deletion_date < now()
     if request.method == 'POST':
-        form = LoeschForm(request.POST)
+        form = ConfirmForm(request.POST)
         if not form.is_valid():
             return render(request, 'endnutzer/admin/deletion.html', {
-                'form': LoeschForm(),
+                'form': ConfirmForm(),
                 'deletion_date': deletion_date,
                 'show_password_field': True if deletion_date is None or ready_for_deletion else False,
             })
@@ -413,7 +467,7 @@ def view_mandant_deletion(request):
         if not check_password(password, request.user.password):
             messages.error(request, 'Das angegebene Passwort ist falsch.')
             return render(request, 'endnutzer/admin/deletion.html', {
-                'form': LoeschForm(),
+                'form': ConfirmForm(),
                 'deletion_date': deletion_date,
                 'show_password_field': True if deletion_date is None or ready_for_deletion else False,
             })
@@ -434,7 +488,7 @@ def view_mandant_deletion(request):
     
 
     return render(request, 'endnutzer/admin/deletion.html', {
-        'form': LoeschForm(),
+        'form': ConfirmForm(),
         'deletion_date': deletion_date,
         'show_password_field': True if deletion_date is None or ready_for_deletion else False,
     })

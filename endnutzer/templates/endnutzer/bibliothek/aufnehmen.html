@@ -1,0 +1,44 @@
+{% extends 'endnutzer/layout.html' %}
+{% load static %}
+
+{% block script %}
+    <style>
+        .radioOptions input[type="radio"] {
+            display:none;
+          }
+
+        .radioOptions input[type="radio"]:checked+label {
+            text-decoration: underline;
+          }
+          
+        .flag {
+            border: solid 1px;
+        }
+    </style>
+{% endblock %}
+
+
+{% block content %}
+    <div><h1>Aufnahme für {{buch.title}}:</h1></div>
+
+    <div>
+        Bitte wählen Sie eine Sprache und geben Sie Ihr Passwort an, um in den Aufnahmemodus zu wechseln.
+        <form action="" method='POST'>
+            {% csrf_token %}
+            <div class='radioOptions'>
+            {% for sprache in  sprachen %}
+            <div class='m-1'>
+                <input type="radio" name="sprache" id="sprache-{{sprache.id}}" value={{sprache}}>    
+                <label for='sprache-{{sprache.id}}'><img src="{% static sprache.flag %}" width=50 alt="Flagge für {{sprache}}" class='flag'/> {{sprache}}</label>
+            </div>
+            {% endfor %}
+            </div>
+            {{form.as_p}}
+            <button type="submit">Bestätigen</button>
+        </form>
+    </div>
+
+    <div>
+        Falls Sie hier eine Sprache vermissen, können Sie diese in Ihrem <a href="{% url 'endnutzer:userprofil' %}">Profil</a> hinzufügen.
+    </div>
+{% endblock content %}

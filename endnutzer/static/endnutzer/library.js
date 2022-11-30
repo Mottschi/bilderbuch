@@ -53,8 +53,7 @@ $(document).ready(() => {
     })
 
     function filtern() {
-        let buecher = allebuecher.filter((buch)=> (buch.age <= maxAge) && (buch.age >= minAge) &&
-            searchFilter(buch));
+        let buecher = allebuecher.filter((buch)=> (buch.age <= maxAge) && (buch.age >= minAge) && searchFilter(buch));
 
         drawLibrary(buecher);
     }

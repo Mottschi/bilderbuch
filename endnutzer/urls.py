@@ -11,7 +11,9 @@ urlpatterns = [
     path("bibliothek", views.view_library, name='library'),
     path("bibliothek/api", views.api_library, name='api_library'),
     path("buch/<int:buch_id>/abspielen", views.view_play_book, name='buch_abspielen'),
+    path("buch/<int:buch_id>/seite/<int:seite_id>/abspielen", views.view_play_page, name='seite_abspielen'),
     path("buch/<int:buch_id>/aufnehmen", views.view_record_book, name='buch_aufnehmen'),
+    path("buch/<int:buch_id>/seite/<int:seite_id>/sprache/<int:sprache_id>/aufnehmen", views.view_record_page, name='seite_aufnehmen'),
     path("bibliothek", views.view_library, name='library'),
     path("mandant/profil", views.view_mandant_profile, name='mandantenprofil'),
     path("mandant/benutzerliste", views.view_user_accounts, name='benutzerliste'),
@@ -27,4 +29,5 @@ urlpatterns = [
     path("user/aufnahmen/delete", views.view_delete_recording, name='eigene_aufnahme_loeschen'),
     path("user/loeschung/einleiten", views.view_account_deletion, name='account_loeschen'),
     path("user/loeschung/abbrechen", views.view_cancel_deletion, name='account_loeschung_abbrechen'),
+    path("user/profil", views.view_profile, name='userprofil'),
 ]
