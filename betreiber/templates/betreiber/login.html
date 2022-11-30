@@ -6,7 +6,7 @@
 
 
 {% block content %}
-    <h1>Login</h1>
+    <!-- <h1>Login</h1>
 
     <br>
     <form method='POST'>
@@ -14,5 +14,34 @@
         {{ form }}
         <input type=submit value='Einloggen'>
         <a href="{% url 'betreiber:reset_password' %}">Passwort vergessen?</a>
-    </form>
+    </form> -->
+
+
+    <main class="form-signin w-100 m-auto text-center">
+        <div class="row">
+            <div class="col"></div>
+            <div class="col-sm">
+                <h1 class="h3 mb-3 fw-normal">Login</h1>
+    
+                <form method='POST'>
+                    {% csrf_token %}
+                        <!-- {{ form }} -->
+                        <div class="form-floating">
+                            {{ form.username}}
+                            <label for="{{ form.username.id_for_label }}">Username</label>
+                        </div>
+                        <div class="form-floating">
+                            {{ form.password}}
+                            <label for="{{ form.password.id_for_label }}">Passwort</label>
+                        </div>
+    
+                        <button class="w-100 btn btn-lg btn-primary" type="submit">Einloggen</button>
+                        
+                    
+                </form>
+                <a href="{% url 'betreiber:reset_password' %}">Passwort vergessen?</a>
+            </div>
+            <div class="col"></div>
+        </div>
+    </main>
 {% endblock content %}

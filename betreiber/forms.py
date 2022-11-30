@@ -6,6 +6,9 @@ class LoginForm(forms.Form):
 	username = forms.CharField(max_length=150, label='Benutzername')
 	password = forms.CharField(widget=forms.PasswordInput, label='Passwort')
 
+	username.widget.attrs.update({'class': 'form-control'})
+	password.widget.attrs.update({'class': 'form-control'})
+
 
 class BetreiberForm(forms.ModelForm):
 	class Meta:
@@ -28,6 +31,11 @@ class AutorForm(forms.ModelForm):
             'middle_name': 'Mittelname',
             'last_name': 'Nachname',
         }
+    def __init__(self, *args, **kwargs):
+        # From Django Documentation: https://docs.djangoproject.com/en/4.1/ref/forms/widgets/#customizing-widget-instances
+        super().__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['class'] = 'form-control'
 
 
 class BuchForm(forms.ModelForm):
