@@ -36,6 +36,7 @@ class AutorForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for visible in self.visible_fields():
             visible.field.widget.attrs['class'] = 'form-control'
+        
 
 
 class BuchForm(forms.ModelForm):
@@ -49,6 +50,16 @@ class BuchForm(forms.ModelForm):
             'author': 'Autoren',
             'age': 'Altersfreigabe',
         }
+    def __init__(self, *args, **kwargs):
+        # From Django Documentation: https://docs.djangoproject.com/en/4.1/ref/forms/widgets/#customizing-widget-instances
+        super().__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['class'] = 'form-control'
+            visible.field.widget.attrs['id'] = visible.id_for_label
+            visible.field.widget.attrs['placeholder'] = ''
+        self.fields['author'].widget.attrs['class'] = 'form-select'
+        self.fields['author'].widget.attrs['size'] = '5'
+        self.fields['age'].widget.attrs.pop('placeholder', None) 
 
 class EditBuchForm(BuchForm):
     file = forms.FileField(label='Titelseite', required=False)
