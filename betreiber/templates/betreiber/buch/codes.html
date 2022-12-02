@@ -11,14 +11,26 @@
     <div><h1>Aktivierungscodes</h1></div>
 
     <div><h3>Ausgewähltes Buch: {{buch}}</h3></div>
+    <div class="d-flex">
+        <div class="p-2 flex-grow-1 "></div>
+        <div class="p-2 container-md" id='app'>
 
-    <div id='app'>
-        Wieviele Codes für dieses Buch sollen generiert werden?
-        
-        {% csrf_token %}
-        {{form.as_p}}
-        <button id='btnKeygen'>Erstellen und Exportieren</button>
+            
+                Wieviele Codes für dieses Buch sollen generiert werden?
+                
+                {% csrf_token %}
+                {% for field in form.visible_fields %}
+            <div class="form-floating p-1">
+              {{ field }}
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            </div>
+            {% endfor %}
+                
+                
+                <button id='btnKeygen'>Erstellen und Exportieren</button>
         
 
-    </div>
+            </div>
+            <div class="p-2 flex-grow-1"></div>
+        </div>
 {% endblock content %}

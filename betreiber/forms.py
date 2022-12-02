@@ -116,4 +116,6 @@ class PasswordResetForm(forms.Form):
 
 
 class GenerateBuchcodesForm(forms.Form):
-    amount = forms.IntegerField(max_value=1000, label='Anzahl')
+    amount = forms.IntegerField(max_value=1000, label='Anzahl' )
+    amount.widget.attrs['class'] = 'form-control'
+    amount.widget.attrs['type'] = 'range'
