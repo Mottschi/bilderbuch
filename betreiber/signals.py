@@ -20,7 +20,6 @@ def post_delete_buch(sender, **kwargs):
         raise NotImplementedError
 
     if thumbnail_file and os.path.exists(thumbnail_file):
-        print('deleting', thumbnail_file)
         os.remove(thumbnail_file)
 
 @receiver(post_delete, sender=Seite)
@@ -37,7 +36,6 @@ def handleSeiteBildDeletion(sender, **kwargs):
         raise NotImplementedError
 
     if picture and os.path.exists(picture):
-        print('deleting', picture)
         os.remove(picture)
     else:
         print('no file for this page found')
@@ -47,7 +45,6 @@ def post_delete_sprachaufnahme(sender, **kwargs):
     '''
     handles cleanup actions that need to be done after a recording is deleted
     '''
-    print('deleting sprachaufnahme')
     instance = kwargs['instance']
     audio_file = instance.audio
 
@@ -57,5 +54,4 @@ def post_delete_sprachaufnahme(sender, **kwargs):
         raise NotImplementedError
 
     if audio_file and os.path.exists(audio_file):
-        print('deleting', audio_file)
         os.remove(audio_file)

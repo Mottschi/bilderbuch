@@ -32,10 +32,6 @@
         <div class='col-1'>
             {% if seite.seitenzahl > 1 %}
                 <a href="{% url 'endnutzer:seite_aufnehmen' buch.id seite.seitenzahl|add:'-1' sprache.id %}" class=''>Zurueck</a>
-            {% else %}
-                {% comment "else" %}
-                    Do we want to show a greyed out page back symbol on first page? Or just leave it empty?
-                {% endcomment %}
             {% endif %}
         </div>
         <div class='col-10'>
@@ -44,10 +40,6 @@
         <div class='col-1'>
             {% if seite.seitenzahl < buch.seiten.count %}
                 <a href="{% url 'endnutzer:seite_aufnehmen' buch.id seite.seitenzahl|add:'1' sprache.id %}">Vorwaerts</a>
-            {% else %}
-                {% comment "else" %}
-                    Do we want to show a greyed out page forward symbol on last page? Or just leave it empty?
-                {% endcomment %}
             {% endif %}
         </div>
 

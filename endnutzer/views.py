@@ -398,6 +398,12 @@ def api_record_page(request, buch_id, seitenzahl, sprache_id):
         aufnahme = Sprachaufnahme.objects.get(seite=seite, language=sprache, recorded_by=request.user)
         aufnahme.delete()
     
+    # Alle oeffentlichen Aufnahmen des Benutzers fuer diese Buch/Sprach Kombination werden auf nicht oeffentlich gesetzt, da eine neue Aufnahme hinzugefuegt wurde
+    for aufnahme in Sprachaufnahme.objects.filter(language=sprache, recorded_by=request.user, is_public=True):
+        aufnahme.is_public = False
+        aufnahme.save()
+        print('hiding', aufnahme)
+
     aufnahme = Sprachaufnahme.objects.create(seite=seite, language=sprache, recorded_by=request.user, audio=audio_path, is_public=False)
 
     handle_uploaded_file(request.FILES['file'], full_filepath)
@@ -458,23 +464,102 @@ def view_my_recordings(request):
     '''
     /PF0730/ Einsehen der eigenen Sprachaufzeichnungen.
     '''
-    raise NotImplementedError
+    # Unser Ziel ist es, alle Aufnahmen des Users zu gruppieren und am Ende in einer Liste die
+    # nach dem Buch zu dem die Aufnahme gehoert sortiert ist anzuzeigen
+    # Da die Buecher zu denen der Benutzer Aufnahmen angefertigt hat eine Teilmenge der Bibliothek des
+    # Mandanten sind, moechten wir aber nicht durch alle Buecher oder auch alle Buecher des Mandanten loopen
+    return render(request, 'endnutzer/user/aufzeichnungen.html')
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
-def view_delete_recording(request):
+def api_my_recordings(request):
+    '''
+    /PF0730/ Einsehen der eigenen Sprachaufzeichnungen.
+    '''
+    # Unser Ziel ist es, alle Aufnahmen des Users zu gruppieren und am Ende in einer Liste die
+    # nach dem Buch zu dem die Aufnahme gehoert sortiert ist anzuzeigen
+    # Da die Buecher zu denen der Benutzer Aufnahmen angefertigt hat eine Teilmenge der Bibliothek des
+    # Mandanten sind, moechten wir aber nicht durch alle Buecher oder auch alle Buecher des Mandanten loopen
+    alle_aufnahmen = Sprachaufnahme.objects.filter(recorded_by=request.user)
+    aufzeichnungen = {}
+    for aufnahme in alle_aufnahmen:
+        if (aufnahme.seite.book, aufnahme.language) not in aufzeichnungen:
+            aufzeichnungen[aufnahme.seite.book, aufnahme.language] = {
+                'id': aufnahme.id,
+                'thumbnail': aufnahme.seite.book.thumbnail,
+                'title': aufnahme.seite.book.title,
+                'sprache': aufnahme.language.name,
+                'is_public': aufnahme.is_public,
+                'aufnahmen_count': 1,
+                'seiten_count': aufnahme.seite.book.seiten.count(),
+                'delete_url': reverse('endnutzer:api_eigene_aufnahme_loeschen', args=[aufnahme.seite.book.id, aufnahme.language.id]),
+                'toggle_publicity_url': reverse('endnutzer:api_sichtbarkeit_toggle', args=[aufnahme.seite.book.id, aufnahme.language.id]),
+                'edit_url': reverse('endnutzer:seite_aufnehmen', args=[aufnahme.seite.book.id, 1, aufnahme.language.id]),
+            }
+        else:
+            aufzeichnungen[aufnahme.seite.book, aufnahme.language]['aufnahmen_count'] += 1
+
+    return JsonResponse(status=200, data={'aufnahmen': list(aufzeichnungen.values())})
+
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_endnutzer, login_url='endnutzer:logout')
+def api_delete_recording(request, buch_id, sprache_id):
     '''
     Teil von /PF0730/ - Löschen eigener Sprachaufzeichnungen
     '''
-    raise NotImplementedError
+    if request.method != 'POST':
+        return JsonResponse(status=400, data={'error': 'Auf diesem Weg können keine Aufzeichnungen gelöscht werden!'})
+    try:
+        buch = Buch.objects.get(pk=buch_id)
+    except:
+        return JsonResponse(status=400, data={'error': 'Das angegebene Buch konnte nicht gefunden werden!'})
+
+    try:
+        sprache = Sprache.objects.get(pk=sprache_id)
+    except:
+        return JsonResponse(status=400, data={'error': 'Die angegebene Sprache konnte nicht gefunden werden!'})
+
+    aufnahmen = Sprachaufnahme.objects.filter(recorded_by=request.user, language=sprache, seite__in=buch.seiten.all())
+
+    if len(aufnahmen) == 0:
+        return JsonResponse(status=400, data={'error': f'Es wurden keine Aufzeichnungen dieses Benutzers für das Buch "{buch}" auf {sprache} gefunden!'})
+
+    for aufnahme in aufnahmen:
+        aufnahme.delete()
+    
+    return JsonResponse(status=200, data={})
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
-def api_modify_recording_visibility(request):
+def api_modify_recording_visibility(request, buch_id, sprache_id):
     '''
     /PF0740/ Modifizieren der Sichtbarkeit von Sprachaufzeichnungen. 
     '''
-    raise NotImplementedError
+    try:
+        buch = Buch.objects.get(pk=buch_id)
+    except:
+        return JsonResponse(status=400, data={'error': 'Das angegebene Buch konnte nicht gefunden werden!'})
+
+    try:
+        sprache = Sprache.objects.get(pk=sprache_id)
+    except:
+        return JsonResponse(status=400, data={'error': 'Die angegebene Sprache konnte nicht gefunden werden!'})
+
+    aufnahmen = Sprachaufnahme.objects.filter(recorded_by=request.user, language=sprache, seite__in=buch.seiten.all())
+
+    if len(aufnahmen) == 0:
+        return JsonResponse(status=400, data={'error': f'Es wurden keine Aufzeichnungen dieses Benutzers für das Buch "{buch}" auf {sprache} gefunden!'})
+
+    if len(aufnahmen) != len(buch.seiten.all()):
+        return JsonResponse(status=400, data={'error': f'Sie haben noch nicht alle Seiten dieses Buchs auf {sprache} aufgenommen, daher kann das Buch noch nicht sichtbar geschaltet werden.'})
+
+    aktuelle_sichtbarkeit = aufnahmen[0].is_public
+    
+    for aufnahme in aufnahmen:
+        aufnahme.is_public = not aktuelle_sichtbarkeit
+        aufnahme.save()
+    
+    return JsonResponse(status=200, data={'sichtbarkeit': not aktuelle_sichtbarkeit})
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
