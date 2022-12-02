@@ -2,9 +2,9 @@ $(document).ready(() => {
     
     $('#btnKeygen').click((event)=>{
         // get value from the number input field #id_amount
-        inputAmount = $('#id_amount')
-        amount = parseInt(inputAmount.val())
-        csrfmiddlewaretoken = $('input[name="csrfmiddlewaretoken"]').val()
+        inputAmount = $('#id_amount');
+        amount = parseInt(inputAmount.val());
+        csrfmiddlewaretoken = $('input[name="csrfmiddlewaretoken"]').val();
         if (isNaN(amount) || amount < 1 || amount > 1000) {
             alert('Bitte geben Sie eine Zahl zwischen 1 und 1000 ein.');
             return;
@@ -26,18 +26,18 @@ $(document).ready(() => {
             dataType: 'json',
         }).done((json) => {
             // generate the file and download it
-            let codes = json.codes.join('\n')
-            const a = document.createElement('a')
-            const blob = new Blob([codes], {type: 'text/plain'})
-            a.href = URL.createObjectURL(blob)``
-            a.download = `${json.title} - codes.txt`
-            a.click()
-            URL.revokeObjectURL(a)
-            appDiv.html('Die Codes wurden erfolgreich generiert.')
-            appDiv.addClass('alert alert-success')
+            let codes = json.codes.join('\n');
+            const a = document.createElement('a');
+            const blob = new Blob([codes], {type: 'text/plain'});
+            a.href = URL.createObjectURL(blob);
+            a.download = `${json.title} - codes.txt`;
+            a.click();
+            URL.revokeObjectURL(a);
+            appDiv.html('Die Codes wurden erfolgreich generiert.');
+            appDiv.addClass('alert alert-success');
         }).fail(() => {
-            alert('Beim Generieren der Keys ist ein Fehler aufgetreten.')
-            location.reload()
+            alert('Beim Generieren der Keys ist ein Fehler aufgetreten.');
+            location.reload();
         })
 
 
