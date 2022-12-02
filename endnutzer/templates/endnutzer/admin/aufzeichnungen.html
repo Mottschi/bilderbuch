@@ -1,0 +1,21 @@
+{% extends 'endnutzer/layout.html' %}
+{% load static %}
+
+{% block script %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="{% static 'endnutzer/all_recordings.js' %}"></script>
+
+    <style>
+        
+    </style>
+
+{% endblock %}
+
+
+{% block content %}
+    <div><h1>Alle öffentlichen Aufnahmen für den Mandanten:</h1></div>
+
+    <div id='aufnahmen'></div>
+    
+    {% csrf_token %}
+{% endblock content %}

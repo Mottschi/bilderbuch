@@ -846,16 +846,59 @@ def view_all_recordings(request):
     /PF1020/ Einsehen einer Liste aller öffentlichen Sprachaufzeichnungen, 
     die von mit dem Mandanten verbundenen Benutzerkonten getätigt wurden.
     '''
-    raise NotImplementedError
-    members = request.user.mandant.member.all()
-    recordings = [member.recordings.filter(is_public = True) for member in members]
-    
+    return render(request, 'endnutzer/admin/aufzeichnungen.html', {})
 
-# TODO
+
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
-def view_delete_recording(request):
+def api_all_recordings(request):
+    members = request.user.mandant.member.all()
+    aufnahmen = Sprachaufnahme.objects.filter(recorded_by__in=request.user.mandant.member.all(), is_public=True)
+    aufzeichnungen = {}
+    for aufnahme in aufnahmen:
+        if (aufnahme.recorded_by, aufnahme.seite.book, aufnahme.language) not in aufzeichnungen:
+            aufzeichnungen[aufnahme.recorded_by, aufnahme.seite.book, aufnahme.language] = {
+                'buch_id': aufnahme.seite.book.id,
+                'title': aufnahme.seite.book.title,
+                'sprache': aufnahme.language.name,
+                'sprecher': aufnahme.recorded_by.username,
+                'delete_url': reverse('endnutzer:api_user_aufnahme_loeschen', args=[aufnahme.recorded_by.id, aufnahme.seite.book.id, aufnahme.language.id]),
+                'play_url': reverse('endnutzer:seite_abspielen', args=[aufnahme.seite.book.id, 1, aufnahme.language.id, aufnahme.recorded_by.id,]),
+            }
+    aufnahmen = list(aufzeichnungen.values())
+    aufnahmen = sorted(aufnahmen, key= lambda aufnahme: (aufnahme['title'], aufnahme['sprache'], aufnahme['sprecher']))
+    return JsonResponse(status=200, data={'aufnahmen': aufnahmen})
+    
+
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
+def api_delete_users_recording(request, user_id, buch_id, sprache_id):
     '''
     /PF1030/ Löschen von Sprachaufzeichnungen.
     '''
-    raise NotImplementedError
+    if request.method != 'POST':
+        return JsonResponse(status=400, data={'error': 'Auf diesem Weg können keine Aufzeichnungen gelöscht werden!'})
+    try:
+        buch = Buch.objects.get(pk=buch_id)
+    except:
+        return JsonResponse(status=400, data={'error': 'Das angegebene Buch konnte nicht gefunden werden!'})
+
+    try:
+        user = User.objects.get(pk=user_id)
+    except:
+        return JsonResponse(status=400, data={'error': 'Das angegebene Buch konnte nicht gefunden werden!'})
+
+    try:
+        sprache = Sprache.objects.get(pk=sprache_id)
+    except:
+        return JsonResponse(status=400, data={'error': 'Die angegebene Sprache konnte nicht gefunden werden!'})
+
+    aufnahmen = Sprachaufnahme.objects.filter(recorded_by=user, language=sprache, seite__in=buch.seiten.all())
+
+    if len(aufnahmen) == 0:
+        return JsonResponse(status=400, data={'error': f'Es wurden keine Aufzeichnungen dieses Benutzers für das Buch "{buch}" auf {sprache} gefunden!'})
+
+    for aufnahme in aufnahmen:
+        aufnahme.delete()
+    
+    return JsonResponse(status=200, data={})
