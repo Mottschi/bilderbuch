@@ -23,6 +23,7 @@ class User(AbstractUser):
         # TODO
         return 0
 
+
 class Mandant(models.Model):
     class Country(models.TextChoices):
         GERMANY = 'DE', _('Deutschland')
@@ -47,6 +48,10 @@ class Mandant(models.Model):
     def book_count(self):
         return Aktivierungscode.objects.filter(mandant=self).count()
 
+    @property
+    def library(self):
+        return [code.book for code in self.activated_codes.all()]
+
     def __str__(self):
         return self.name
 
@@ -67,6 +72,7 @@ class Aktivierungscode(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['mandant', 'book'], name='BuchPerMandant')
         ]
+
 
 class Buch(models.Model):
     thumbnail = models.CharField(max_length=150)
@@ -115,6 +121,7 @@ class Autor(models.Model):
     def full_name(self):
         return f'{self.first_name}{" " + self.middle_name if self.middle_name else ""} {self.last_name}'
 
+
 class Seite(models.Model):
     seitenzahl = models.PositiveSmallIntegerField()
     text = models.CharField(max_length=255)
@@ -135,6 +142,10 @@ class Seite(models.Model):
             'picture': self.picture,
             'id': self.id}
 
+    def __str__(self):
+        return f'Seite {self.seitenzahl} des Buchs "{self.book.title}"'
+
+
 class Sprachaufnahme(models.Model):
     seite = models.ForeignKey('Seite', on_delete = models.CASCADE)
     audio = models.CharField(max_length=150)
@@ -146,7 +157,10 @@ class Sprachaufnahme(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['language', 'recorded_by', 'seite'], name='SpezifischeSprachaufnahme')
         ]
-        verbose_name_plural = 'Seiten'
+        verbose_name_plural = 'Sprachaufnahmen'
+
+    def __str__(self):
+        return f'Aufzeichung des Benutzers "{self.recorded_by}" der {self.seite} in der Sprache "{self.language}"'
 
 class Sprache(models.Model):
     name = models.CharField(max_length=25)
@@ -158,6 +172,7 @@ class Sprache(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Einladung(models.Model):
     code = models.UUIDField(unique=True)

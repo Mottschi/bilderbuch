@@ -39,6 +39,7 @@ if RENDER:
 else:
     ALLOWED_HOSTS.append('127.0.0.1')
     ALLOWED_HOSTS.append('localhost')
+    ALLOWED_HOSTS.append('192.168.0.29')
 
 # Application definition
 

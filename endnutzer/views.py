@@ -16,6 +16,7 @@ from .forms import EndnutzerForm, EndnutzerEditForm, AktivierungsForm, ConfirmFo
 from .helpers import is_endnutzer, not_logged_in, handle_uploaded_file, is_mandantenadmin
 
 from betreiber.models import User, Autor, Mandant, Buch, Seite, Aktivierungscode, Einladung, Sprache
+from betreiber.models import Sprachaufnahme
 from django.conf import settings as conf_settings
 
 import random, os, uuid
@@ -183,9 +184,7 @@ def api_library(request):
     '''
     /PF0510/ Ein eingeloggter Benutzer kann die Bibliothek des Mandanten einsehen.
     '''
-    mandant = request.user.mandant
-    activated_codes = mandant.activated_codes.all()
-    library = [code.book.serialize() for code in activated_codes]
+    library = [book.serialize() for book in request.user.mandant.library]
     return JsonResponse(status=200, data = {'library':library})
 
 
@@ -201,12 +200,55 @@ def view_play_book(request, buch_id):
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
-def view_play_page(request, buch_id, seite_id):
+def view_play_page(request, buch_id, seitenzahl, sprache_id, sprecher_id):
     '''
     /PF0610/ Zur nächsten Seite blättern.
     /PF0620/ Zur vorherigen Seite blättern.
     '''
-    raise NotImplementedError
+    template = 'endnutzer/bibliothek/seite_abspielen.html'
+    print(buch_id, seitenzahl, sprache_id)
+    try:
+        buch = Buch.objects.get(pk=buch_id)
+    except:
+        messages.error(request, 'Das angegebene Buch wurde nicht gefunden.')
+
+    if buch not in request.user.mandant.library:
+            messages.error(request, f'Das gewählte Buch wurde auf Ihrem Mandanten "{request.user.mandant}" bisher noch nicht freigeschaltet.')
+            return redirect(reverse('endnutzer:library'))
+
+    try:
+        sprache = Sprache.objects.get(pk=sprache_id)
+    except:
+        messages.error(request, f'Die gewählte Sprache wurde nicht gefunden.')
+        return redirect(reverse('endnutzer:library'))
+
+    try:
+        sprecher = User.objects.get(pk=sprecher_id)
+    except:
+        messages.error(request, f'Der gewählte Sprecher wurde nicht gefunden.')
+        return redirect(reverse('endnutzer:library'))
+    
+    try:
+        seite = buch.seiten.get(seitenzahl=seitenzahl)
+    except:
+        messages.error(request, f'Die gewählte Seite wurde nicht gefunden.')
+        return redirect(reverse('endnutzer:library'))
+
+    try:
+        # TODO add is_public once implemented 
+        # aufnahme = Sprachaufnahme.objects.get(seite=seite, recorded_by=sprecher, sprache=sprache, is_public=True)
+        print(seite, sprecher, sprache)
+        aufnahme = Sprachaufnahme.objects.get(seite=seite, recorded_by=sprecher, language=sprache)
+    except:
+        messages.error(request, f'Die gewählte Aufnahme wurde nicht gefunden.')
+        return redirect(reverse('endnutzer:library'))
+
+    
+
+    return render(request, template, {
+        'seite': seite,
+        'aufnahme': aufnahme,
+    })
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
@@ -222,7 +264,9 @@ def view_record_book(request, buch_id):
         messages.error(request, 'Das gewählte Buch konnte nicht gefunden werden')
         return redirect(reverse('endnutzer:library'))
 
-    # TODO check whether book is actually in mandants library
+    if buch not in request.user.mandant.library:
+        messages.error(request, f'Das gewählte Buch wurde auf Ihrem Mandanten "{request.user.mandant}" bisher noch nicht freigeschaltet.')
+        return redirect(reverse('endnutzer:library'))
 
     if request.method == 'POST':
         try:
@@ -273,7 +317,7 @@ def view_record_book(request, buch_id):
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
-def view_record_page(request, buch_id, seite_id, sprache_id):
+def view_record_page(request, buch_id, seitenzahl, sprache_id):
     '''
     In Verbindung mit /PF0540/
     /PF0660/ Zur nächsten Seite blättern. Zeigt die nächste Seite an.
@@ -281,9 +325,83 @@ def view_record_page(request, buch_id, seite_id, sprache_id):
     /PF0680/ Aufnehmen. Erlaubt dem Benutzer eine Audioaufzeichnung für die aktuelle Seite aufzunehmen.
 
     '''
+    # NOTE: currently, the extra password verification is only used when accessing this page
+    # through the proper UI path, but not when accessing it directly via bookmark or history
     template = 'endnutzer/bibliothek/seite_aufnehmen.html'
-    print(buch_id, seite_id, sprache_id)
-    raise NotImplementedError
+    
+    try:
+        buch = Buch.objects.get(pk=buch_id)
+    except:
+        messages.error(request, 'Das angegebene Buch wurde nicht gefunden.')
+
+    if buch not in request.user.mandant.library:
+            messages.error(request, f'Das gewählte Buch wurde auf Ihrem Mandanten "{request.user.mandant}" bisher noch nicht freigeschaltet.')
+            return redirect(reverse('endnutzer:library'))
+
+    try:
+        sprache = Sprache.objects.get(pk=sprache_id)
+    except:
+        messages.error(request, f'Die gewählte Sprache wurde nicht gefunden.')
+        return redirect(reverse('endnutzer:library'))
+    
+    try:
+        seite = buch.seiten.get(seitenzahl=seitenzahl)
+    except:
+        messages.error(request, f'Die gewählte Seite wurde nicht gefunden.')
+        return redirect(reverse('endnutzer:library'))
+
+    aufnahme = Sprachaufnahme.objects.get(language=sprache, seite=seite, recorded_by=request.user) if Sprachaufnahme.objects.filter(language=sprache, seite=seite, recorded_by=request.user).exists() else None
+    aufgenommene_seitenzahlen = [seite.seitenzahl for seite in buch.seiten.all() if Sprachaufnahme.objects.filter(language=sprache, seite=seite, recorded_by=request.user).exists() ]
+    
+    return render(request, template, {
+        'buch': buch,
+        'sprache': sprache,
+        'seite': seite,
+        'aufgenommene_seitenzahlen': aufgenommene_seitenzahlen,
+        'aufnahme': aufnahme,
+    })
+
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_endnutzer, login_url='endnutzer:logout')
+def api_record_page(request, buch_id, seitenzahl, sprache_id):
+    filetypes = {
+        "audio/webm": '.webm',
+        "audio/mpeg": '.mp3',
+        "audio/mp3": '.mp3',
+        "audio/mp4": '.m4a',
+        "audio/wav": '.wav',
+        "audio/ogg": '.ogg',
+        "audio/mpeg3": '.mp3',
+        "audio/3gpp": '.3gpp',
+    }
+    try:
+        buch = Buch.objects.get(pk=buch_id)
+        seite = buch.seiten.get(seitenzahl=seitenzahl)
+        sprache = Sprache.objects.get(pk=sprache_id)
+
+        mime_type = request.FILES['file'].content_type
+        extension = filetypes[mime_type]
+    except:
+        return JsonResponse(status=400, data = {})
+
+    # generating new file name every time we replace a recording to avoid caching issues
+    filename= f'{str(uuid.uuid4())}{extension}'
+    audio_path = os.path.join('endnutzer', 'aufnahmen', str(request.user.mandant.id), filename)
+    if conf_settings.DEBUG:
+        full_filepath = os.path.join('endnutzer', 'static', audio_path)
+    else:
+        raise NotImplementedError
+
+    if Sprachaufnahme.objects.filter(seite=seite, language=sprache, recorded_by=request.user).exists():
+        # Da Aufnahmen unique_together (sprache, sprecher, seite) sind, muessen wir im Fall einer neuen Aufzeichnung
+        # die alte loeschen, dabei wird automatisch auch die zugehoerige Datei geloescht
+        aufnahme = Sprachaufnahme.objects.get(seite=seite, language=sprache, recorded_by=request.user)
+        aufnahme.delete()
+    
+    aufnahme = Sprachaufnahme.objects.create(seite=seite, language=sprache, recorded_by=request.user, audio=audio_path, is_public=False)
+
+    handle_uploaded_file(request.FILES['file'], full_filepath)
+    return JsonResponse(status=200, data = {})
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')

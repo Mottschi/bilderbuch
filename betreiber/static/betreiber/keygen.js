@@ -29,7 +29,7 @@ $(document).ready(() => {
             let codes = json.codes.join('\n')
             const a = document.createElement('a')
             const blob = new Blob([codes], {type: 'text/plain'})
-            a.href = URL.createObjectURL(blob)
+            a.href = URL.createObjectURL(blob)``
             a.download = `${json.title} - codes.txt`
             a.click()
             URL.revokeObjectURL(a)

@@ -41,3 +41,21 @@ def handleSeiteBildDeletion(sender, **kwargs):
         os.remove(picture)
     else:
         print('no file for this page found')
+
+@receiver(post_delete, sender=Sprachaufnahme)
+def post_delete_sprachaufnahme(sender, **kwargs):
+    '''
+    handles cleanup actions that need to be done after a recording is deleted
+    '''
+    print('deleting sprachaufnahme')
+    instance = kwargs['instance']
+    audio_file = instance.audio
+
+    if conf_settings.DEBUG:
+        audio_file = os.path.join('endnutzer', 'static', audio_file)
+    else:
+        raise NotImplementedError
+
+    if audio_file and os.path.exists(audio_file):
+        print('deleting', audio_file)
+        os.remove(audio_file)

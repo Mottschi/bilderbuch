@@ -5,11 +5,11 @@ $(document).ready(() => {
 
     $.ajax({
         url: `${location.pathname}/api`,
-            data: {
-                
-            },
-            type: 'GET',
-            dataType: 'json',
+        data: {
+            
+        },
+        type: 'GET',
+        dataType: 'json',
     }).done((json)=>{
         allebuecher = json.library;
         drawLibrary(allebuecher);
@@ -19,8 +19,8 @@ $(document).ready(() => {
 
     let minAge = 0;
     let maxAge = 99;
-    $('#min_age').val(0);
-    $('#max_age').val(99);
+    $('#min_age').val(minAge);
+    $('#max_age').val(maxAge);
 
     let searchTerm = $('#search').val();
 

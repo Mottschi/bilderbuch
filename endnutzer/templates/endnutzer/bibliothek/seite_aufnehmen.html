@@ -2,6 +2,8 @@
 {% load static %}
 
 {% block script %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="{% static 'endnutzer/seite_aufnehmen.js' %}"></script>
     <style>         
         .flag {
             border: solid 1px;
@@ -16,6 +18,7 @@
             color: red;
             border: red 2px solid;
         }
+
     </style>
 {% endblock %}
 
@@ -23,10 +26,12 @@
 {% block content %}
     <div><h1>Aufnahme für {{buch.title}} Seite {{seite.seitenzahl}}:</h1></div>
 
+    <!-- Test Comment -->
+
     <div class='row'>
         <div class='col-1'>
             {% if seite.seitenzahl > 1 %}
-                <a href="{% url endnutzer:seite_aufnehmen buch.id, seite.id, sprache.id %}">Zurueck</a>
+                <a href="{% url 'endnutzer:seite_aufnehmen' buch.id seite.seitenzahl|add:'-1' sprache.id %}" class=''>Zurueck</a>
             {% else %}
                 {% comment "else" %}
                     Do we want to show a greyed out page back symbol on first page? Or just leave it empty?
@@ -34,11 +39,11 @@
             {% endif %}
         </div>
         <div class='col-10'>
-            <img src="{% static seite.picture %}" alt="Bild fuer Seite {{seite.seitenzahl}}"/>
+            <img src="{% static seite.picture %}" alt="Bild fuer Seite {{seite.seitenzahl}}" class='img-fluid'/>
         </div>
         <div class='col-1'>
             {% if seite.seitenzahl < buch.seiten.count %}
-                <a href="{% url '' %}">Vorwaerts</a>
+                <a href="{% url 'endnutzer:seite_aufnehmen' buch.id seite.seitenzahl|add:'1' sprache.id %}">Vorwaerts</a>
             {% else %}
                 {% comment "else" %}
                     Do we want to show a greyed out page forward symbol on last page? Or just leave it empty?
@@ -48,6 +53,33 @@
 
     </div>
 
+    <div class="row">
+        <div class="col-5">
+            {% for page in buch.seiten.all %}
+                {% if page.seitenzahl < seite.seitenzahl %}
+                    <a href="{% url 'endnutzer:seite_aufnehmen' buch.id page.seitenzahl sprache.id %}" 
+                                class='m-1 {% if page.seitenzahl not in aufgenommene_seitenzahlen %}un{% endif %}recordedPage'>{{page.seitenzahl}}</a>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <div class="col-2 text-center ">
+            <button id='btnRecord'>Aufnehmen</button>
+            <button id='btnStopRecord'>Aufnahme Stop</button>
+            <button id='btnPlay'>Abspielen</button>
+            {% csrf_token %}
+            <audio id='audio' {% if aufnahme %}src='{% static aufnahme.audio %}'{% endif %}>
 
+            </audio>
+        </div>
+        <div class="col-4"></div>
+        <div class="col-1">
+            {% for page in buch.seiten.all %}
+                {% if page.seitenzahl > seite.seitenzahl %}
+                    <a href="{% url 'endnutzer:seite_aufnehmen' buch.id page.seitenzahl sprache.id %}" 
+                        class='m-1 {% if page.seitenzahl not in aufgenommene_seitenzahlen %}un{% endif %}recordedPage'>{{page.seitenzahl}}</a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
 
 {% endblock content %}
