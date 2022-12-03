@@ -257,8 +257,6 @@ def view_play_page(request, buch_id, sprache_id, sprecher_id, seitenzahl):
         messages.error(request, f'Die gewählte Aufnahme wurde nicht gefunden.')
         return redirect(reverse('endnutzer:library'))
 
-    
-
     return render(request, template, {
         'seite': seite,
         'aufnahme': aufnahme,
@@ -877,7 +875,6 @@ def view_all_recordings(request):
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
 def api_all_recordings(request):
-    members = request.user.mandant.member.all()
     aufnahmen = Sprachaufnahme.objects.filter(recorded_by__in=request.user.mandant.member.all(), is_public=True)
     aufzeichnungen = {}
     for aufnahme in aufnahmen:
