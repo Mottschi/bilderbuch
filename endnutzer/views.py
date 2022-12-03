@@ -195,12 +195,26 @@ def view_play_book(request, buch_id):
     /PF0530/ Bücher sollen sich nach Auswahl einer der verfügbaren Sprachen abspielen 
     lassen.
     '''
+    try:
+        buch = Buch.objects.get(pk=buch_id)
+    except:
+        messages.error(request, 'Das angegebene Buch konnte nicht gefunden werden.')
+        return redirect(reverse('endnutzer:library'))
+
+    aufnahmen = Sprachaufnahme.objects.filter(seite__in=buch.seiten.all())
     raise NotImplementedError
+    return render(request, 'endnutzer/bibliothek/buch_abspielen.html', {'buch': buch})
 
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
-def view_play_page(request, buch_id, seitenzahl, sprache_id, sprecher_id):
+def view_play_recording(request, buch_id, sprache_id, sprecher_id):
+    return redirect(reverse('endnutzer:seite_abspielen', args=[buch_id, sprache_id, sprecher_id, 1]))
+
+
+@login_required(login_url='endnutzer:login')
+@user_passes_test(is_endnutzer, login_url='endnutzer:logout')
+def view_play_page(request, buch_id, sprache_id, sprecher_id, seitenzahl):
     '''
     /PF0610/ Zur nächsten Seite blättern.
     /PF0620/ Zur vorherigen Seite blättern.
@@ -249,6 +263,7 @@ def view_play_page(request, buch_id, seitenzahl, sprache_id, sprecher_id):
         'seite': seite,
         'aufnahme': aufnahme,
     })
+
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
@@ -315,6 +330,7 @@ def view_record_book(request, buch_id):
         'buch': buch,
     })
 
+
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
 def view_record_page(request, buch_id, seitenzahl, sprache_id):
@@ -360,6 +376,7 @@ def view_record_page(request, buch_id, seitenzahl, sprache_id):
         'aufgenommene_seitenzahlen': aufgenommene_seitenzahlen,
         'aufnahme': aufnahme,
     })
+
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
@@ -409,6 +426,7 @@ def api_record_page(request, buch_id, seitenzahl, sprache_id):
     handle_uploaded_file(request.FILES['file'], full_filepath)
     return JsonResponse(status=200, data = {})
 
+
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
 def view_profile(request):
@@ -428,6 +446,7 @@ def view_profile(request):
     return render(request, 'endnutzer/user/profile.html', {
         'form': form,
     })
+
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
@@ -458,6 +477,7 @@ def view_change_password(request):
         messages.error('Bitte das Formular korrekt ausfüllen.')
     return render(request, 'endnutzer/user/password.html', {'form': PasswordChangeForm()})
 
+
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
 def view_my_recordings(request):
@@ -469,6 +489,7 @@ def view_my_recordings(request):
     # Da die Buecher zu denen der Benutzer Aufnahmen angefertigt hat eine Teilmenge der Bibliothek des
     # Mandanten sind, moechten wir aber nicht durch alle Buecher oder auch alle Buecher des Mandanten loopen
     return render(request, 'endnutzer/user/aufzeichnungen.html')
+
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
@@ -501,6 +522,7 @@ def api_my_recordings(request):
 
     return JsonResponse(status=200, data={'aufnahmen': list(aufzeichnungen.values())})
 
+
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
 def api_delete_recording(request, buch_id, sprache_id):
@@ -528,6 +550,7 @@ def api_delete_recording(request, buch_id, sprache_id):
         aufnahme.delete()
     
     return JsonResponse(status=200, data={})
+
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
@@ -560,6 +583,7 @@ def api_modify_recording_visibility(request, buch_id, sprache_id):
         aufnahme.save()
     
     return JsonResponse(status=200, data={'sichtbarkeit': not aktuelle_sichtbarkeit})
+
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_endnutzer, login_url='endnutzer:logout')
@@ -626,6 +650,7 @@ def view_cancel_deletion(request):
 
 
 '''****************************Mandantenadmin****************************************'''
+
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
@@ -711,6 +736,7 @@ def view_cancel_mandant_deletion(request):
     messages.success(request, 'Der Löschvorgang für diesen Mandanten wurde abgebrochen.')
     return redirect(reverse("endnutzer:mandantenprofil"))
 
+
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
 def view_user_accounts(request):
@@ -722,6 +748,7 @@ def view_user_accounts(request):
     return render(request, 'endnutzer/admin/users.html', {
         'users': users,
     })
+
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
@@ -765,12 +792,9 @@ def view_invite_user(request):
                 if Einladung.objects.filter(code=invite_code).exists():
                     invite_code = None
             einladung = Einladung.objects.create(code=invite_code, is_used=False, mandant=mandant)
-            if conf_settings.DEBUG:
-                invite_link = f'http://127.0.0.1:8000/registration?invite={invite_code}'
-            else:
-                # TODO Generate invite link to render platform
-                # can only be done once we know the host url
-                raise NotImplementedError
+            
+            invite_link = f'http://{request.META["HTTP_HOST"]}/registration?invite={invite_code}'
+
             send_mail(
                     'Einladung zu Projekt Bilderuch',
                     f'Hallo,\n\nSie wurden eingeladen, dem Mandanten {mandant.name} im Projekt Bilderbuch beizutreten. Benutzen Sie dafür folgenden Link:\n\n{invite_link}\n\nMit freundlichen Grüßen,\nProjekt Bilderbuch',
@@ -787,6 +811,7 @@ def view_invite_user(request):
     return render(request, 'endnutzer/admin/einladung.html', {
         'form': form,
     })
+
 
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')    
@@ -838,7 +863,7 @@ def view_activate_book(request):
         'form': form,
     })
 
-# TODO
+
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
 def view_all_recordings(request):
@@ -863,7 +888,7 @@ def api_all_recordings(request):
                 'sprache': aufnahme.language.name,
                 'sprecher': aufnahme.recorded_by.username,
                 'delete_url': reverse('endnutzer:api_user_aufnahme_loeschen', args=[aufnahme.recorded_by.id, aufnahme.seite.book.id, aufnahme.language.id]),
-                'play_url': reverse('endnutzer:seite_abspielen', args=[aufnahme.seite.book.id, 1, aufnahme.language.id, aufnahme.recorded_by.id,]),
+                'play_url': reverse('endnutzer:aufzeichnung_abspielen', args=[aufnahme.seite.book.id, aufnahme.language.id, aufnahme.recorded_by.id]),
             }
     aufnahmen = list(aufzeichnungen.values())
     aufnahmen = sorted(aufnahmen, key= lambda aufnahme: (aufnahme['title'], aufnahme['sprache'], aufnahme['sprecher']))
