@@ -28,7 +28,8 @@ $(document).ready(() => {
 
         const table = document.createElement('table');
         const thead = table.createTHead();
-        let hrow = thead.insertRow();
+        
+        const hrow = thead.insertRow();
 
         const headers = ['Bearbeiten', 'Titel', 'Sprache', 'Status', 'Sichtbarkeit', 'Löschen'];
 
@@ -39,9 +40,11 @@ $(document).ready(() => {
             hrow.appendChild(th);
         }
 
+        const tbody = table.createTBody();
+
         for (let i = 0; i < aufnahmen.length; i++) {
             const aufnahme = aufnahmen[i];
-            const row = table.insertRow();
+            const row = tbody.insertRow();
 
             let editCell = row.insertCell();
 
