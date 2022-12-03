@@ -184,8 +184,17 @@ def api_library(request):
     '''
     /PF0510/ Ein eingeloggter Benutzer kann die Bibliothek des Mandanten einsehen.
     '''
-    library = [book.serialize() for book in request.user.mandant.library]
-    return JsonResponse(status=200, data = {'library':library})
+    library = request.user.mandant.library
+    bibliothek = []
+    for buch in library:
+        aufnahmen = request.user.mandant.aufnahmen(buch)
+        sprachen = set()
+        for aufnahme in aufnahmen:
+            sprachen.add(aufnahme.language.id)
+        book = buch.serialize()
+        book['sprachen'] = list(sprachen)
+        bibliothek.append(book)
+    return JsonResponse(status=200, data = {'library':bibliothek})
 
 
 @login_required(login_url='endnutzer:login')
@@ -201,9 +210,15 @@ def view_play_book(request, buch_id):
         messages.error(request, 'Das angegebene Buch konnte nicht gefunden werden.')
         return redirect(reverse('endnutzer:library'))
 
-    aufnahmen = Sprachaufnahme.objects.filter(seite__in=buch.seiten.all())
-    raise NotImplementedError
-    return render(request, 'endnutzer/bibliothek/buch_abspielen.html', {'buch': buch})
+    aufnahmen = request.user.mandant.aufnahmen(buch)
+    if len(aufnahmen) == 0:        
+        messages.error(request, f'Es wurden für dieses Buch noch keine Aufnahmen von Mitgliedern von "{request.user.mandant}" veröffentlicht.')
+        return redirect(reverse('endnutzer:library'))
+    
+    return render(request, 'endnutzer/bibliothek/buch_abspielen.html', {
+        'buch': buch,
+        'aufnahmen': aufnahmen,
+        })
 
 
 @login_required(login_url='endnutzer:login')
@@ -249,10 +264,7 @@ def view_play_page(request, buch_id, sprache_id, sprecher_id, seitenzahl):
         return redirect(reverse('endnutzer:library'))
 
     try:
-        # TODO add is_public once implemented 
-        # aufnahme = Sprachaufnahme.objects.get(seite=seite, recorded_by=sprecher, sprache=sprache, is_public=True)
-        print(seite, sprecher, sprache)
-        aufnahme = Sprachaufnahme.objects.get(seite=seite, recorded_by=sprecher, language=sprache)
+        aufnahme = Sprachaufnahme.objects.get(seite=seite, recorded_by=sprecher, language=sprache, is_public=True)
     except:
         messages.error(request, f'Die gewählte Aufnahme wurde nicht gefunden.')
         return redirect(reverse('endnutzer:library'))
@@ -875,7 +887,7 @@ def view_all_recordings(request):
 @login_required(login_url='endnutzer:login')
 @user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
 def api_all_recordings(request):
-    aufnahmen = Sprachaufnahme.objects.filter(recorded_by__in=request.user.mandant.member.all(), is_public=True)
+    aufnahmen = request.user.mandant.aufnahmen()
     aufzeichnungen = {}
     for aufnahme in aufnahmen:
         if (aufnahme.recorded_by, aufnahme.seite.book, aufnahme.language) not in aufzeichnungen:

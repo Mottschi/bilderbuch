@@ -1,0 +1,27 @@
+{% extends 'endnutzer/layout.html' %}
+{% load static %}
+
+{% block script %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    {% comment %} <script src="{% static 'endnutzer/library.js' %}"></script> {% endcomment %}
+    .radioOptions input[type="radio"] {
+        display:none;
+      }
+
+    .radioOptions input[type="radio"]:checked+label {
+        text-decoration: underline;
+      }
+      
+    .flag {
+        border: solid 1px;
+    }
+{% endblock %}
+
+
+{% block content %}
+    <div><h1>Buch "{{buch.title}}" abspielen:</h1></div>
+
+    Bitte wählen Sie eine Sprache 
+    
+    
+{% endblock content %}

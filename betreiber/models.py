@@ -58,6 +58,11 @@ class Mandant(models.Model):
     class Meta:
         verbose_name_plural = 'Mandanten'
 
+    def aufnahmen(self, buch=None):
+        if buch:
+            return Sprachaufnahme.objects.filter(seite__in=buch.seiten.filter(seitenzahl=1), recorded_by__in=self.member.all(), is_public=True)
+        return Sprachaufnahme.objects.filter(seite__in=Seite.objects.filter(seitenzahl=1), recorded_by__in=self.member.all(), is_public=True)
+
 
 class Aktivierungscode(models.Model):
     code = models.CharField(max_length=16, unique=True)

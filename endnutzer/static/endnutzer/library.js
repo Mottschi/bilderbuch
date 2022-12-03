@@ -23,6 +23,7 @@ $(document).ready(() => {
     $('#max_age').val(maxAge);
 
     let searchTerm = $('#search').val();
+    let languageSearchOption = null;
 
     // Event Handler fuer alters filter
     $('#min_age').change((event)=> {
@@ -49,11 +50,17 @@ $(document).ready(() => {
     })
 
     $('#language').change((event)=>{
-        console.log(`Sprachfilter geaendert auf ${event.target.value}`)
+        const option = event.target.value;
+        if (option === '') {
+            languageSearchOption = null;
+        } else {
+            languageSearchOption = parseInt(option);
+        }
+        filtern();
     })
 
     function filtern() {
-        let buecher = allebuecher.filter((buch)=> (buch.age <= maxAge) && (buch.age >= minAge) && searchFilter(buch));
+        let buecher = allebuecher.filter((buch)=> (buch.age <= maxAge) && (buch.age >= minAge) && searchFilter(buch) && languageFilter(buch));
 
         drawLibrary(buecher);
     }
@@ -66,6 +73,17 @@ $(document).ready(() => {
         }
 
         return false;
+    }
+
+    function languageFilter(buch) {
+        console.log(`language filter '${languageSearchOption}'`);
+
+        console.log(buch.sprachen)
+        
+        console.log('looking')
+        if (languageSearchOption === null) return true;
+        console.log('not null, keep looking')
+        return buch.sprachen.includes(languageSearchOption);
     }
 
     function drawLibrary(buecher) {
