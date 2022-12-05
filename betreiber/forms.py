@@ -6,6 +6,9 @@ class LoginForm(forms.Form):
 	username = forms.CharField(max_length=150, label='Benutzername')
 	password = forms.CharField(widget=forms.PasswordInput, label='Passwort')
 
+	username.widget.attrs.update({'class': 'form-control'})
+	password.widget.attrs.update({'class': 'form-control'})
+
 
 class BetreiberForm(forms.ModelForm):
 	class Meta:
@@ -28,6 +31,12 @@ class AutorForm(forms.ModelForm):
             'middle_name': 'Mittelname',
             'last_name': 'Nachname',
         }
+    def __init__(self, *args, **kwargs):
+        # From Django Documentation: https://docs.djangoproject.com/en/4.1/ref/forms/widgets/#customizing-widget-instances
+        super().__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['class'] = 'form-control'
+        
 
 
 class BuchForm(forms.ModelForm):
@@ -41,6 +50,16 @@ class BuchForm(forms.ModelForm):
             'author': 'Autoren',
             'age': 'Altersfreigabe',
         }
+    def __init__(self, *args, **kwargs):
+        # From Django Documentation: https://docs.djangoproject.com/en/4.1/ref/forms/widgets/#customizing-widget-instances
+        super().__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['class'] = 'form-control'
+            visible.field.widget.attrs['id'] = visible.id_for_label
+            visible.field.widget.attrs['placeholder'] = ''
+        self.fields['author'].widget.attrs['class'] = 'form-select'
+        self.fields['author'].widget.attrs['size'] = '5'
+        self.fields['age'].widget.attrs.pop('placeholder', None) 
 
 class EditBuchForm(BuchForm):
     file = forms.FileField(label='Titelseite', required=False)
@@ -97,4 +116,6 @@ class PasswordResetForm(forms.Form):
 
 
 class GenerateBuchcodesForm(forms.Form):
-    amount = forms.IntegerField(max_value=1000, label='Anzahl')
+    amount = forms.IntegerField(max_value=1000, label='Anzahl' )
+    amount.widget.attrs['class'] = 'form-control'
+    amount.widget.attrs['type'] = 'range'

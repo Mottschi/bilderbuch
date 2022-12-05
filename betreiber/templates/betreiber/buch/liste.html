@@ -9,11 +9,18 @@
 {% block content %}
     <div><h1>Bibliothek:</h1></div>
 
-    <div><a href="{% url 'betreiber:create_buch' %}">Neues Buch anlegen (+)</a></div>
+   
+    <div class="py-2">
+        <a class="btn btn-primary" href="{% url 'betreiber:create_buch' %}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-plus-square-fill" viewBox="0 0 16 16">
+                <use xlink:href="#bi-plus-square-fill" />
+            </svg>
+            Neues Buch</a>
+    </div>
 
     <div>
     {% if buecher %}
-        <table>
+        <table class="table table-hover align-middle">
             <tr>
                 <th>Bilddaten</th>
                 <th>Titelseitenpreview</th>
@@ -26,13 +33,36 @@
 
             {% for buch in buecher %}
                 <tr>
-                    <td><a href="{% url 'betreiber:edit_buch_seitendaten' buch.id %}">Edit</a></td>
+                    <td><a href="{% url 'betreiber:edit_buch_seitendaten' buch.id %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-plus-square-fill" viewBox="0 0 16 16">
+                            <use xlink:href="#bi-pencil" />
+                        </svg>
+                    </a></td>
                     <td><img src="{% static buch.thumbnail %}" alt="" width=100 height=100></td>
                     <td>{{buch.title}}</td>
-                    <td>{{buch.autor}}</td>
-                    <td><a href="{% url 'betreiber:edit_buch_metadaten' buch.id %}">Edit</a></td>
-                    <td><a href='{% url "betreiber:generate_buchcodes" buch.id %}'>Generieren</a></td>
-                    <td><a href='{% url "betreiber:delete_buch" buch.id %}'>Löschen</a></td>
+                    <td>
+
+                        {% for autor in buch.author.all %}
+
+                        {{autor}}<br />
+
+                        {% endfor %}
+                    </td>
+                    <td><a href="{% url 'betreiber:edit_buch_metadaten' buch.id %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-plus-square-fill" viewBox="0 0 16 16">
+                            <use xlink:href="#bi-pencil" />
+                        </svg>
+                    </a></td>
+                    <td><a href='{% url "betreiber:generate_buchcodes" buch.id %}'>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-plus-square-fill" viewBox="0 0 16 16">
+                            <use xlink:href="#bi-file-binary" />
+                        </svg>
+                    </a></td>
+                    <td><a href='{% url "betreiber:delete_buch" buch.id %}'>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-plus-square-fill" viewBox="0 0 16 16">
+                            <use xlink:href="#bi-trash" />
+                        </svg>
+                    </a></td>
                 </tr>
             {% endfor %}
 
@@ -40,6 +70,14 @@
     {% else %}
         Es wurden noch keine Bücher eingetragen.
     {% endif %}
+    <div class="row justify-content-start">
+        <div class="col-2 text-start">
+            <a class="btn btn-secondary " href="{% url 'betreiber:index'%}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-reply-fill" viewBox="0 0 16 16">
+                <use xlink:href="#bi-reply-fill" />
+            </svg>Zurück</a>
+        </div>
+    </div>
     </div>
     
     

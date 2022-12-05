@@ -8,10 +8,38 @@
 {% block content %}
     <div><h1>Index für Betreiberfunktionen:</h1></div>
 
-    <a href="{% url 'betreiber:autorenliste' %}">Autoren</a>
-    <br>
-    <a href="{% url 'betreiber:mandantenliste' %}">Mandanten</a>
-    <br>
-    <a href="{% url 'betreiber:buchliste' %}">Bücher</a>
+    
+    <div class="row gap-3">
+        <div class="card" style="width: 15rem;">
+            <a href="{% url 'betreiber:autorenliste' %}">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-person-vcard-fill" viewBox="0 0 16 16">
+                <use xlink:href="#bi-person-vcard-fill" />
+            </svg>
+            <div class="card-body">
+            <p class="card-text">Verwalte Autoren und Autorinnen</p>
+            </div>
+            </a>
+        </div>
+        <div class="card" style="width: 15rem;">
+            <a href="{% url 'betreiber:buchliste' %}">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-book" viewBox="0 0 16 16">
+                <use xlink:href="#bi-book" />
+            </svg>
+            <div class="card-body">
+            <p class="card-text">Verwalte Bücher und generiere Aktivierungscodes</p>
+            </div>
+            </a>
+        </div>
+        <div class="card" style="width: 15rem;">
+            <a href="{% url 'betreiber:mandantenliste' %}">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-book" viewBox="0 0 16 16">
+                <use xlink:href="#bi-houses" />
+            </svg>
+            <div class="card-body">
+            <p class="card-text">Verwalte Mandanten</p>
+            </div>
+            </a>
+        </div>
+    </div>
     
 {% endblock content %}

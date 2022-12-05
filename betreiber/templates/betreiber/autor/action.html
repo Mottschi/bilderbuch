@@ -8,10 +8,38 @@
 {% block content %}
     <div><h1>Autor {{ action }}</h1></div>
 
-    <div>
+    <div class="row">
+        <div class ="col-2"></div>
+        <div class="col-md">
         <form action="" method='POST'>
             {% csrf_token %}
-            {{form.as_p}}</div>
-            <input type="submit" value="Autor {{action}}"/>
-        </form>    
+
+
+            {% for field in form.visible_fields %}
+            <div class="form-floating p-1">
+              {{ field }}
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            </div>
+            {% endfor %}
+
+            <div class="p-1">
+                <button class="btn btn-success " type=submit>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-check-square" width="22" height="22" viewBox="0 0 16 16">
+                    <use xlink:href="#bi-check-square" />
+                  </svg> Autor {{action}}</button>
+                {% if action == 'editieren' %}
+                <button class="btn btn-warning " type=reset >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16">
+                      <use xlink:href="#bi-arrow-counterclockwise" />
+                    </svg> Zurücksetzen   </button>
+                {% endif %}                 
+                <a class="btn btn-secondary " href="{% url 'betreiber:autorenliste'%}">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-reply-fill" viewBox="0 0 16 16">
+                    <use xlink:href="#bi-reply-fill" />
+                  </svg> Zurück</a>
+              </div>
+        </form>
+        </div>
+        <div class="col-2"></div>
+    </div>    
 {% endblock content %}
