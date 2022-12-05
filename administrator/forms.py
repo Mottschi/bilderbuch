@@ -13,3 +13,15 @@ class BetreiberForm(forms.ModelForm):
 	class Meta:
 		model = User
 		fields = ['username', 'first_name', 'last_name', 'email']
+
+	def __init__(self, *args, **kwargs):
+		# From Django Documentation: https://docs.djangoproject.com/en/4.1/ref/forms/widgets/#customizing-widget-instances
+		super().__init__(*args, **kwargs)
+		for visible in self.visible_fields():
+			visible.field.widget.attrs['class'] = 'form-control'
+		
+		# Alternative Solution from Stackoverflow: https://stackoverflow.com/questions/29716023/add-class-to-form-field-django-modelform
+		# super(BetreiberForm, self).__init__(*args, **kwargs)
+		# for visible in self.visible_fields():
+		# 	visible.field.widget.attrs['class'] = 'form-control'
+		
