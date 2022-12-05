@@ -143,9 +143,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-if RENDER:
+if True:
     PERSISTENT_STORAGE_ROOT = '/var/data'
-    STATICFILES_DIRS = [PERSISTENT_STORAGE_ROOT + '/static/']
+    STATICFILES_DIRS = [BASE_DIR / "static", Path(PERSISTENT_STORAGE_ROOT) / 'static']
 
     STATIC_ROOT = BASE_DIR / "staticfiles"
     STATIC_URL = '/static/'
@@ -162,7 +162,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'betreiber.User'
 
 # Setting up email backend for password emails
-if False:
+if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
     EMAIL_FILE_PATH = 'tmp/app-messages'
 else:
