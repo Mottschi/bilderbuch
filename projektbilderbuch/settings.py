@@ -143,7 +143,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-# NOTE for deployment on render, we will likely need to update this to point to the mounted persistent hard drive
 if RENDER:
     PERSISTENT_STORAGE_ROOT = '/var/data'
     STATICFILES_DIRS = [PERSISTENT_STORAGE_ROOT + '/static/']
@@ -167,6 +166,13 @@ if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
     EMAIL_FILE_PATH = 'tmp/app-messages'
 else:
-    pass
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_HOST_USER = 'projekt.bilderbuch@gmail.com'
+    EMAIL_HOST_PASSWORD = os.getenv('GMAIL_PW')
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_USE_SSL = False
+    DEFAULT_FROM_EMAIL = 'projekt.bilderbuch@gmail.com'
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None 
