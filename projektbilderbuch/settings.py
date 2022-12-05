@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 RENDER = 'RENDER' in os.environ
 
 # If we are not on RENDER, we are in debug environment
-DEBUG = not RENDER
+DEBUG = False
 
 # SECURITY WARNING: keep the secret key used in production secret!
 if DEBUG:
@@ -145,7 +145,7 @@ USE_TZ = True
 
 if True:
     PERSISTENT_STORAGE_ROOT = '/var/data'
-    STATICFILES_DIRS = [BASE_DIR / "static", Path(PERSISTENT_STORAGE_ROOT) / 'static']
+    STATICFILES_DIRS = [Path(PERSISTENT_STORAGE_ROOT) / 'static']
 
     STATIC_ROOT = BASE_DIR / "staticfiles"
     STATIC_URL = '/static/'
