@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 import os
 from pathlib import Path
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,16 +22,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 
-# SECURITY WARNING: keep the secret key used in production secret!
-# TODO read key from env
-SECRET_KEY = 'django-insecure-4w!uv4akfp_edkdr!+3p85-2a^ak6deir=h$&w^-nzd7vwaf03'
-
 # SECURITY WARNING: don't run with debug turned on in production!
 # When we are deploying on render, there will be a RENDER environment variable
 RENDER = 'RENDER' in os.environ
 
 # If we are not on RENDER, we are in debug environment
 DEBUG = not RENDER
+
+# SECURITY WARNING: keep the secret key used in production secret!
+if DEBUG:
+    SECRET_KEY = 'django-insecure-4w!uv4akfp_edkdr!+3p85-2a^ak6deir=h$&w^-nzd7vwaf03'
+else:
+    SECRET_KEY = os.getenv('SECRET_KEY')
 
 ALLOWED_HOSTS = []
 
@@ -39,7 +42,6 @@ if RENDER:
 else:
     ALLOWED_HOSTS.append('127.0.0.1')
     ALLOWED_HOSTS.append('localhost')
-    ALLOWED_HOSTS.append('192.168.0.29')
 
 # Application definition
 
@@ -91,16 +93,18 @@ MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-
-# TODO Before deploying on render, need to set up the postgresql here
-# but during development, sqlite will do
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if RENDER:
+    db_url = os.getenv('DATABASE_URL')
+    DATABASES = {
+        'default': dj_database_url.config(default=db_url)
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -140,8 +144,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 # NOTE for deployment on render, we will likely need to update this to point to the mounted persistent hard drive
-STATIC_ROOT = BASE_DIR / "staticfiles"
-STATIC_URL = '/static/'
+if RENDER:
+    PERSISTENT_STORAGE_ROOT = '/var/data'
+    STATICFILES_DIRS = [PERSISTENT_STORAGE_ROOT + '/static/']
+
+    STATIC_ROOT = BASE_DIR / "staticfiles"
+    STATIC_URL = '/static/'
+else:
+    STATIC_ROOT = BASE_DIR / "staticfiles"
+    STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -152,7 +163,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'betreiber.User'
 
 # Setting up email backend for password emails
-EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-EMAIL_FILE_PATH = 'tmp/app-messages'
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+    EMAIL_FILE_PATH = 'tmp/app-messages'
+else:
+    pass
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None 

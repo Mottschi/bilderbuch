@@ -17,7 +17,7 @@ def post_delete_buch(sender, **kwargs):
     if conf_settings.DEBUG:
         thumbnail_file = os.path.join('betreiber', 'static', thumbnail_file)
     else:
-        raise NotImplementedError
+        thumbnail_file = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', thumbnail_file)
 
     if thumbnail_file and os.path.exists(thumbnail_file):
         os.remove(thumbnail_file)
@@ -33,7 +33,7 @@ def handleSeiteBildDeletion(sender, **kwargs):
     if conf_settings.DEBUG:
         picture = os.path.join('betreiber', 'static', picture)
     else:
-        raise NotImplementedError
+        picture = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', picture)
 
     if picture and os.path.exists(picture):
         os.remove(picture)
@@ -51,7 +51,7 @@ def post_delete_sprachaufnahme(sender, **kwargs):
     if conf_settings.DEBUG:
         audio_file = os.path.join('endnutzer', 'static', audio_file)
     else:
-        raise NotImplementedError
+        audio_file = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', audio_file)
 
     if audio_file and os.path.exists(audio_file):
         os.remove(audio_file)
