@@ -18,11 +18,6 @@ class User(AbstractUser):
     def is_mandantenadmin(self):
         return self.mandant.manager == self
     
-    @property
-    def recordings(self):
-        # TODO
-        return 0
-
 
 class Mandant(models.Model):
     class Country(models.TextChoices):

@@ -210,6 +210,18 @@ def view_play_book(request, buch_id):
         messages.error(request, 'Das angegebene Buch konnte nicht gefunden werden.')
         return redirect(reverse('endnutzer:library'))
 
+    if request.method == 'POST':
+        try:
+            aufnahme_id = int(request.POST['aufnahme'])
+            aufnahme = Sprachaufnahme.objects.get(pk=aufnahme_id)
+        except:
+            messages.error(request, 'Diese Aufnahme konnte nicht gefunden werden.')
+            return redirect(reverse('endnutzer:buch_abspielen', args=[buch_id]))
+        if not aufnahme.is_public:
+            messages.error(request, 'Diese Aufnahme ist leider nicht öffentlich.')
+            return redirect(reverse('endnutzer:buch_abspielen', args=[buch_id]))
+        return redirect(reverse('endnutzer:aufnahme_abspielen', args=[buch_id, aufnahme.language.id, aufnahme.recorded_by.id]))
+
     aufnahmen = request.user.mandant.aufnahmen(buch)
     if len(aufnahmen) == 0:        
         messages.error(request, f'Es wurden für dieses Buch noch keine Aufnahmen von Mitgliedern von "{request.user.mandant}" veröffentlicht.')
@@ -897,7 +909,7 @@ def api_all_recordings(request):
                 'sprache': aufnahme.language.name,
                 'sprecher': aufnahme.recorded_by.username,
                 'delete_url': reverse('endnutzer:api_user_aufnahme_loeschen', args=[aufnahme.recorded_by.id, aufnahme.seite.book.id, aufnahme.language.id]),
-                'play_url': reverse('endnutzer:aufzeichnung_abspielen', args=[aufnahme.seite.book.id, aufnahme.language.id, aufnahme.recorded_by.id]),
+                'play_url': reverse('endnutzer:aufnahme_abspielen', args=[aufnahme.seite.book.id, aufnahme.language.id, aufnahme.recorded_by.id]),
             }
     aufnahmen = list(aufzeichnungen.values())
     aufnahmen = sorted(aufnahmen, key= lambda aufnahme: (aufnahme['title'], aufnahme['sprache'], aufnahme['sprecher']))

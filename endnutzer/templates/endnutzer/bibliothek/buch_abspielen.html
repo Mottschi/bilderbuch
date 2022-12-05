@@ -2,26 +2,40 @@
 {% load static %}
 
 {% block script %}
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    {% comment %} <script src="{% static 'endnutzer/library.js' %}"></script> {% endcomment %}
-    .radioOptions input[type="radio"] {
-        display:none;
-      }
+    <style>
+        input[type="radio"] {
+            display:none;
+        }
 
-    .radioOptions input[type="radio"]:checked+label {
-        text-decoration: underline;
-      }
-      
-    .flag {
-        border: solid 1px;
-    }
+        input[type="radio"]:checked+label {
+            text-decoration: underline;
+        }
+        
+        .flag {
+            border: solid 1px;
+        }
+    </style>
 {% endblock %}
 
 
 {% block content %}
     <div><h1>Buch "{{buch.title}}" abspielen:</h1></div>
 
-    Bitte wählen Sie eine Sprache 
+    Bitte wählen Sie eine Aufnahme:
     
+    <form method='POST'>
+        {% csrf_token %}
+        {% for aufnahme in aufnahmen %}
+            <div class="m-1">
+                <input type='radio' name='aufnahme' id='aufnahme-{{aufnahme.id}}' value='{{aufnahme.id}}'>
+                <label for="aufnahme-{{aufnahme.id}}">
+                    <img src="{% static aufnahme.language.flag %}" alt="Flagge für {{ aufnahme.language }}" width=60 class='flag'> {{aufnahme.language}} (gesprochen von {{aufnahme.recorded_by}})
+                </label>    
+                
+                </input>
+            </div>
+        {% endfor %}
+        <button type="submit">Abspielen</button>
+    </form>
     
 {% endblock content %}

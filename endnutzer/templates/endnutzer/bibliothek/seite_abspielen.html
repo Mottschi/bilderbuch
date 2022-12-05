@@ -11,6 +11,12 @@
     <script src="{% static 'endnutzer/seite_abspielen.js' %}"></script>
 {% endblock %}
 
+{% block navFlagIcon %}
+    <a href="{% url 'endnutzer:buch_abspielen' seite.book.id %}">
+        <img src="{% static aufnahme.language.flag %}" alt="Flagge für {{ aufnahme.language }}" width=60 class='flag'>
+    </a>
+{% endblock %}
+
 
 {% block content %}
     <div><h1>Abspielen von {{seite.book.title}} Seite {{seite.seitenzahl}}:</h1></div>
@@ -20,7 +26,7 @@
     <div class='row'>
         <div class='col-1'>
             {% if seite.seitenzahl > 1 %}
-                <a href="{% url 'endnutzer:seite_abspielen' seite.book.id seite.seitenzahl|add:'-1' aufnahme.language.id aufnahme.recorded_by.id %}">Zurueck</a>
+                <a href="{% url 'endnutzer:seite_abspielen' seite.book.id aufnahme.language.id aufnahme.recorded_by.id  seite.seitenzahl|add:'-1' %}">Zurueck</a>
             {% endif %}
         </div>
         <div class='col-10'>
@@ -28,7 +34,7 @@
         </div>
         <div class='col-1'>
             {% if seite.seitenzahl < seite.book.seiten.count %}
-                <a href="{% url 'endnutzer:seite_abspielen' seite.book.id seite.seitenzahl|add:'1' aufnahme.language.id aufnahme.recorded_by.id %}">Vorwaerts</a>
+                <a href="{% url 'endnutzer:seite_abspielen' seite.book.id aufnahme.language.id aufnahme.recorded_by.id seite.seitenzahl|add:'1' %}">Vorwaerts</a>
             {% endif %}
         </div>
 

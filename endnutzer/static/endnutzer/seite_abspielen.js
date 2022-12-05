@@ -5,4 +5,6 @@ $(document).ready(() => {
         audio.play()
     })
 
+    audio.play();
+
 })

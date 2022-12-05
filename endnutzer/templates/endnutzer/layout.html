@@ -22,6 +22,13 @@
         <div>
             <a href="{% url 'endnutzer:index'%}">Index</a>
         </div>
+
+        <div>
+            {% block navFlagIcon %}
+
+            {% endblock %}
+        </div>
+
         <div>
             {% if user.is_mandantenadmin %}
                 <a href="{% url 'endnutzer:benutzerliste' %}">Benutzerliste</a>

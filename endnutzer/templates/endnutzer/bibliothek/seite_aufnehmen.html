@@ -22,6 +22,12 @@
     </style>
 {% endblock %}
 
+{% block navFlagIcon %}
+    
+    <img src="{% static sprache.flag %}" alt="Flagge für {{ sprache }}" width=60 class='flag'>
+    
+{% endblock %}
+
 
 {% block content %}
     <div><h1>Aufnahme für {{buch.title}} Seite {{seite.seitenzahl}}:</h1></div>
