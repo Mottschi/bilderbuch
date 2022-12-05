@@ -73,6 +73,8 @@ def view_create_betreiber(request):
         # validate form, retreive data, create new user and assign the betreiber group to it
         # then, if all that went successful, return to the betreiberliste with success message
         form = BetreiberForm(request.POST)
+        for key in form.fields:
+            form.fields[key].widget.attrs.update({'class': 'form-control'})
         if form.is_valid():
             username = form.cleaned_data['username']
             first_name = form.cleaned_data['first_name']
@@ -114,9 +116,11 @@ def view_create_betreiber(request):
             return render(request, 'administrator/newbetreiber.html', {
                 'form': form,
             })
-    
+    form =BetreiberForm()
+    for key in form.fields:
+            form.fields[key].widget.attrs.update({'class': 'form-control'})
     return render(request, 'administrator/newbetreiber.html', {
-        'form': BetreiberForm(),
+        'form': form,
     })
 
 @login_required(login_url='administrator:login')
@@ -129,10 +133,23 @@ def view_edit_betreiber(request, edit_user_id):
         try:
             edit_user = User.objects.get(pk=edit_user_id)
             form = BetreiberForm(request.POST, instance = edit_user)
+            for key in form.fields:
+                form.fields[key].widget.attrs.update({'class': 'form-control'})
             if form.is_valid():
-                form.save()
-                messages.success(request, f'Das Betreiberkonto "{edit_user.username}" ({edit_user.first_name} {edit_user.last_name}) wurde erfolgreich aktualisiert.')
-                return redirect(reverse('administrator:betreiberliste'))
+                username = form.cleaned_data['username']
+                first_name = form.cleaned_data['first_name']
+                last_name = form.cleaned_data['last_name']
+                email = form.cleaned_data['email']
+                if first_name and last_name and email:
+                    form.save()
+                    messages.success(request, f'Das Betreiberkonto "{edit_user.username}" ({edit_user.first_name} {edit_user.last_name}) wurde erfolgreich aktualisiert.')
+                    return redirect(reverse('administrator:betreiberliste'))
+                else:
+                    messages.error(request, 'Bitte alle Felder ausfüllen.')
+                    return render(request, 'administrator/editbetreiber.html', {
+                        'form': form,
+                    })
+
             else:
                 raise ValueError
         except:
@@ -144,7 +161,8 @@ def view_edit_betreiber(request, edit_user_id):
     try:
         edit_user = User.objects.get(pk=edit_user_id)
         form = BetreiberForm(instance=edit_user)
-        
+        for key in form.fields:
+            form.fields[key].widget.attrs.update({'class': 'form-control'})
         return render(request, 'administrator/editbetreiber.html', {
             'form': form,
         })

@@ -15,30 +15,35 @@
     {% endblock %}
 </head>
 <body>
-    <nav class="navbar navbar-dark bg-primary">
+      <div style="height: 70px;"> <!-- Required for spacing content under the fixed navbar -->
+      <nav class="navbar navbar-dark bg-primary fixed-top">
         <div class="container-fluid">
-          <a class="navbar-brand" href="#">Navbar</a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <a class="navbar-brand" href="#">Bilderbuch Administrator</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
             <span class="navbar-toggler-icon"></span>
           </button>
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="{%url 'administrator:betreiberliste'%} ">Betreiber</a>
-              </li>
-            </ul>
-            <div class="container-fluid d-flex justify-content-end navbar font-monospace">
-                <div><a class="nav-link px-1" href="#">Impressum</a></div>
-                <div><a class="nav-link px-1" href="#">Datenschutz</a></div>
-                {% if user.is_authenticated %}
-                <div><a class="nav-link px-1" href="{% url 'administrator:logout'%}">Logout</a></div>
-                {% endif %}
+          <div class="offcanvas offcanvas-end bg-primary text-bg-dark" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+            <div class="offcanvas-header">
+              <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Offcanvas</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+              <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                <li class="nav-item">
+                  <a class="nav-link active" aria-current="page" href="{%url 'administrator:betreiberliste'%} ">Betreiber</a>
+                </li>
+                <div class="container-fluid d-flex justify-content-end navbar font-monospace">
+                  <div><a class="nav-link px-1" href="#">Impressum</a></div>
+                  <div><a class="nav-link px-1" href="#">Datenschutz</a></div>
+                  {% if user.is_authenticated %}
+                  <div><a class="nav-link px-1" href="{% url 'administrator:logout'%}">Logout</a></div>
+                  {% endif %}
+              </div>
             </div>
           </div>
         </div>
-      </nav>    
-    
- 
+      </nav>
+    </div>
   
 
     {% if messages %}
