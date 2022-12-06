@@ -141,7 +141,6 @@ def view_create_buch(request):
                 buch.save()
                 filepath = os.path.join('betreiber', 'static', filepath, filename)
 
-            
             handle_uploaded_file(uploaded_file, filepath)
             return redirect(reverse('betreiber:edit_buch_seitendaten', args=(buch.id,)))
         else:
@@ -173,7 +172,7 @@ def view_edit_buch_metadaten(request, buch_id):
 
                 # step 1: delete old file
                 if conf_settings.RENDER:
-                    file_with_path = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'thumbnails', buch.thumbnail)
+                    file_with_path = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', 'thumbnails', buch.thumbnail)
                 else:
                     file_with_path = os.path.join('betreiber', 'static', buch.thumbnail)
                 if os.path.exists(file_with_path):

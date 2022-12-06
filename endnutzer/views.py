@@ -426,7 +426,7 @@ def api_record_page(request, buch_id, seitenzahl, sprache_id):
     filename= f'{str(uuid.uuid4())}{extension}'
     audio_path = os.path.join('endnutzer', 'aufnahmen', str(request.user.mandant.id), filename)
     if conf_settings.RENDER:
-        full_filepath = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, audio_path)
+        full_filepath = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', audio_path)
     else:
         full_filepath = os.path.join('endnutzer', 'static', audio_path)
 
