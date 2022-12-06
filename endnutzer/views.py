@@ -686,12 +686,25 @@ def view_mandant_profile(request):
         '''
         form = MandantenForm(request.POST, instance = mandant)
         if form.is_valid():
+            new_admin_id = int(request.POST['newAdmin'])
+            if new_admin_id != request.user.id:
+                try:
+                    new_admin = mandant.member.get(pk=new_admin_id)
+                except:
+                    messages.error(request, 'Der neue Admin konnte nicht gefunden werden.')
+                    return render(request, 'endnutzer/admin/mandant_profile.html', {
+                    'form': form,
+                    'members': mandant.member.all(),
+                    })
+            mandant.manager = new_admin
+            mandant.save()
             form.save()
-            messages.success(request, 'Mandantendetails geaendert')
+            messages.success(request, 'Mandantendetails aktualisiert.')
             return redirect(reverse('endnutzer:index'))
     
     return render(request, 'endnutzer/admin/mandant_profile.html', {
         'form': form,
+        'members': mandant.member.all(),
         })
 
 

@@ -11,6 +11,18 @@
         <form method='POST'>
             {% csrf_token %}
         {{form.as_p}}
+
+        <div id="promoteAdmin">
+            <h6>Neuen Mandantenadmin befördern</h6>
+            <select name='newAdmin' id='selectPromoteAdmin'>
+                {% for member in members %}
+                    <option value='{{member.id}}' {% if user == member %}selected='selected'{% endif %}>
+                        {{member.username}}{% if user == member %}(Admin){% endif %}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
         <button type="submit">Speichern</button>
         </form>
     </div>
