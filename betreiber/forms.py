@@ -101,6 +101,13 @@ class MandantenForm(forms.ModelForm):
             'country': 'Land',
             'city': 'Stadt',
         }
+    def __init__(self, *args, **kwargs):    
+        super().__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['class'] = 'form-control'
+            visible.field.widget.attrs['id'] = visible.id_for_label
+            visible.field.widget.attrs['placeholder'] = ''
+        self.fields['country'].widget.attrs['class'] = 'form-select'
 
 class EndnutzerForm(forms.ModelForm):
     class Meta:
@@ -109,6 +116,13 @@ class EndnutzerForm(forms.ModelForm):
         help_texts = {
             'username': None,
         }
+    def __init__(self, *args, **kwargs):    
+        super().__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['class'] = 'form-control'
+            visible.field.widget.attrs['id'] = visible.id_for_label
+            visible.field.widget.attrs['placeholder'] = ''
+
 
 
 class PasswordResetForm(forms.Form):

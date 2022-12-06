@@ -138,3 +138,12 @@ dmypy.json
 *.jpeg
 *.png
 *.bmp
+
+
+# audio recordings
+*.webm
+*.mp3
+*.m4a
+*.wav
+*.ogg
+*.3gpp
