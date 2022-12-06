@@ -7,21 +7,20 @@ $(document).ready(() => {
     if ($('#id_username').val() === '') {
         $('#createAdmin').hide();
         $('#id_username').prop('disabled', true);
-        $('#setManager').val(currentManager)
-
+        $('#setManager').val(currentManager);
     } else {
         createAdmin();
     }
 
     
     $('#btnPromoteAdmin').click(() => {
-        console.log('clicked on promote')
-        $('#createAdmin').hide()
-        $('#promoteAdmin').show()
-        $('#id_username').prop('disabled', true)
-        $('#selectPromoteAdmin').show()
-        $('#setManager').val(currentManager)
-        $('#selectPromoteAdmin').val(currentManager).change()
+        console.log('clicked on promote');
+        $('#createAdmin').hide();
+        $('#promoteAdmin').show();
+        $('#id_username').prop('disabled', true);
+        $('#selectPromoteAdmin').show();
+        $('#setManager').val(currentManager);
+        $('#selectPromoteAdmin').val(currentManager).change();
     });
 
     $('#btnCreateAdmin').click(createAdmin);
