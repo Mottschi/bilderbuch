@@ -165,7 +165,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'betreiber.User'
 
 # Setting up email backend for password emails
-if DEBUG:
+if os.getenv('GMAIL_PW') is None:
     EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
     EMAIL_FILE_PATH = 'tmp/app-messages'
 else:
