@@ -9,14 +9,55 @@
 
 
 {% block content %}
-    <div><h1>Seiten für {{buch.title}}</h1></div>
+    <div class="row align-items-center">
+        <div class="col-md-6"><h2>Seiten für "{{buch.title}}"</h2></div>
+        <div class="col-md-6">
+            <a class="btn btn-secondary " href="{% url 'betreiber:edit_buch_metadaten' buch.id%}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-reply-fill" viewBox="0 0 16 16">
+                    <use xlink:href="#bi-reply-fill" />
+                </svg>&nbsp;Metadaten</a>
+            <a class="btn btn-secondary " href="{% url 'betreiber:buchliste'%}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-card-list" viewBox="0 0 16 16">
+                    <use xlink:href="#bi-card-list" />
+                </svg>&nbsp;Buchliste</a>
+        </div>
+        
+           
+        
+    </div>
 
     <div id='seiten_eingabe'>
         <form action="" id='neueSeiteForm' enctype="multipart/form-data">
             {% csrf_token %}
-            {{form}}
-            <button id='btnSavePage' type="submit">Speichern</button>
-            <button id='btnDiscardPage'>Abbrechen</button>
+            <div class="row align-items-center m-1 border">
+                <div class="col-md-3">
+                    <div class="form-floating p-1">
+                        {{ form.file }}
+                        <label for="{{ form.file.id_for_label }}">{{ form.file.label }}</label>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                        <div class="form-floating p-1">
+                            {{ form.text }}
+                            <label for="{{ form.text.id_for_label }}">{{ form.text.label }}</label>
+                        </div>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-success m-1" id='btnSavePage' type="submit"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-save2" width="23" height="23" viewBox="0 0 16 16">
+                        <use xlink:href="#bi-save2" />
+                      </svg>&nbsp;Speichern</button>
+                </div>
+                <div class="col-md-2">
+                      <button class="btn btn-secondary m-1" id='btnDiscardPage' type="submit"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-x-octagon" width="23" height="23" viewBox="0 0 16 16">
+                        <use xlink:href="#bi-x-octagon" />
+                      </svg>&nbsp;Abbrechen</button>
+                    
+                </div>
+         
+
+            </div>
+        
+        
         </form>
         <input type="hidden" name="seitenzahl" id='hiddenSeitenzahl' value=''>
         <input type="hidden" name="seiteID" id='hiddenSeiteID' value=''>
@@ -64,6 +105,12 @@
             Es wurden noch keine Seiten angelegt.
         {% endif%} {% endcomment %}
     </div>
+    <div id="editPencil" style="display: none;"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-plus-square-fill" viewBox="0 0 16 16">
+        <use xlink:href="#bi-pencil" />
+    </svg></div>
+    <div id="deleteTrash" style="display: none;"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-plus-square-fill" viewBox="0 0 16 16">
+        <use xlink:href="#bi-trash" />
+    </svg></div>
 
     
 {% endblock content %}

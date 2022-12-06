@@ -75,6 +75,13 @@ class SeitenForm(forms.ModelForm):
         widgets = {
             'text': forms.Textarea(attrs={'rows': 2, 'cols': 40})
         }
+    def __init__(self, *args, **kwargs):
+        # From Django Documentation: https://docs.djangoproject.com/en/4.1/ref/forms/widgets/#customizing-widget-instances
+        super().__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['class'] = 'form-control'
+            visible.field.widget.attrs['id'] = visible.id_for_label
+            visible.field.widget.attrs['placeholder'] = ''
 
 class SeitenEditForm(forms.ModelForm):
     file = forms.FileField(label='Bild', required=False)
@@ -86,6 +93,13 @@ class SeitenEditForm(forms.ModelForm):
         widgets = {
             'text': forms.Textarea(attrs={'rows': 2, 'cols': 40})
         }
+    def __init__(self, *args, **kwargs):
+        # From Django Documentation: https://docs.djangoproject.com/en/4.1/ref/forms/widgets/#customizing-widget-instances
+        super().__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['class'] = 'form-control'
+            visible.field.widget.attrs['id'] = visible.id_for_label
+            visible.field.widget.attrs['placeholder'] = ''
 
 
 class MandantenForm(forms.ModelForm):
