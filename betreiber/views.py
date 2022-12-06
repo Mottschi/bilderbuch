@@ -14,7 +14,7 @@ from .helpers import is_betreiber, not_logged_in, handle_uploaded_file
 from betreiber.models import User, Autor, Mandant, Buch, Seite, Aktivierungscode
 from django.conf import settings as conf_settings
 
-import random, os
+import random, os, uuid
 
 # Create your views here.
 @user_passes_test(not_logged_in, login_url='betreiber:index')
@@ -125,7 +125,9 @@ def view_create_buch(request):
         if form.is_valid():
             uploaded_file = request.FILES['file']
             buch = form.save()
-            filename = f'{buch.id}_{buch.title}_{uploaded_file.name}'
+
+            extension = uploaded_file.name.split('.')[-1]
+            filename = f'{buch.id}_{str(uuid.uuid4())}.{extension}'
 
             if conf_settings.RENDER:
                 filepath = os.path.join('betreiber', 'thumbnails')
@@ -170,22 +172,21 @@ def view_edit_buch_metadaten(request, buch_id):
                 uploaded_file = request.FILES['file']
 
                 # step 1: delete old file
-                thumbnail = buch.thumbnail
                 if conf_settings.RENDER:
-                    file_with_path = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'thumbnails', thumbnail)
+                    file_with_path = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'thumbnails', buch.thumbnail)
                 else:
-                    file_with_path = os.path.join('betreiber', 'static', thumbnail)
-                if thumbnail and os.path.exists(file_with_path):
+                    file_with_path = os.path.join('betreiber', 'static', buch.thumbnail)
+                if os.path.exists(file_with_path):
                     os.remove(file_with_path)
                
                # step 2: save new file
-                filename = f'{buch.id}_{buch.title}_{uploaded_file.name}'
+                extension = uploaded_file.name.split('.')[-1]
+                filename = f'{buch.id}_{str(uuid.uuid4())}.{extension}'
                 if conf_settings.RENDER:
                     filepath = os.path.join('betreiber', 'thumbnails')
                     buch.thumbnail = os.path.join(filepath, filename)
                     buch.save()
                     filepath = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', buch.thumbnail)
-
                 else:
                     filepath = os.path.join('betreiber', 'thumbnails')
                     buch.thumbnail = os.path.join(filepath, filename)
@@ -274,11 +275,9 @@ def api_create_buch_seite(request, buch_id):
         return JsonResponse(status=400, data={'error': 'Das Formular wurde nicht korrekt mit gültigen Daten ausgefüllt.'})
     text = form.cleaned_data['text']
     seitenzahl = len(buch.seiten.all()) + 1
-
-    
     uploaded_file = request.FILES['file']
-    filename = f'{buch.id}_{seitenzahl}_{uploaded_file.name}'
-    # NOTE Check this path setting once on production server
+    extension = uploaded_file.name.split('.')[-1]
+    filename = f'{buch.id}_{seitenzahl}_{str(uuid.uuid4())}.{extension}'
     if conf_settings.RENDER:
         filepath = os.path.join('betreiber', 'seiten')
         picture = os.path.join(filepath, filename)
