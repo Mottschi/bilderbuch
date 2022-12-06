@@ -27,13 +27,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 RENDER = 'RENDER' in os.environ
 
 # If we are not on RENDER, we are in debug environment
-DEBUG = False
+DEBUG = True
 
 # SECURITY WARNING: keep the secret key used in production secret!
-if DEBUG:
-    SECRET_KEY = 'django-insecure-4w!uv4akfp_edkdr!+3p85-2a^ak6deir=h$&w^-nzd7vwaf03'
-else:
+if RENDER:
     SECRET_KEY = os.getenv('SECRET_KEY')
+else:
+    SECRET_KEY = 'django-insecure-4w!uv4akfp_edkdr!+3p85-2a^ak6deir=h$&w^-nzd7vwaf03'
 
 ALLOWED_HOSTS = []
 
@@ -143,13 +143,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-if True:
+if RENDER:
     PERSISTENT_STORAGE_ROOT = '/var/data'
     STATICFILES_DIRS = [Path(PERSISTENT_STORAGE_ROOT) / 'static']
 
     STATIC_ROOT = BASE_DIR / "staticfiles"
     STATIC_URL = '/static/'
 else:
+    PERSISTENT_STORAGE_ROOT = os.path.join('/Test')
+    STATICFILES_DIRS = [Path(PERSISTENT_STORAGE_ROOT)]
+
     STATIC_ROOT = BASE_DIR / "staticfiles"
     STATIC_URL = '/static/'
 

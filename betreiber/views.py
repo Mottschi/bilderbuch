@@ -127,22 +127,18 @@ def view_create_buch(request):
             buch = form.save()
             filename = f'{buch.id}_{buch.title}_{uploaded_file.name}'
 
-            if conf_settings.DEBUG:
+            if conf_settings.RENDER:
+                filepath = os.path.join('betreiber', 'thumbnails')
+                buch.thumbnail = os.path.join(filepath, filename)
+                buch.save()
+                filepath = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', filepath, filename)
+
+            else:
                 filepath = os.path.join('betreiber', 'thumbnails')
                 buch.thumbnail = os.path.join(filepath, filename)
                 buch.save()
                 filepath = os.path.join('betreiber', 'static', filepath, filename)
 
-            elif conf_settings.RENDER:
-                filepath = os.path.join('betreiber', 'thumbnails')
-                buch.thumbnail = os.path.join(filepath, filename)
-                buch.save()
-                filepath = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', filepath, filename)
-            
-            else:
-                # We are only planning for local debug and deployment on render, other deployment cases will\
-                #  need to be handled individually
-                raise NotImplementedError
             
             handle_uploaded_file(uploaded_file, filepath)
             return redirect(reverse('betreiber:edit_buch_seitendaten', args=(buch.id,)))
@@ -175,26 +171,26 @@ def view_edit_buch_metadaten(request, buch_id):
 
                 # step 1: delete old file
                 thumbnail = buch.thumbnail
-                if conf_settings.DEBUG:
-                    file_with_path = os.path.join('betreiber', 'static', thumbnail)
+                if conf_settings.RENDER:
+                    file_with_path = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'thumbnails', thumbnail)
                 else:
-                    file_with_path = os.path.join(conf_settings.STATIC_ROOT, 'thumbnails', thumbnail)
+                    file_with_path = os.path.join('betreiber', 'static', thumbnail)
                 if thumbnail and os.path.exists(file_with_path):
                     os.remove(file_with_path)
                
                # step 2: save new file
                 filename = f'{buch.id}_{buch.title}_{uploaded_file.name}'
-                if conf_settings.DEBUG:
+                if conf_settings.RENDER:
                     filepath = os.path.join('betreiber', 'thumbnails')
                     buch.thumbnail = os.path.join(filepath, filename)
                     buch.save()
-                    filepath = os.path.join('betreiber', 'static', buch.thumbnail)
+                    filepath = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', buch.thumbnail)
 
                 else:
                     filepath = os.path.join('betreiber', 'thumbnails')
                     buch.thumbnail = os.path.join(filepath, filename)
                     buch.save()
-                    filepath = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', buch.thumbnail)
+                    filepath = os.path.join('betreiber', 'static', buch.thumbnail)
             
                 handle_uploaded_file(uploaded_file, filepath)
             except Exception:
@@ -283,14 +279,14 @@ def api_create_buch_seite(request, buch_id):
     uploaded_file = request.FILES['file']
     filename = f'{buch.id}_{seitenzahl}_{uploaded_file.name}'
     # NOTE Check this path setting once on production server
-    if conf_settings.DEBUG:
-        filepath = os.path.join('betreiber', 'seiten')
-        picture = os.path.join(filepath, filename)
-        filepath = os.path.join('betreiber', 'static', picture)
-    else:
+    if conf_settings.RENDER:
         filepath = os.path.join('betreiber', 'seiten')
         picture = os.path.join(filepath, filename)
         filepath = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', picture)
+    else:
+        filepath = os.path.join('betreiber', 'seiten')
+        picture = os.path.join(filepath, filename)
+        filepath = os.path.join('betreiber', 'static', picture)        
     handle_uploaded_file(uploaded_file, filepath)
     seite = Seite.objects.create(text=text, picture=picture, book=buch, seitenzahl=seitenzahl)
     return JsonResponse(status=200, data={'seite': seite.serialize()})
@@ -338,20 +334,22 @@ def api_update_buch_seite(request, buch_id, seite_id):
     if request.FILES.get('file', None):
         uploaded_file = request.FILES['file']
         filename = f'{buch.id}_{seite.seitenzahl}_{uploaded_file.name}'
-        if conf_settings.DEBUG:
+        if conf_settings.RENDER:
+            filepath = os.path.join('betreiber', 'seiten')
+            picture = os.path.join(filepath, filename)
+            filepath = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', picture)                 
+        else:
             filepath = os.path.join('betreiber', 'seiten')
             picture = os.path.join(filepath, filename)
             filepath = os.path.join('betreiber', 'static', picture)
-        else:
-            filepath = os.path.join('betreiber', 'seiten')
-            picture = os.path.join(filepath, filename)
-            filepath = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', picture)        
+   
         # delete old picture before saving the new one
         old_picture = seite.picture
-        if conf_settings.DEBUG:
-            old_picturefile_with_path = os.path.join('betreiber', 'static', old_picture)
-        else:
+        if conf_settings.RENDER:
             old_picturefile_with_path = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', old_picture)
+        else:
+            old_picturefile_with_path = os.path.join('betreiber', 'static', old_picture)
+            
         if old_picture and os.path.exists(old_picturefile_with_path):
             os.remove(old_picturefile_with_path)
             

@@ -247,7 +247,6 @@ def view_play_page(request, buch_id, sprache_id, sprecher_id, seitenzahl):
     /PF0620/ Zur vorherigen Seite blättern.
     '''
     template = 'endnutzer/bibliothek/seite_abspielen.html'
-    print(buch_id, seitenzahl, sprache_id)
     try:
         buch = Buch.objects.get(pk=buch_id)
     except:
@@ -426,10 +425,10 @@ def api_record_page(request, buch_id, seitenzahl, sprache_id):
     # generating new file name every time we replace a recording to avoid caching issues
     filename= f'{str(uuid.uuid4())}{extension}'
     audio_path = os.path.join('endnutzer', 'aufnahmen', str(request.user.mandant.id), filename)
-    if conf_settings.DEBUG:
-        full_filepath = os.path.join('endnutzer', 'static', audio_path)
+    if conf_settings.RENDER:
+        full_filepath = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, audio_path)
     else:
-        raise NotImplementedError
+        full_filepath = os.path.join('endnutzer', 'static', audio_path)
 
     if Sprachaufnahme.objects.filter(seite=seite, language=sprache, recorded_by=request.user).exists():
         # Da Aufnahmen unique_together (sprache, sprecher, seite) sind, muessen wir im Fall einer neuen Aufzeichnung
@@ -441,7 +440,6 @@ def api_record_page(request, buch_id, seitenzahl, sprache_id):
     for aufnahme in Sprachaufnahme.objects.filter(language=sprache, recorded_by=request.user, is_public=True):
         aufnahme.is_public = False
         aufnahme.save()
-        print('hiding', aufnahme)
 
     aufnahme = Sprachaufnahme.objects.create(seite=seite, language=sprache, recorded_by=request.user, audio=audio_path, is_public=False)
 
@@ -848,7 +846,6 @@ def view_activate_book(request):
         try:
             code = Aktivierungscode.objects.filter(code=request.POST['code'])[0]
         except Exception as e:
-            print(e)
             messages.error(request, 'Der angegebene Code existiert nicht. Bitte überprüfen Sie die Schreibweise und versuchen Sie es erneut.')
             return render(request, 'endnutzer/admin/activate_book.html', {
                 'form': form,

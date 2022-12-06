@@ -14,10 +14,10 @@ def post_delete_buch(sender, **kwargs):
     instance = kwargs['instance']
     thumbnail_file = instance.thumbnail
 
-    if conf_settings.DEBUG:
-        thumbnail_file = os.path.join('betreiber', 'static', thumbnail_file)
-    else:
+    if conf_settings.RENDER:
         thumbnail_file = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', thumbnail_file)
+    else:
+        thumbnail_file = os.path.join('betreiber', 'static', thumbnail_file)
 
     if thumbnail_file and os.path.exists(thumbnail_file):
         os.remove(thumbnail_file)
@@ -30,10 +30,10 @@ def handleSeiteBildDeletion(sender, **kwargs):
     instance = kwargs['instance']
     picture = instance.picture
 
-    if conf_settings.DEBUG:
-        picture = os.path.join('betreiber', 'static', picture)
-    else:
+    if conf_settings.RENDER:
         picture = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', picture)
+    else:
+        picture = os.path.join('betreiber', 'static', picture)
 
     if picture and os.path.exists(picture):
         os.remove(picture)
@@ -48,10 +48,10 @@ def post_delete_sprachaufnahme(sender, **kwargs):
     instance = kwargs['instance']
     audio_file = instance.audio
 
-    if conf_settings.DEBUG:
-        audio_file = os.path.join('endnutzer', 'static', audio_file)
-    else:
+    if conf_settings.RENDER:
         audio_file = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', audio_file)
+    else:
+        audio_file = os.path.join('endnutzer', 'static', audio_file)
 
     if audio_file and os.path.exists(audio_file):
         os.remove(audio_file)
