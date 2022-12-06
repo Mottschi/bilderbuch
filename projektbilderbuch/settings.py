@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 RENDER = 'RENDER' in os.environ
 
 # If we are not on RENDER, we are in debug environment
-DEBUG = True
+DEBUG = False
 
 # SECURITY WARNING: keep the secret key used in production secret!
 if RENDER:
@@ -179,3 +179,5 @@ else:
     DEFAULT_FROM_EMAIL = 'projekt.bilderbuch@gmail.com'
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None 
+
+WHITENOISE_USE_FINDERS = True
