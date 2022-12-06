@@ -11,12 +11,42 @@
     <div>
         <form action="" method='POST'>
             {% csrf_token %}
-            <p>Mandantendaten:</p>            
-            {{ mandanten_form.as_p }}
-            <br>
-            <p>Mandantenadmin:</p>
-            {{ admin_form.as_p }}
-            <input type="submit" value="Mandant erstellen"/>
+            <div class="row">
+                <div class="col-sm p-4">
+                    <h6>Mandantendaten</h6>
+                    {% for field in mandanten_form.visible_fields %}
+                    <div class="form-floating p-1">
+                    {{ field }}
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    </div>
+                    {% endfor %}
+
+
+                </div>
+                <div class="col-sm p-4">
+                    <h6>Mandantenadmin</h6>
+                    {% for field in admin_form.visible_fields %}
+                    <div class="form-floating p-1">
+                    {{ field }}
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="p-1">
+                <button class="btn btn-success " type=submit>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-check-square" width="22" height="22" viewBox="0 0 16 16">
+                    <use xlink:href="#bi-check-square" />
+                    </svg>Mandant erstellen</button>
+                        
+                <a class="btn btn-secondary " href="{% url 'betreiber:mandantenliste'%}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-reply-fill" viewBox="0 0 16 16">
+                    <use xlink:href="#bi-reply-fill" />
+                    </svg> Zurück</a>
+            </div>
+            
+           
+         
         </form>
 
     </div>

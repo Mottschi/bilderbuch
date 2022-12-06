@@ -20,6 +20,7 @@ $(document).ready(()=>{
         const headers = ['Seite', 'Vorschau', 'Text', 'Edit', 'Löschen'];
     
         const table = document.createElement('table');
+        table.className += "table table-hover align-middle";
     
         let thead = table.createTHead();
         let row = thead.insertRow();
@@ -29,14 +30,14 @@ $(document).ready(()=>{
             th.appendChild(text);
             row.appendChild(th);
         }
-    
+        let tbody = table.createTBody();
         for (let k in pages) {
             const pageNr = pages[k].seitenzahl;
             const text = pages[k].text;
             const imgUrl = pages[k].picture;
             const pageID = pages[k].id;
             
-            const row = table.insertRow();
+            const row = tbody.insertRow();
             row.insertCell().appendChild(document.createTextNode(pageNr));
     
             const imgElement = document.createElement('img');

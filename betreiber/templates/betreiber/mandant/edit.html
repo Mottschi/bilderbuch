@@ -9,44 +9,79 @@
 
 {% block content %}
     <div><h1>Mandant editieren</h1></div>
-
     <div>
-        <h2>Mandantendaten</h2>
+    
         <form action="" method='POST'>
-            {% csrf_token %}
-            {{ form.as_p }}
+            <div class="row">
+                <div class="col-sm p-4">
+                    {% csrf_token %}
+                    <h6>Mandantendaten</h6>
+                    {% for field in form.visible_fields %}
+                    <div class="form-floating p-1">
+                    {{ field }}
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    </div>
+                    {% endfor %}
+                    </div>
+
+                    <div class="col-sm p-4">
+                    
+                        <input type="hidden" name="manager" id='setManager' value="">
+                    
+                        <div id="createAdmin">
+                            <h6>Neuen Mandantenadmin erstellen</h6>
+                            {{mandantenadminform.as_p}}
+                        </div>
+                        <div id="promoteAdmin">
+                            <h6>Neuen Mandantenadmin befördern</h6>
+                            <select class="form-select" name='newAdmin' id='selectPromoteAdmin'>
+                                {% for member in members %}
+                                    <option value='{{member.id}}' {% if mandant.manager.username == member.username %}selected='selected'{% endif %}>
+                                        {{member.username}}{% if mandant.manager.username == member.username %}(Admin){% endif %}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                   
+
+                    </div>
+                    <div class="row"><div class="col-sm-6 my-4 px-4">
+                        <h6>Mandantenadmin Optionen</h6>
+                        <div>
+                          
+                            <button class="btn btn-secondary m-1" type=button id='btnPromoteAdmin'>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-check-square" width="22" height="22" viewBox="0 0 16 16">
+                                  <use xlink:href="#bi-person-up" />
+                                </svg> Bestehendes Mandantenmitglied befördern</button>
+                            <button class="btn btn-secondary m-1" type=button id='btnCreateAdmin'>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-check-square" width="22" height="22" viewBox="0 0 16 16">
+                                    <use xlink:href="#bi-plus-square-fill" />
+                                </svg> Neuen Mandantenadmin erstellen</button>
+                        </div>
+                    </div></div>
+                    <div>
+                        <button class="btn btn-success m-1" type=submit>
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-check-square" width="22" height="22" viewBox="0 0 16 16">
+                            <use xlink:href="#bi-check-square" />
+                          </svg> Mandant speichern</button>
+                        
+                        <button class="btn btn-warning m-1" type=reset id="btnResetForm" >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16">
+                              <use xlink:href="#bi-arrow-counterclockwise" />
+                            </svg> Zurücksetzen   </button>
             
-            <input type="hidden" name="manager" id='setManager' value="">
+                        <a class="btn btn-secondary m-1" href="{% url 'betreiber:mandantenliste'%}">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-reply-fill" viewBox="0 0 16 16">
+                            <use xlink:href="#bi-reply-fill" />
+                          </svg> Zurück</a>
+                    </div>
+                    
 
-            <select name='newAdmin' id='selectPromoteAdmin'>
-                {% for member in members %}
-                    <option value='{{member.id}}' {% if mandant.manager.username == member.username %}selected='selected'{% endif %}>
-                        {{member.username}}{% if mandant.manager.username == member.username %}(Admin){% endif %}
-                    </option>
-                {% endfor %}
-            </select>
-
-            <div id="createAdmin">
-                {{mandantenadminform.as_p}}
-            </div>
-
-            <br>
-
-            <input type="submit" value="Mandant editieren"/>
+                    
         </form>
-
+        
     </div>
     
-    <div>
-        <h2>Mandantenadmin</h2>
-        <div>Optionen:
-            <button id='btnPromoteAdmin'>
-                Bestehendes Mandantenmitglied befördern
-            </button>
-
-            <button id='btnCreateAdmin'>
-                Neuen Mandantenadmin erstellen
-            </button>
-        </div>
-    </div>
+    
 {% endblock content %}
