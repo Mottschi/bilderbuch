@@ -652,6 +652,14 @@ def view_edit_mandant(request, mandant_id):
                 return redirect(reverse('betreiber:mandantenliste'))
         else:
             if not mandanten_admin_form.is_valid():
+                if User.objects.filter(username=request.POST['username']).exists():
+                    messages.error(request, 'Der Benutzername ist bereits vergeben.')
+                    return render(request, 'betreiber/mandant/edit.html', {
+                        'form': form,
+                        'mandant': mandant,
+                        'members': mandant.member.all(),
+                        'mandantenadminform': mandanten_admin_form,
+                    })    
                 messages.error(request, 'Wenn die Option "Neuen Mandantenadmin erstellen" gewählt wird, müssen auch alle Daten für den neuen Mandantenadmin angegeben werden.')
                 return render(request, 'betreiber/mandant/edit.html', {
                     'form': form,
@@ -692,9 +700,8 @@ def view_edit_mandant(request, mandant_id):
 
             mandanten_admin.mandant = mandant
             mandanten_admin.save()
-            
-            new_manager = mandanten_admin
-
+            print(2)            
+            new_manager = mandanten_admin    
         form.save()
         if new_manager:
             mandant.manager = new_manager

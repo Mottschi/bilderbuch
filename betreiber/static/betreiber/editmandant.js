@@ -6,14 +6,14 @@ $(document).ready(() => {
     if ($('#id_username').val() === '') {
         $('#createAdmin').hide();
         $('#id_username').prop('disabled', true);
+        currentManager = $('#selectPromoteAdmin').val()
+        $('#setManager').val(currentManager)
     } else {
+        createAdmin();
         
-        $('#id_username').prop('disabled', false);
     }
 
-    currentManager = $('#selectPromoteAdmin').val()
-    $('#setManager').val(currentManager)
-
+    
     $('#btnPromoteAdmin').click(() => {
         console.log('clicked on promote')
         $('#createAdmin').hide()
@@ -24,14 +24,7 @@ $(document).ready(() => {
         $('#selectPromoteAdmin').val(currentManager).change()
     });
 
-    $('#btnCreateAdmin').click(() => {
-        console.log('clicked on create')
-        $('#createAdmin').show()
-        $('#id_username').prop('disabled', false)
-        $('#selectPromoteAdmin').hide()
-        $('#promoteAdmin').hide()
-        $('#setManager').val('')
-    });
+    $('#btnCreateAdmin').click(createAdmin);
 
     $('#selectPromoteAdmin').change((event)=>{
          $('#setManager').val(event.target.value)
@@ -45,4 +38,13 @@ $(document).ready(() => {
         $('#selectPromoteAdmin').hide()
         $('#id_username').prop('disabled', true)
     })
+
+    function createAdmin() {
+            console.log('clicked on create')
+            $('#createAdmin').show()
+            $('#id_username').prop('disabled', false)
+            $('#selectPromoteAdmin').hide()
+            $('#promoteAdmin').hide()
+            $('#setManager').val('')
+        }
 })
