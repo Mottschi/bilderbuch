@@ -1,8 +1,15 @@
-$(document).ready(() => {
-    $('#createAdmin').hide()
+$(document).ready(() => {   
     $('#promoteAdmin').hide()
     $('#selectPromoteAdmin').hide()
-    $('#id_username').prop('disabled', true)
+    
+
+    if ($('#id_username').val() === '') {
+        $('#createAdmin').hide();
+        $('#id_username').prop('disabled', true);
+    } else {
+        
+        $('#id_username').prop('disabled', false);
+    }
 
     currentManager = $('#selectPromoteAdmin').val()
     $('#setManager').val(currentManager)
