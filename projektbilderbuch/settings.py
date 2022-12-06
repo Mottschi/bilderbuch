@@ -150,9 +150,6 @@ if RENDER:
     STATIC_ROOT = BASE_DIR / "staticfiles"
     STATIC_URL = '/static/'
 else:
-    PERSISTENT_STORAGE_ROOT = os.path.join('/Test')
-    STATICFILES_DIRS = [Path(PERSISTENT_STORAGE_ROOT)]
-
     STATIC_ROOT = BASE_DIR / "staticfiles"
     STATIC_URL = '/static/'
 
