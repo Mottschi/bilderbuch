@@ -437,24 +437,6 @@ def api_generate_buchcodes(request, buch_id):
         return JsonResponse(status=status, data={})
 
 
-# NOTE Diese Funktion hat bei der aktuellen Implementierung keinen Nutzen mehr
-@login_required
-@user_passes_test(is_betreiber, login_url='betreiber:logout')
-def api_export_buchcodes(request, buch_id):
-    try:
-        buch = Buch.objects.get(pk=buch_id)
-    except:
-        status = 404
-        return JsonResponse(status=status)
-    q_codes = Aktivierungscode.objects.filter(book=buch, was_exported=False)
-    codes = []
-    for code in q_codes:
-        code.was_exported = True
-        code.save()
-        codes.append(code.code)
-    return JsonResponse(data={'codes': codes})
-
-
 @login_required(login_url='betreiber:login')
 @user_passes_test(is_betreiber, login_url='betreiber:logout')
 def view_autorenliste(request):
