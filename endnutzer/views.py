@@ -13,7 +13,7 @@ from django.utils.timezone import now
 
 from .forms import LoginForm, PasswordResetForm, PasswordChangeForm, MandantenForm, EinladungsForm
 from .forms import EndnutzerForm, EndnutzerEditForm, AktivierungsForm, ConfirmForm
-from .helpers import is_endnutzer, not_logged_in, handle_uploaded_file, is_mandantenadmin
+from .helpers import is_endnutzer, not_logged_in, handle_uploaded_file, is_mandantenadmin, user_passes_test_with_error_message
 
 from betreiber.models import User, Autor, Mandant, Buch, Seite, Aktivierungscode, Einladung, Sprache
 from betreiber.models import Sprachaufnahme
@@ -680,7 +680,7 @@ def view_cancel_deletion(request):
 
 
 @login_required(login_url='endnutzer:login')
-@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
+@user_passes_test_with_error_message(is_mandantenadmin, login_url='endnutzer:index', error_message='Diese Funktion ist nur für Mandantenadmins zugänglich!')
 def view_mandant_profile(request):
     '''
     /PF0810/ Einsehen der zum Mandanten gehörenden Daten.
@@ -716,7 +716,7 @@ def view_mandant_profile(request):
 
 
 @login_required(login_url='endnutzer:login')
-@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
+@user_passes_test_with_error_message(is_mandantenadmin, login_url='endnutzer:index', error_message='Diese Funktion ist nur für Mandantenadmins zugänglich!')
 def view_mandant_deletion(request):
     '''
     /PF0830/ Löschen des Mandanten und aller damit verbundenen Benutzerkonten.
@@ -765,7 +765,7 @@ def view_mandant_deletion(request):
 
 
 @login_required(login_url='endnutzer:login')
-@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
+@user_passes_test_with_error_message(is_mandantenadmin, login_url='endnutzer:index', error_message='Diese Funktion ist nur für Mandantenadmins zugänglich!')
 def view_cancel_mandant_deletion(request):
     '''
     /PF0831/ Löschen des Mandanten abbrechen.
@@ -778,7 +778,7 @@ def view_cancel_mandant_deletion(request):
 
 
 @login_required(login_url='endnutzer:login')
-@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
+@user_passes_test_with_error_message(is_mandantenadmin, login_url='endnutzer:index', error_message='Diese Funktion ist nur für Mandantenadmins zugänglich!')
 def view_user_accounts(request):
     '''
     /PF0910/ Einsehen einer Liste aller mit dem Mandanten verbundenen Benutzerkonten.
@@ -791,7 +791,7 @@ def view_user_accounts(request):
 
 
 @login_required(login_url='endnutzer:login')
-@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
+@user_passes_test_with_error_message(is_mandantenadmin, login_url='endnutzer:index', error_message='Diese Funktion ist nur für Mandantenadmins zugänglich!')
 def view_kick_user(request, user_id):
     '''
     /PF0920/ Entfernen von mit dem Mandanten verbundenen Benutzerkonten.
@@ -814,7 +814,7 @@ def view_kick_user(request, user_id):
     
 
 @login_required(login_url='endnutzer:login')
-@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
+@user_passes_test_with_error_message(is_mandantenadmin, login_url='endnutzer:index', error_message='Diese Funktion ist nur für Mandantenadmins zugänglich!')
 def view_invite_user(request):
     '''
     /PF0930/ Versenden von Einladungslinks zur Erstellung von Benutzerkonten,
@@ -854,7 +854,7 @@ def view_invite_user(request):
 
 
 @login_required(login_url='endnutzer:login')
-@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')    
+@user_passes_test_with_error_message(is_mandantenadmin, login_url='endnutzer:index', error_message='Diese Funktion ist nur für Mandantenadmins zugänglich!')
 def view_activate_book(request):
     '''
     /PF1010/ Aktivieren von Büchercodes, um Bücher der Bibliothek des Mandanten
@@ -904,7 +904,7 @@ def view_activate_book(request):
 
 
 @login_required(login_url='endnutzer:login')
-@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
+@user_passes_test_with_error_message(is_mandantenadmin, login_url='endnutzer:index', error_message='Diese Funktion ist nur für Mandantenadmins zugänglich!')
 def view_all_recordings(request):
     '''
     /PF1020/ Einsehen einer Liste aller öffentlichen Sprachaufzeichnungen, 

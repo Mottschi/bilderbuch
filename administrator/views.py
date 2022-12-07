@@ -112,8 +112,6 @@ def view_create_betreiber(request):
 
         else:          
             # TODO Grund fuer Fehler anzeigen, evtl. ueber form.errors?
-            print(type(form.errors))
-            print(form.errors)
             for value in form.errors:
                 print(f'key: "{""}", value: "{value}"')
             messages.error(request, f'Beim Erstellen des Benutzers ist ein Fehler aufgetreten.')
