@@ -49,7 +49,8 @@ $(document).ready(()=>{
             row.insertCell().appendChild(document.createTextNode(text));
     
             const editElement = document.createElement('button');
-            editElement.innerText='Edit';
+            editElement.innerHTML=document.getElementById("editPencil").innerHTML;
+            editElement.className += 'btn btn-outline-primary no-border';
             editElement.addEventListener('click', ()=>{
                 // load the page data into the form
                 seiteID = pageID;
@@ -61,6 +62,8 @@ $(document).ready(()=>{
     
             const deleteElement = document.createElement('button');
             deleteElement.innerText = 'Löschen';
+            deleteElement.className += 'btn btn-outline-danger no-border';
+            deleteElement.innerHTML=document.getElementById("deleteTrash").innerHTML;
             deleteElement.addEventListener('click', ()=>{
                 if (window.confirm("Sind sie sicher, dass diese Seite gelöscht werden soll?")) {
                     $.ajax({

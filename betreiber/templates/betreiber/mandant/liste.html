@@ -36,7 +36,11 @@
                         </svg>
                     </a></td>
                     <td>{{mandant.name}}</td>
-                    <td>{{mandant.adresse}}</td>
+                    <td>{{mandant.street}} {{mandant.house_nr}}<br>
+                        {{mandant.postal_code}} {{mandant.city}}<br>
+                        {{mandant.get_country_display}}<br>
+                        {{mandant.adresse}}
+                    </td>
                     <td>{{mandant.manager.username}}</td>
                     <td>{{mandant.user_count}}</td>
                     <td>{{mandant.book_count}}</td>
@@ -53,7 +57,7 @@
         <p>Es wurden noch keine Mandanten registriert.</p>
     {% endif %}
     <div class="row justify-content-start">
-        <div class="col-2 text-start">
+        <div class="col-md-2 text-start">
             <a class="btn btn-secondary " href="{% url 'betreiber:index'%}">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-reply-fill" viewBox="0 0 16 16">
                 <use xlink:href="#bi-reply-fill" />

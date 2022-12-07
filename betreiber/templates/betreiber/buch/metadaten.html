@@ -7,7 +7,19 @@
 
 
 {% block content %}
-    <div><h1>Metadaten editieren</h1></div>
+  <div class="row align-items-center">
+    <div class="col-md-6"><h2>Metadaten editieren</h2></div>
+    <div class="col-md-6">
+        <a class="btn btn-secondary " href="{% url 'betreiber:edit_buch_seitendaten' buch.id%}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-reply-fill" viewBox="0 0 16 16">
+                <use xlink:href="#bi-reply-fill" />
+            </svg>&nbsp;Seitendaten</a>
+        <a class="btn btn-secondary " href="{% url 'betreiber:buchliste'%}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-card-list" viewBox="0 0 16 16">
+                <use xlink:href="#bi-card-list" />
+            </svg>&nbsp;Buchliste</a>
+    </div>
+ 
 
     
 
