@@ -36,12 +36,19 @@ def view_login(request):
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             user = authenticate(request, username=username, password=password)
-            if user is not None and is_endnutzer(user):
+            if user is None:
+                if User.objects.filter(username=username).exists():
+                    messages.error(request, 'Ungültiges Passwort!')
+                else:
+                    messages.error(request, 'Ungültiger Benutzername!')
+                return render(request, 'betreiber/login.html', {
+                    'form': LoginForm(),
+                })
+            if is_endnutzer(user):
                 login(request, user)
                 return redirect(reverse('endnutzer:index'))
             else:
-                # TODO Fehlermeldung soll den Grund beinhalten
-                messages.error(request, 'Fehler beim Einloggen')
+                messages.error(request, 'Der angegebene Benutzername gehört nicht zu einem Benutzerkonto!')
                 return render(request, 'endnutzer/login.html', {
                     'form': LoginForm(),
                 })

@@ -19,9 +19,3 @@ class BetreiberForm(forms.ModelForm):
 		super().__init__(*args, **kwargs)
 		for visible in self.visible_fields():
 			visible.field.widget.attrs['class'] = 'form-control'
-		
-		# Alternative Solution from Stackoverflow: https://stackoverflow.com/questions/29716023/add-class-to-form-field-django-modelform
-		# super(BetreiberForm, self).__init__(*args, **kwargs)
-		# for visible in self.visible_fields():
-		# 	visible.field.widget.attrs['class'] = 'form-control'
-		
