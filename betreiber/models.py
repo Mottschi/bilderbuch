@@ -124,7 +124,7 @@ class Autor(models.Model):
 
 class Seite(models.Model):
     seitenzahl = models.PositiveSmallIntegerField()
-    text = models.CharField(max_length=255)
+    text = models.CharField(max_length=255, blank=True)
     picture = models.CharField(max_length=150)
     book = models.ForeignKey('Buch', on_delete=models.CASCADE, related_name='seiten')
 

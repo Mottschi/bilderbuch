@@ -836,7 +836,7 @@ def view_invite_user(request):
             invite_link = f'http://{request.META["HTTP_HOST"]}/registration?invite={invite_code}'
 
             send_mail(
-                    'Einladung zu Projekt Bilderuch',
+                    'Einladung zu Projekt Bilderbuch',
                     f'Hallo,\n\nSie wurden eingeladen, dem Mandanten {mandant.name} im Projekt Bilderbuch beizutreten. Benutzen Sie dafür folgenden Link:\n\n{invite_link}\n\nMit freundlichen Grüßen,\nProjekt Bilderbuch',
                     'projekt.bilderbuch@gmail.com',
                     [email],
