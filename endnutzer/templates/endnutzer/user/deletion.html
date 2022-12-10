@@ -28,9 +28,9 @@
     <form action="" method='POST'>
         {% csrf_token %}
         {% if show_password_field %}{{ form.as_p}}
-        <button type="submit">Benutzerkonto Loeschen</button>{% endif %}
+        <button type="submit" class='btn btn-primary'>Benutzerkonto Loeschen</button>{% endif %}
         
-        <button type="submit" formaction='{% url 'endnutzer:account_loeschung_abbrechen' %}'>Abbrechen</button>
+        <a href="{% url 'endnutzer:account_loeschung_abbrechen' %}" class='btn btn-primary'>Abbrechen</a>
     </form>
     
 {% endblock %}

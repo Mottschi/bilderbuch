@@ -670,9 +670,10 @@ def view_cancel_deletion(request):
     '''
     /PF0751/ Abbrechen der Löschung des Benutzerkontos
     '''
-    request.user.deletion = None
-    request.user.save()
-    messages.success(request, "Die Löschung wurde abgebrochen.")
+    if request.user.deletion is not None:
+        request.user.deletion = None
+        request.user.save()
+        messages.success(request, "Die Löschung wurde abgebrochen.")
     return redirect(reverse('endnutzer:userprofil'))
 
 
@@ -773,9 +774,10 @@ def view_cancel_mandant_deletion(request):
     /PF0831/ Löschen des Mandanten abbrechen.
     '''
     mandant = request.user.mandant
-    mandant.deletion = None
-    mandant.save()
-    messages.success(request, 'Der Löschvorgang für diesen Mandanten wurde abgebrochen.')
+    if mandant.deletion is not None:
+        mandant.deletion = None
+        mandant.save()
+        messages.success(request, 'Der Löschvorgang für diesen Mandanten wurde abgebrochen.')
     return redirect(reverse("endnutzer:mandantenprofil"))
 
 
