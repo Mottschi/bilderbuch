@@ -17,6 +17,10 @@ class User(AbstractUser):
     @property
     def is_mandantenadmin(self):
         return self.mandant.manager == self
+
+    @property
+    def aufnahmen_count(self):
+        return Sprachaufnahme.objects.filter(seite__in=Seite.objects.filter(seitenzahl=1), recorded_by=self, is_public=True).count()
     
 
 class Mandant(models.Model):
