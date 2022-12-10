@@ -809,11 +809,17 @@ def view_kick_user(request, user_id):
         messages.error(request, 'Der Mandantenadmin kann sich nicht selbst aus dem Mandanten entfernen.')
         return redirect(reverse('endnutzer:benutzerliste'))
     if request.method == 'POST':
-        target.delete()
-        messages.success(request, f'Der Benutzer {target.username} ({target.get_full_name()}) wurde erfolgreich entfernt.')
-        return redirect(reverse('endnutzer:benutzerliste'))
+        form = ConfirmForm(request.POST)
+        if form.is_valid() and check_password(form.cleaned_data['password'], request.user.password):
+            target.delete()
+            messages.success(request, f'Der Benutzer {target.username} ({target.get_full_name()}) wurde erfolgreich entfernt.')
+            return redirect(reverse('endnutzer:benutzerliste'))
+        else:
+            messages.error(request, 'Passwort-Verifizierung fehlgeschlagen!')            
+        
     return render(request, 'endnutzer/admin/kick_user.html', {
         'target': target,
+        'form': ConfirmForm(),
     })
     
 

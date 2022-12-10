@@ -11,8 +11,9 @@
 
     <form action="" method='POST'>
         {% csrf_token %}
-        <button type="submit">User Loeschen</button>
-        <button type="submit" formaction='{% url 'endnutzer:benutzerliste' %}' formmethod='GET'>Abbrechen</button>
+        {{form.as_p}}
+        <button type="submit" class='btn btn-primary'>User Loeschen</button>
+        <a href="{% url 'endnutzer:benutzerliste' %}" class='btn btn-primary'>Abbrechen</a>
     </form>
     
 {% endblock %}
