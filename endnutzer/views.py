@@ -898,7 +898,7 @@ def view_activate_book(request):
             return render(request, 'endnutzer/admin/activate_book.html', {
                 'form': form,
             })
-        messages.success(request, f'Das Buch "{code.book} wurde erfolgreich Ihrer Bibliothek hinzugefügt.')
+        messages.success(request, f'Das Buch "{code.book}" wurde erfolgreich Ihrer Bibliothek hinzugefügt.')
         return redirect(reverse('endnutzer:library'))
     return render(request, 'endnutzer/admin/activate_book.html', {
         'form': form,
