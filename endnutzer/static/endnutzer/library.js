@@ -28,6 +28,10 @@ $(document).ready(() => {
     // Event Handler fuer alters filter
     $('#min_age').change((event)=> {
         let newMinValue = parseInt(event.target.value);
+        if (isNaN(newMinValue)) {
+            $('#min_age').val(minAge);
+            return;
+        }
         newMinValue = Math.max(0, newMinValue);
         newMinValue = Math.min(newMinValue, maxAge);
         $('#min_age').val(newMinValue);
@@ -37,6 +41,10 @@ $(document).ready(() => {
 
     $('#max_age').change((event)=> {
         let newMaxValue = parseInt(event.target.value);
+        if (isNaN(newMaxValue)) {
+            $('#max_age').val(maxAge);
+            return;
+        }
         newMaxValue = Math.min(99, newMaxValue);
         newMaxValue = Math.max(newMaxValue, minAge);
         $('#max_age').val(newMaxValue);
