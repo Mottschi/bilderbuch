@@ -38,7 +38,7 @@ def view_login(request):
                 login(request, user)
                 return redirect(reverse('administrator:betreiberliste'))
             else:
-                messages.error(request, 'Der angegebene Benutzername gehört nicht zu einem Administratorkonto!')
+                messages.error(request, 'Der angegebene Benutzername gehört nicht zu einem Systemadministratorkonto!')
                 return render(request, 'administrator/login.html', {
                     'form': LoginForm(),
                 })

@@ -703,8 +703,10 @@ def view_mandant_profile(request):
                     'form': form,
                     'members': mandant.member.all(),
                     })
-            mandant.manager = new_admin
-            mandant.save()
+                mandant.manager = new_admin
+                mandant.save()
+                logout(request)
+                messages.success(request, f'{mandant.manager} wurde zum neuen Administrator für {mandant} ernannt. Ihr Konto wurde dadurch auf ein normales Benutzerkonto zurückgestuft.')
             form.save()
             messages.success(request, 'Mandantendetails aktualisiert.')
             return redirect(reverse('endnutzer:index'))

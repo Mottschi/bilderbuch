@@ -284,13 +284,11 @@ def api_create_buch_seite(request, buch_id):
     uploaded_file = request.FILES['file']
     extension = uploaded_file.name.split('.')[-1]
     filename = f'{buch.id}_{seitenzahl}_{str(uuid.uuid4())}.{extension}'
+    filepath = os.path.join('betreiber', 'seiten', str(buch.id))
+    picture = os.path.join(filepath, filename)
     if conf_settings.RENDER:
-        filepath = os.path.join('betreiber', 'seiten')
-        picture = os.path.join(filepath, filename)
         filepath = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', picture)
     else:
-        filepath = os.path.join('betreiber', 'seiten')
-        picture = os.path.join(filepath, filename)
         filepath = os.path.join('betreiber', 'static', picture)        
     handle_uploaded_file(uploaded_file, filepath)
     seite = Seite.objects.create(text=text, picture=picture, book=buch, seitenzahl=seitenzahl)
@@ -338,14 +336,16 @@ def api_update_buch_seite(request, buch_id, seite_id):
 
     if request.FILES.get('file', None):
         uploaded_file = request.FILES['file']
-        filename = f'{buch.id}_{seite.seitenzahl}_{uploaded_file.name}'
+        extension = uploaded_file.name.split('.')[-1]
+        # Dateiname der beim Editieren gewählt wird weicht vom Dateinamen der beim Erstellen
+        # einer Seite gewählt wird ab. ID der Seite ist zu bevorzugen, beim Erstellen haben wir
+        # aber noch keine ID
+        filename = f'{seite.id}_{str(uuid.uuid4())}.{extension}'
+        filepath = os.path.join('betreiber', 'seiten', str(buch.id))
+        picture = os.path.join(filepath, filename)
         if conf_settings.RENDER:
-            filepath = os.path.join('betreiber', 'seiten')
-            picture = os.path.join(filepath, filename)
             filepath = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', picture)                 
         else:
-            filepath = os.path.join('betreiber', 'seiten')
-            picture = os.path.join(filepath, filename)
             filepath = os.path.join('betreiber', 'static', picture)
    
         # delete old picture before saving the new one
