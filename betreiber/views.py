@@ -136,16 +136,13 @@ def view_create_buch(request):
             extension = uploaded_file.name.split('.')[-1]
             filename = f'{buch.id}_{str(uuid.uuid4())}.{extension}'
 
+            filepath = os.path.join('thumbnails')
+            buch.thumbnail = os.path.join(filepath, filename)
+            buch.save()
             if conf_settings.RENDER:
-                filepath = os.path.join('betreiber', 'thumbnails')
-                buch.thumbnail = os.path.join(filepath, filename)
-                buch.save()
                 filepath = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', filepath, filename)
 
             else:
-                filepath = os.path.join('betreiber', 'thumbnails')
-                buch.thumbnail = os.path.join(filepath, filename)
-                buch.save()
                 filepath = os.path.join('betreiber', 'static', filepath, filename)
 
             handle_uploaded_file(uploaded_file, filepath)
@@ -188,15 +185,12 @@ def view_edit_buch_metadaten(request, buch_id):
                # step 2: save new file
                 extension = uploaded_file.name.split('.')[-1]
                 filename = f'{buch.id}_{str(uuid.uuid4())}.{extension}'
+                filepath = os.path.join('thumbnails')
+                buch.thumbnail = os.path.join(filepath, filename)
+                buch.save()
                 if conf_settings.RENDER:
-                    filepath = os.path.join('betreiber', 'thumbnails')
-                    buch.thumbnail = os.path.join(filepath, filename)
-                    buch.save()
                     filepath = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', buch.thumbnail)
                 else:
-                    filepath = os.path.join('betreiber', 'thumbnails')
-                    buch.thumbnail = os.path.join(filepath, filename)
-                    buch.save()
                     filepath = os.path.join('betreiber', 'static', buch.thumbnail)
             
                 handle_uploaded_file(uploaded_file, filepath)
@@ -284,7 +278,7 @@ def api_create_buch_seite(request, buch_id):
     uploaded_file = request.FILES['file']
     extension = uploaded_file.name.split('.')[-1]
     filename = f'{buch.id}_{seitenzahl}_{str(uuid.uuid4())}.{extension}'
-    filepath = os.path.join('betreiber', 'seiten', str(buch.id))
+    filepath = os.path.join('seiten', str(buch.id))
     picture = os.path.join(filepath, filename)
     if conf_settings.RENDER:
         filepath = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', picture)
@@ -341,7 +335,7 @@ def api_update_buch_seite(request, buch_id, seite_id):
         # einer Seite gewählt wird ab. ID der Seite ist zu bevorzugen, beim Erstellen haben wir
         # aber noch keine ID
         filename = f'{seite.id}_{str(uuid.uuid4())}.{extension}'
-        filepath = os.path.join('betreiber', 'seiten', str(buch.id))
+        filepath = os.path.join('seiten', str(buch.id))
         picture = os.path.join(filepath, filename)
         if conf_settings.RENDER:
             filepath = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', picture)                 
