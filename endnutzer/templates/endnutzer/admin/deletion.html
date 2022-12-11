@@ -18,7 +18,7 @@
     {% if deletion_date and not show_password_field %}
         Es ist bereits ein Loeschvorgang am Laufen. Dieser wurde am  {{ user.mandant.deletion }} eingeleitet.
 
-        Die Löschung kann ab dem {{ deletion_date }} abgeschlossen werden.
+        Bis die Löschung abgeschlossen werden kann dauert es noch: {{ deletion_date|timeuntil }}
     {% elif deletion_date %}
         Die Löschung wurde vor mehr als 30 Tagen eingeleitet und kann nun abgeschlossen werden. Geben Sie Ihr Passwort ein, um die Löschung endgültig und unwiderruflich durchzuführen.
     {% endif %}
