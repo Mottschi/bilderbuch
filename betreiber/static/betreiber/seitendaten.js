@@ -61,6 +61,7 @@ $(document).ready(()=>{
                 seiteID = pageID;
                 seitenzahl = pageNr;
                 formPageNr.val(pageNr);
+                preview.attr('src', imgElement.src)
                 $('#id_text').val(text);
                 $('#id_file').val('');
                 
@@ -134,6 +135,8 @@ $(document).ready(()=>{
         $('#id_file').val('');
         seiteID = null;
         seitenzahl = null;
+        formPageNr.val(seiten.length + 1);
+        preview.attr('src', '')
     });
 
     $('#btnSavePage').click((event)=>{
