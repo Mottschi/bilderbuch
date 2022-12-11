@@ -6,10 +6,16 @@ class LoginForm(forms.Form):
 	username = forms.CharField(max_length=150, label='Benutzername')
 	password = forms.CharField(widget=forms.PasswordInput, label='Passwort')
 
+	username.widget.attrs.update({'class': 'form-control'})
+	password.widget.attrs.update({'class': 'form-control'})
+    
+	username.widget.attrs['placeholder'] = ''
+	password.widget.attrs['placeholder'] = ''
 
 class PasswordResetForm(forms.Form):
     username = forms.CharField(max_length=150, label='Benutzername')
-
+    username.widget.attrs.update({'class': 'form-control'})
+    username.widget.attrs['placeholder'] = ''
     
 class PasswordChangeForm(forms.Form):
     current_password = forms.CharField(widget=forms.PasswordInput, label='Aktuelles Passwort')

@@ -99,50 +99,74 @@ $(document).ready(() => {
             const buch = buecher[i];
 
             // create a div of class col-2
-            const colDiv = document.createElement('div');
-            colDiv.classList.add('col-2');
-            library.appendChild(colDiv);
+            // const colDiv = document.createElement('div');
+            // colDiv.classList.add('col');
+            // library.appendChild(colDiv);
 
             // create a div for the card
             const cardDiv = document.createElement('div');
             cardDiv.classList.add('card');
             cardDiv.classList.add('h-100');
             cardDiv.classList.add('text-center');
-            colDiv.appendChild(cardDiv);
+            cardDiv.classList.add('m-1');
+            cardDiv.style.width='18rem';
+            cardDiv.style.height='20rem';
+            cardDiv.addEventListener('click', ()=>{ window.open(`buch/${buch.id}/abspielen`, '_self'); return false; });
+            library.appendChild(cardDiv);
+
+
 
             // create an img for the books thumbnail
             const thumbnailImg = document.createElement('img');
             thumbnailImg.src = `/static/${buch.thumbnail}`;
+            thumbnailImg.classList.add('img-fluid');
+            // thumbnailImg.addEventListener('click', ()=>{ window.open(`buch/${buch.id}/abspielen`, '_self'); return false; });
             cardDiv.appendChild(thumbnailImg);
 
             // create a div for the body, to hold the title
             let cardbodyDiv = document.createElement('div');
-            cardbodyDiv.classList.add('card-body');
+            cardbodyDiv.classList.add('p-1');
+            cardbodyDiv.classList.add('d-flex');
+            cardbodyDiv.classList.add('align-items-end');
             cardDiv.appendChild(cardbodyDiv);
 
             // create a div for the title
             const cardtitleDiv = document.createElement('div');
             cardtitleDiv.classList.add('card-title');
-            cardtitleDiv.innerHTML = `<h5>${buch.title}</h5>`
+            cardtitleDiv.classList.add('col');
+            cardtitleDiv.innerHTML = `<h5>${buch.title}</h5>`;
             cardbodyDiv.appendChild(cardtitleDiv);
 
-            // create a div for the body, to hold the title
-            cardbodyDiv = document.createElement('div');
-            cardbodyDiv.classList.add('card-body');
-            cardDiv.appendChild(cardbodyDiv);
+            recordAnchor = document.createElement('a');
+            recordAnchor.href = `buch/${buch.id}/aufnehmen`;
+            cardbodyDiv.appendChild(recordAnchor);
 
-            // create two links for accessing playing / recording functionality
-            let cardoptionsAnchor = document.createElement('a');
-            cardoptionsAnchor.classList.add('card-link');
-            cardoptionsAnchor.href = `buch/${buch.id}/abspielen`;
-            cardoptionsAnchor.innerText = 'Abspielen'
-            cardbodyDiv.appendChild(cardoptionsAnchor);
 
-            cardoptionsAnchor = document.createElement('a');
-            cardoptionsAnchor.classList.add('card-link');
-            cardoptionsAnchor.href = `buch/${buch.id}/aufnehmen`;
-            cardoptionsAnchor.innerText = 'Aufnehmen'
-            cardbodyDiv.appendChild(cardoptionsAnchor);
+
+            // create a div for the record button
+            const recordButtonDiv = document.createElement('div');
+            recordButtonDiv.classList.add('btn');
+            recordButtonDiv.classList.add('btn-primary');
+            recordButtonDiv.innerHTML=document.getElementById('recordMic').innerHTML;
+            recordAnchor.appendChild(recordButtonDiv);
+
+            // // create a div for the body, to hold the links
+            // cardbodyDiv = document.createElement('div');
+            // cardbodyDiv.classList.add('card-body');
+            // cardDiv.appendChild(cardbodyDiv);
+
+            // // create two links for accessing playing / recording functionality
+            // let cardoptionsAnchor = document.createElement('a');
+            // cardoptionsAnchor.classList.add('card-link');
+            // cardoptionsAnchor.href = `buch/${buch.id}/abspielen`;
+            // cardoptionsAnchor.innerText = 'Abspielen'
+            // cardbodyDiv.appendChild(cardoptionsAnchor);
+
+            // cardoptionsAnchor = document.createElement('a');
+            // cardoptionsAnchor.classList.add('card-link');
+            // cardoptionsAnchor.href = `buch/${buch.id}/aufnehmen`;
+            // cardoptionsAnchor.innerText = 'Aufnehmen'
+            // cardbodyDiv.appendChild(cardoptionsAnchor);
         }
     }
 
