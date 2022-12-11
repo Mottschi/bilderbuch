@@ -683,12 +683,13 @@ def view_edit_mandant(request, mandant_id):
 
             mandanten_admin.mandant = mandant
             mandanten_admin.save()
-            print(2)            
+         
             new_manager = mandanten_admin    
         form.save()
         if new_manager:
             mandant.manager = new_manager
             mandant.save()
+            logout(request)
         messages.success(request, f'Der Mandant "{mandant.name}" wurde erfolgreich aktualisiert.')
         return redirect(reverse('betreiber:mandantenliste'))
 
@@ -712,6 +713,7 @@ def view_delete_mandant(request, mandant_id):
         mandant = Mandant.objects.get(pk=mandant_id)
     except:
         messages.error(request, f'Der zu löschende Mandant wurde nicht gefunden.')
+        return redirect(reverse('betreiber:mandantenliste'))
     if request.method == 'POST':
         if mandant:
             try:

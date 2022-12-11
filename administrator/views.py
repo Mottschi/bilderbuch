@@ -178,15 +178,22 @@ def view_delete_betreiber(request, delete_user_id):
     '''
     /PF0060/ Ein eingeloggter Administrator kann bestehende Betreiberkonten löschen.
     '''
+    delete_user = None
+    try:
+        delete_user = User.objects.get(pk=delete_user_id)
+    except:
+        messages.error(request, f'Das angegebene Betreiberkonto konnte nicht gefunden werden.')
+        return redirect(reverse('administrator:betreiberliste'))
     if request.method == 'POST':
-        try:
-            delete_user = User.objects.get(pk=delete_user_id)
+        if delete_user:
             delete_user.delete()
             messages.success(request, f'Das Betreiberkonto "{delete_user.username}" ({delete_user.first_name} {delete_user.last_name}) wurde erfolgreich gelöscht.')
-        except:
-            messages.error(request, f'Das angegebene Betreiberkonto konnte nicht gelöscht werden.')
-            
-    return redirect(reverse('administrator:betreiberliste'))
+        return redirect(reverse('administrator:betreiberliste'))
+
+    return render(request, 'administrator/betreiber_deletion.html', {
+        'target': delete_user,
+    })
+
 
 def view_access_forbidden(request):
     logout(request)
