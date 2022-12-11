@@ -41,7 +41,7 @@ def view_login(request):
                     messages.error(request, 'Ungültiges Passwort!')
                 else:
                     messages.error(request, 'Ungültiger Benutzername!')
-                return render(request, 'betreiber/login.html', {
+                return render(request, 'endnutzer/login.html', {
                     'form': LoginForm(),
                 })
             if is_endnutzer(user):
