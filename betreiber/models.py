@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
@@ -82,7 +83,7 @@ class Buch(models.Model):
     thumbnail = models.CharField(max_length=150)
     title = models.CharField(max_length=40)
     author = models.ManyToManyField('Autor')
-    age = models.PositiveSmallIntegerField()
+    age = models.PositiveSmallIntegerField(validators=[MinValueValidator(0), MaxValueValidator(99)])
 
     class Meta:
         verbose_name_plural = 'Bücher'
