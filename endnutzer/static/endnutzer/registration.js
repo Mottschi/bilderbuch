@@ -5,21 +5,18 @@ $(document).ready(() => {
         const pw_comparison = document.getElementById('id_password_comparison').value;
 
         const comparison = pw === pw_comparison;
+
+        const alertDiv = document.getElementById('pw-alert');
+
         if (!comparison) {
             event.preventDefault();
-
-            let alertDiv = document.getElementById('pw-alert');
-
-            if (!alertDiv) {
-                alertDiv = document.createElement('div');
-                alertDiv.id = 'pw-alert';
-                alertDiv.classList = 'alert alert-danger';
-                $('body').prepend(alertDiv);
-            }
-
-            alertDiv.innerText = "Die beiden Passwörter stimmen nicht überein!"
-            
-            return;
+            alertDiv.classList = 'alert alert-danger';
+            alertDiv.innerText = 'Die beiden Passwörter stimmen nicht überein!';
+            return false;
+        } else {
+            alertDiv.classList = '';
+            alertDiv.innerText = '';
+            return true;
         }
     })
 })
