@@ -111,18 +111,16 @@ $(document).ready(() => {
             cardDiv.classList.add('m-1');
             cardDiv.style.width='18rem';
             cardDiv.style.height='20rem';
+            cardDiv.addEventListener('click', ()=>{ window.open(`buch/${buch.id}/abspielen`, '_self'); return false; });
             library.appendChild(cardDiv);
 
-            // Create a link to play the book
-            const playAnchor = document.createElement('a');
-            playAnchor.href = `buch/${buch.id}/abspielen`;
-            cardDiv.appendChild(playAnchor);
+
 
             // create an img for the books thumbnail
             const thumbnailImg = document.createElement('img');
             thumbnailImg.src = `/static/${buch.thumbnail}`;
             thumbnailImg.classList.add('img-fluid');
-            thumbnailImg.addEventListener('click', ()=>{ window.open(`buch/${buch.id}/abspielen`, '_self'); return false; });
+            // thumbnailImg.addEventListener('click', ()=>{ window.open(`buch/${buch.id}/abspielen`, '_self'); return false; });
             cardDiv.appendChild(thumbnailImg);
 
             // create a div for the body, to hold the title
