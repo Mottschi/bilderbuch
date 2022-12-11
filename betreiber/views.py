@@ -507,7 +507,14 @@ def view_create_mandant(request):
         mandanten_admin_form = EndnutzerForm(request.POST)
 
         if not mandanten_admin_form.is_valid():
-            messages.error(request, 'Der Mandantenadmin konnte nicht erstellt werden.')
+            username=request.POST['username']
+            if username == '':
+                messages.error(request, 'Es wurde kein Benutzername für den Mandantenadmin angegeben!')
+            elif User.objects.filter(username=username).exists():
+                messages.error(request, 'Der angegebene Benutzername für den Mandantenadmin ist bereits vergeben.')
+            else:
+                messages.error(request, 'Der Mandantenadmin konnte mit den angegebenen Daten nicht erstellt werden.')
+
             return render(request, 'betreiber/mandant/create.html', {
                 'mandanten_form': mandanten_form,
                 'admin_form': mandanten_admin_form,
@@ -525,7 +532,15 @@ def view_create_mandant(request):
             })
 
         if not mandanten_form.is_valid():
-            messages.error(request, 'Der Mandant kann unter den angegebenen Daten nicht erstellt werden.')
+
+            mandanten_name=request.POST['name']
+            if mandanten_name == '':
+                messages.error(request, 'Es wurde kein Name für den Mandanten angegeben!')
+            elif Mandant.objects.filter(name=mandanten_name).exists():
+                messages.error(request, 'Der angegebene Name für den Mandanten ist bereits vergeben!')
+            else:
+                messages.error(request, 'Der Mandant konnte mit den angegebenen Daten nicht erstellt werden. Bitte überprüfen sie dass Sie alle Felder ausgefüllt haben und versuchen Sie es erneut!')
+
             return render(request, 'betreiber/mandant/create.html', {
                 'mandanten_form': mandanten_form,
                 'admin_form': mandanten_admin_form,
@@ -557,7 +572,7 @@ def view_create_mandant(request):
             mandanten_admin.save()
         except:
             mandanten_admin.delete()
-            messages.error('Mandant konnte nicht erstellt werden.')
+            messages.error('Mandant konnte aus Unbekannten Gründen nicht erstellt werden.')
             return render(request, 'betreiber/mandant/create.html', {
                 'mandanten_form': mandanten_form,
                 'admin_form': mandanten_admin_form,
@@ -572,11 +587,6 @@ def view_create_mandant(request):
         )
         messages.success(request, f'Der Mandant "{mandant.name}" wurde erfolgreich erstellt.')
         return redirect(reverse('betreiber:mandantenliste'))
-                    
-        return render(request, 'betreiber/mandant/create.html', {
-            'mandanten_form': mandanten_form,
-            'admin_form': mandanten_admin_form,
-        })
 
     mandanten_form = MandantenForm()
     mandanten_admin_form = EndnutzerForm()
