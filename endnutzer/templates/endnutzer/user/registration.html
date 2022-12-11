@@ -2,6 +2,8 @@
 {% load static %}
 
 {% block script %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="{% static 'endnutzer/registration.js' %}"></script>
 {% endblock %}
 
 
@@ -17,7 +19,7 @@
         <form action="" method='POST'>
             {% csrf_token %}
             {{form.as_p}}
-            <button type="submit">Konto erstellen</button>
+            <button type="submit" id='btnSubmit'>Konto erstellen</button>
         </form>
     </div>
 {% endblock %}
