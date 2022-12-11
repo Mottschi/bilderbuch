@@ -2,21 +2,23 @@ $(document).ready(() => {
     let aufnahmen = [];
     const csrfmiddlewaretoken = $('input[name="csrfmiddlewaretoken"]').val()
 
+    getRecordings();
     
-    $.ajax({
-        url: '/user/aufnahmen/api',
-        data: {
-
-        },
-        type: 'GET',
-        dataType: 'json',
-    }).done((json)=>{
-        aufnahmen = json.aufnahmen;
-        console.log(aufnahmen)
-        drawTable();
-    }).fail(()=>{
-        alert('Die Aufzeichnungen konnten nicht geladen werden.')
-    })
+    function getRecordings() {
+        $.ajax({
+            url: '/user/aufnahmen/api',
+            data: {
+    
+            },
+            type: 'GET',
+            dataType: 'json',
+        }).done((json)=>{
+            aufnahmen = json.aufnahmen;
+            drawTable();
+        }).fail(()=>{
+            alert('Die Aufnahmen konnten nicht geladen werden.')
+        })
+    }
 
     function drawTable() {
         let tableContainer = document.getElementById('aufnahmen');
@@ -110,18 +112,24 @@ $(document).ready(() => {
                     row.remove();
                     })
                 .fail((response)=>{
+                    let alert_message;
                     if ('responseJSON' in response) 
-                    {alert(response.responseJSON.error)}
-                    else 
-                    {alert('Das Löschen ist fehlgeschlagen!')}
+                        alert_message = response.responseJSON.error;
+                    else {
+                        alert_message = 'Das Löschen ist fehlgeschlagen!'
+                        }
+                    
+                    if (confirm(`${alert_message} Es ist möglich, dass die Liste nicht mehr auf dem aktuellen Stand ist, soll die Liste neu vom Server geladen werden?`)) {
+                        getRecordings();
+                    }
+
+
                 });
             });
             row.insertCell().appendChild(deleteBtn);
 
             tableContainer.replaceChildren(table);
-        }      
-
-        
+        }              
     }
 
 });
