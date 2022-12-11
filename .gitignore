@@ -135,10 +135,13 @@ dmypy.json
 
 # thumbnail pictures
 *.jpg
+*.JPG
 *.jpeg
+*.JPEG
 *.png
 *.PNG
 *.bmp
+*.BMP
 
 # audio recordings
 *.webm
