@@ -2,10 +2,13 @@
 {% load static %}
 
 {% block script %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="{% static 'endnutzer/registration.js' %}"></script>
 {% endblock %}
 
 
 {% block content %}
+    <div id='pw-alert'></div>
     <h1>Neues Benutzerkonto erstellen</h1>
     <div>
         Willkommen bei Projekt Bilderbuch. Sie wurden eingeladen, dem Mandanten "{{ mandant.name }}" beizutreten.
@@ -17,7 +20,7 @@
         <form action="" method='POST'>
             {% csrf_token %}
             {{form.as_p}}
-            <button type="submit">Konto erstellen</button>
+            <button type="submit" id='btnSubmit'>Konto erstellen</button>
         </form>
     </div>
 {% endblock %}

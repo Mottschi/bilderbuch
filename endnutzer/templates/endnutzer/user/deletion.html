@@ -10,6 +10,9 @@
     <h1>Benutzerkonto Löschen - Sicherheitsabfrage</h1>
     <div>
         Soll das Benutzerkonto ("{{user}}") wirklich gelöscht werden? Alle damit verbundenen Sprachaufnahmen werden dabei ebenfalls unwiderruflich geloescht werden.
+
+        Beachten Sie dabei, dass die Löschung aus Sicherheitsgründen erst nach mindestens 7 Tagen Wartezeit abgeschlossen werden kann. 
+        Sie werden nach dieser Wartezeit erneut über ihr Passwort die Löschung bestätigen müssen, um sie abzuschließen.
     </div>
     <br>
     <div>
@@ -18,7 +21,7 @@
 
         Es ist bereits ein Loeschvorgang am Laufen. Dieser wurde am  {{ user.deletion }} eingeleitet.
 
-        Die Löschung kann ab dem {{ deletion_date }} abgeschlossen werden.
+        Bis die Löschung abgeschlossen werden kann dauert es noch: {{ deletion_date|timeuntil }}
     
     {% elif deletion_date %}
         Die Löschung wurde vor mehr als 7 Tagen eingeleitet und kann nun abgeschlossen werden. Geben Sie Ihr Passwort ein, um die Löschung endgültig und unwiderruflich durchzuführen.
@@ -28,9 +31,9 @@
     <form action="" method='POST'>
         {% csrf_token %}
         {% if show_password_field %}{{ form.as_p}}
-        <button type="submit">Benutzerkonto Loeschen</button>{% endif %}
+        <button type="submit" class='btn btn-primary'>Benutzerkonto Loeschen</button>{% endif %}
         
-        <button type="submit" formaction='{% url 'endnutzer:account_loeschung_abbrechen' %}'>Abbrechen</button>
+        <a href="{% url 'endnutzer:account_loeschung_abbrechen' %}" class='btn btn-primary'>Abbrechen</a>
     </form>
     
 {% endblock %}

@@ -17,7 +17,7 @@
     <br>
     <div>
         <a href="{% url 'endnutzer:account_loeschen' %}" class='btn btn-danger'> 
-            {% if user.mandant.deletion %}
+            {% if user.deletion %}
                 Konto löschen/Löschung abbrechen
             {% else %}
                 Konto löschen

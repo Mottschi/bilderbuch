@@ -13,7 +13,7 @@ from django.utils.timezone import now
 
 from .forms import LoginForm, PasswordResetForm, PasswordChangeForm, MandantenForm, EinladungsForm
 from .forms import EndnutzerForm, EndnutzerEditForm, AktivierungsForm, ConfirmForm
-from .helpers import is_endnutzer, not_logged_in, handle_uploaded_file, is_mandantenadmin
+from .helpers import is_endnutzer, not_logged_in, handle_uploaded_file, is_mandantenadmin, user_passes_test_with_error_message
 
 from betreiber.models import User, Autor, Mandant, Buch, Seite, Aktivierungscode, Einladung, Sprache
 from betreiber.models import Sprachaufnahme
@@ -36,12 +36,19 @@ def view_login(request):
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             user = authenticate(request, username=username, password=password)
-            if user is not None and is_endnutzer(user):
+            if user is None:
+                if User.objects.filter(username=username).exists():
+                    messages.error(request, 'Ungültiges Passwort!')
+                else:
+                    messages.error(request, 'Ungültiger Benutzername!')
+                return render(request, 'betreiber/login.html', {
+                    'form': LoginForm(),
+                })
+            if is_endnutzer(user):
                 login(request, user)
                 return redirect(reverse('endnutzer:index'))
             else:
-                # TODO Fehlermeldung soll den Grund beinhalten
-                messages.error(request, 'Fehler beim Einloggen')
+                messages.error(request, 'Der angegebene Benutzername gehört nicht zu einem Benutzerkonto!')
                 return render(request, 'endnutzer/login.html', {
                     'form': LoginForm(),
                 })
@@ -663,9 +670,10 @@ def view_cancel_deletion(request):
     '''
     /PF0751/ Abbrechen der Löschung des Benutzerkontos
     '''
-    request.user.deletion = None
-    request.user.save()
-    messages.success(request, "Die Löschung wurde abgebrochen.")
+    if request.user.deletion is not None:
+        request.user.deletion = None
+        request.user.save()
+        messages.success(request, "Die Löschung wurde abgebrochen.")
     return redirect(reverse('endnutzer:userprofil'))
 
 
@@ -673,7 +681,7 @@ def view_cancel_deletion(request):
 
 
 @login_required(login_url='endnutzer:login')
-@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
+@user_passes_test_with_error_message(is_mandantenadmin, login_url='endnutzer:index', error_message='Diese Funktion ist nur für Mandantenadmins zugänglich!')
 def view_mandant_profile(request):
     '''
     /PF0810/ Einsehen der zum Mandanten gehörenden Daten.
@@ -696,8 +704,10 @@ def view_mandant_profile(request):
                     'form': form,
                     'members': mandant.member.all(),
                     })
-            mandant.manager = new_admin
-            mandant.save()
+                mandant.manager = new_admin
+                mandant.save()
+                logout(request)
+                messages.success(request, f'{mandant.manager} wurde zum neuen Administrator für {mandant} ernannt. Ihr Konto wurde dadurch auf ein normales Benutzerkonto zurückgestuft.')
             form.save()
             messages.success(request, 'Mandantendetails aktualisiert.')
             return redirect(reverse('endnutzer:index'))
@@ -709,7 +719,7 @@ def view_mandant_profile(request):
 
 
 @login_required(login_url='endnutzer:login')
-@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
+@user_passes_test_with_error_message(is_mandantenadmin, login_url='endnutzer:index', error_message='Diese Funktion ist nur für Mandantenadmins zugänglich!')
 def view_mandant_deletion(request):
     '''
     /PF0830/ Löschen des Mandanten und aller damit verbundenen Benutzerkonten.
@@ -758,20 +768,21 @@ def view_mandant_deletion(request):
 
 
 @login_required(login_url='endnutzer:login')
-@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
+@user_passes_test_with_error_message(is_mandantenadmin, login_url='endnutzer:index', error_message='Diese Funktion ist nur für Mandantenadmins zugänglich!')
 def view_cancel_mandant_deletion(request):
     '''
     /PF0831/ Löschen des Mandanten abbrechen.
     '''
     mandant = request.user.mandant
-    mandant.deletion = None
-    mandant.save()
-    messages.success(request, 'Der Löschvorgang für diesen Mandanten wurde abgebrochen.')
+    if mandant.deletion is not None:
+        mandant.deletion = None
+        mandant.save()
+        messages.success(request, 'Der Löschvorgang für diesen Mandanten wurde abgebrochen.')
     return redirect(reverse("endnutzer:mandantenprofil"))
 
 
 @login_required(login_url='endnutzer:login')
-@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
+@user_passes_test_with_error_message(is_mandantenadmin, login_url='endnutzer:index', error_message='Diese Funktion ist nur für Mandantenadmins zugänglich!')
 def view_user_accounts(request):
     '''
     /PF0910/ Einsehen einer Liste aller mit dem Mandanten verbundenen Benutzerkonten.
@@ -784,7 +795,7 @@ def view_user_accounts(request):
 
 
 @login_required(login_url='endnutzer:login')
-@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
+@user_passes_test_with_error_message(is_mandantenadmin, login_url='endnutzer:index', error_message='Diese Funktion ist nur für Mandantenadmins zugänglich!')
 def view_kick_user(request, user_id):
     '''
     /PF0920/ Entfernen von mit dem Mandanten verbundenen Benutzerkonten.
@@ -798,16 +809,22 @@ def view_kick_user(request, user_id):
         messages.error(request, 'Der Mandantenadmin kann sich nicht selbst aus dem Mandanten entfernen.')
         return redirect(reverse('endnutzer:benutzerliste'))
     if request.method == 'POST':
-        target.delete()
-        messages.success(request, f'Der Benutzer {target.username} ({target.get_full_name()}) wurde erfolgreich entfernt.')
-        return redirect(reverse('endnutzer:benutzerliste'))
+        form = ConfirmForm(request.POST)
+        if form.is_valid() and check_password(form.cleaned_data['password'], request.user.password):
+            target.delete()
+            messages.success(request, f'Der Benutzer {target.username} ({target.get_full_name()}) wurde erfolgreich entfernt.')
+            return redirect(reverse('endnutzer:benutzerliste'))
+        else:
+            messages.error(request, 'Passwort-Verifizierung fehlgeschlagen!')            
+        
     return render(request, 'endnutzer/admin/kick_user.html', {
         'target': target,
+        'form': ConfirmForm(),
     })
     
 
 @login_required(login_url='endnutzer:login')
-@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
+@user_passes_test_with_error_message(is_mandantenadmin, login_url='endnutzer:index', error_message='Diese Funktion ist nur für Mandantenadmins zugänglich!')
 def view_invite_user(request):
     '''
     /PF0930/ Versenden von Einladungslinks zur Erstellung von Benutzerkonten,
@@ -829,7 +846,7 @@ def view_invite_user(request):
             invite_link = f'http://{request.META["HTTP_HOST"]}/registration?invite={invite_code}'
 
             send_mail(
-                    'Einladung zu Projekt Bilderuch',
+                    'Einladung zu Projekt Bilderbuch',
                     f'Hallo,\n\nSie wurden eingeladen, dem Mandanten {mandant.name} im Projekt Bilderbuch beizutreten. Benutzen Sie dafür folgenden Link:\n\n{invite_link}\n\nMit freundlichen Grüßen,\nProjekt Bilderbuch',
                     'projekt.bilderbuch@gmail.com',
                     [email],
@@ -847,7 +864,7 @@ def view_invite_user(request):
 
 
 @login_required(login_url='endnutzer:login')
-@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')    
+@user_passes_test_with_error_message(is_mandantenadmin, login_url='endnutzer:index', error_message='Diese Funktion ist nur für Mandantenadmins zugänglich!')
 def view_activate_book(request):
     '''
     /PF1010/ Aktivieren von Büchercodes, um Bücher der Bibliothek des Mandanten
@@ -889,7 +906,7 @@ def view_activate_book(request):
             return render(request, 'endnutzer/admin/activate_book.html', {
                 'form': form,
             })
-        messages.success(request, f'Das Buch "{code.book} wurde erfolgreich Ihrer Bibliothek hinzugefügt.')
+        messages.success(request, f'Das Buch "{code.book}" wurde erfolgreich Ihrer Bibliothek hinzugefügt.')
         return redirect(reverse('endnutzer:library'))
     return render(request, 'endnutzer/admin/activate_book.html', {
         'form': form,
@@ -897,7 +914,7 @@ def view_activate_book(request):
 
 
 @login_required(login_url='endnutzer:login')
-@user_passes_test(is_mandantenadmin, login_url='endnutzer:logout')
+@user_passes_test_with_error_message(is_mandantenadmin, login_url='endnutzer:index', error_message='Diese Funktion ist nur für Mandantenadmins zugänglich!')
 def view_all_recordings(request):
     '''
     /PF1020/ Einsehen einer Liste aller öffentlichen Sprachaufzeichnungen, 

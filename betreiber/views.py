@@ -29,12 +29,19 @@ def view_login(request):
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             user = authenticate(request, username=username, password=password)
-            if user is not None and is_betreiber(user):
+            if user is None:
+                if User.objects.filter(username=username).exists():
+                    messages.error(request, 'Ungültiges Passwort!')
+                else:
+                    messages.error(request, 'Ungültiger Benutzername!')
+                return render(request, 'betreiber/login.html', {
+                    'form': LoginForm(),
+                })
+            if is_betreiber(user):
                 login(request, user)
                 return redirect(reverse('betreiber:index'))
             else:
-                # TODO Fehlermeldung soll den Grund beinhalten
-                messages.error(request, 'Fehler beim Einloggen')
+                messages.error(request, 'Der angegebene Benutzername gehört nicht zu einem Betreiberkonto!')
                 return render(request, 'betreiber/login.html', {
                     'form': LoginForm(),
                 })
@@ -129,16 +136,13 @@ def view_create_buch(request):
             extension = uploaded_file.name.split('.')[-1]
             filename = f'{buch.id}_{str(uuid.uuid4())}.{extension}'
 
+            filepath = os.path.join('thumbnails')
+            buch.thumbnail = os.path.join(filepath, filename)
+            buch.save()
             if conf_settings.RENDER:
-                filepath = os.path.join('betreiber', 'thumbnails')
-                buch.thumbnail = os.path.join(filepath, filename)
-                buch.save()
                 filepath = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', filepath, filename)
 
             else:
-                filepath = os.path.join('betreiber', 'thumbnails')
-                buch.thumbnail = os.path.join(filepath, filename)
-                buch.save()
                 filepath = os.path.join('betreiber', 'static', filepath, filename)
 
             handle_uploaded_file(uploaded_file, filepath)
@@ -181,15 +185,12 @@ def view_edit_buch_metadaten(request, buch_id):
                # step 2: save new file
                 extension = uploaded_file.name.split('.')[-1]
                 filename = f'{buch.id}_{str(uuid.uuid4())}.{extension}'
+                filepath = os.path.join('thumbnails')
+                buch.thumbnail = os.path.join(filepath, filename)
+                buch.save()
                 if conf_settings.RENDER:
-                    filepath = os.path.join('betreiber', 'thumbnails')
-                    buch.thumbnail = os.path.join(filepath, filename)
-                    buch.save()
                     filepath = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', buch.thumbnail)
                 else:
-                    filepath = os.path.join('betreiber', 'thumbnails')
-                    buch.thumbnail = os.path.join(filepath, filename)
-                    buch.save()
                     filepath = os.path.join('betreiber', 'static', buch.thumbnail)
             
                 handle_uploaded_file(uploaded_file, filepath)
@@ -277,13 +278,11 @@ def api_create_buch_seite(request, buch_id):
     uploaded_file = request.FILES['file']
     extension = uploaded_file.name.split('.')[-1]
     filename = f'{buch.id}_{seitenzahl}_{str(uuid.uuid4())}.{extension}'
+    filepath = os.path.join('seiten', str(buch.id))
+    picture = os.path.join(filepath, filename)
     if conf_settings.RENDER:
-        filepath = os.path.join('betreiber', 'seiten')
-        picture = os.path.join(filepath, filename)
         filepath = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', picture)
     else:
-        filepath = os.path.join('betreiber', 'seiten')
-        picture = os.path.join(filepath, filename)
         filepath = os.path.join('betreiber', 'static', picture)        
     handle_uploaded_file(uploaded_file, filepath)
     seite = Seite.objects.create(text=text, picture=picture, book=buch, seitenzahl=seitenzahl)
@@ -331,14 +330,16 @@ def api_update_buch_seite(request, buch_id, seite_id):
 
     if request.FILES.get('file', None):
         uploaded_file = request.FILES['file']
-        filename = f'{buch.id}_{seite.seitenzahl}_{uploaded_file.name}'
+        extension = uploaded_file.name.split('.')[-1]
+        # Dateiname der beim Editieren gewählt wird weicht vom Dateinamen der beim Erstellen
+        # einer Seite gewählt wird ab. ID der Seite ist zu bevorzugen, beim Erstellen haben wir
+        # aber noch keine ID
+        filename = f'{seite.id}_{str(uuid.uuid4())}.{extension}'
+        filepath = os.path.join('seiten', str(buch.id))
+        picture = os.path.join(filepath, filename)
         if conf_settings.RENDER:
-            filepath = os.path.join('betreiber', 'seiten')
-            picture = os.path.join(filepath, filename)
             filepath = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', picture)                 
         else:
-            filepath = os.path.join('betreiber', 'seiten')
-            picture = os.path.join(filepath, filename)
             filepath = os.path.join('betreiber', 'static', picture)
    
         # delete old picture before saving the new one
@@ -430,24 +431,6 @@ def api_generate_buchcodes(request, buch_id):
         return JsonResponse(status=status, data={})
 
 
-# NOTE Diese Funktion hat bei der aktuellen Implementierung keinen Nutzen mehr
-@login_required
-@user_passes_test(is_betreiber, login_url='betreiber:logout')
-def api_export_buchcodes(request, buch_id):
-    try:
-        buch = Buch.objects.get(pk=buch_id)
-    except:
-        status = 404
-        return JsonResponse(status=status)
-    q_codes = Aktivierungscode.objects.filter(book=buch, was_exported=False)
-    codes = []
-    for code in q_codes:
-        code.was_exported = True
-        code.save()
-        codes.append(code.code)
-    return JsonResponse(data={'codes': codes})
-
-
 @login_required(login_url='betreiber:login')
 @user_passes_test(is_betreiber, login_url='betreiber:logout')
 def view_autorenliste(request):
@@ -524,7 +507,14 @@ def view_create_mandant(request):
         mandanten_admin_form = EndnutzerForm(request.POST)
 
         if not mandanten_admin_form.is_valid():
-            messages.error(request, 'Der Mandantenadmin konnte nicht erstellt werden.')
+            username=request.POST['username']
+            if username == '':
+                messages.error(request, 'Es wurde kein Benutzername für den Mandantenadmin angegeben!')
+            elif User.objects.filter(username=username).exists():
+                messages.error(request, 'Der angegebene Benutzername für den Mandantenadmin ist bereits vergeben.')
+            else:
+                messages.error(request, 'Der Mandantenadmin konnte mit den angegebenen Daten nicht erstellt werden.')
+
             return render(request, 'betreiber/mandant/create.html', {
                 'mandanten_form': mandanten_form,
                 'admin_form': mandanten_admin_form,
@@ -542,7 +532,15 @@ def view_create_mandant(request):
             })
 
         if not mandanten_form.is_valid():
-            messages.error(request, 'Der Mandant kann unter den angegebenen Daten nicht erstellt werden.')
+
+            mandanten_name=request.POST['name']
+            if mandanten_name == '':
+                messages.error(request, 'Es wurde kein Name für den Mandanten angegeben!')
+            elif Mandant.objects.filter(name=mandanten_name).exists():
+                messages.error(request, 'Der angegebene Name für den Mandanten ist bereits vergeben!')
+            else:
+                messages.error(request, 'Der Mandant konnte mit den angegebenen Daten nicht erstellt werden. Bitte überprüfen sie dass Sie alle Felder ausgefüllt haben und versuchen Sie es erneut!')
+
             return render(request, 'betreiber/mandant/create.html', {
                 'mandanten_form': mandanten_form,
                 'admin_form': mandanten_admin_form,
@@ -574,7 +572,7 @@ def view_create_mandant(request):
             mandanten_admin.save()
         except:
             mandanten_admin.delete()
-            messages.error('Mandant konnte nicht erstellt werden.')
+            messages.error('Mandant konnte aus Unbekannten Gründen nicht erstellt werden.')
             return render(request, 'betreiber/mandant/create.html', {
                 'mandanten_form': mandanten_form,
                 'admin_form': mandanten_admin_form,
@@ -589,11 +587,6 @@ def view_create_mandant(request):
         )
         messages.success(request, f'Der Mandant "{mandant.name}" wurde erfolgreich erstellt.')
         return redirect(reverse('betreiber:mandantenliste'))
-                    
-        return render(request, 'betreiber/mandant/create.html', {
-            'mandanten_form': mandanten_form,
-            'admin_form': mandanten_admin_form,
-        })
 
     mandanten_form = MandantenForm()
     mandanten_admin_form = EndnutzerForm()
@@ -700,12 +693,13 @@ def view_edit_mandant(request, mandant_id):
 
             mandanten_admin.mandant = mandant
             mandanten_admin.save()
-            print(2)            
+         
             new_manager = mandanten_admin    
         form.save()
         if new_manager:
             mandant.manager = new_manager
             mandant.save()
+            logout(request)
         messages.success(request, f'Der Mandant "{mandant.name}" wurde erfolgreich aktualisiert.')
         return redirect(reverse('betreiber:mandantenliste'))
 
@@ -729,6 +723,7 @@ def view_delete_mandant(request, mandant_id):
         mandant = Mandant.objects.get(pk=mandant_id)
     except:
         messages.error(request, f'Der zu löschende Mandant wurde nicht gefunden.')
+        return redirect(reverse('betreiber:mandantenliste'))
     if request.method == 'POST':
         if mandant:
             try:

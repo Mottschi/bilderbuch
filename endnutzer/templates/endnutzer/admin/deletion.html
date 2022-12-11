@@ -9,6 +9,8 @@
     <h1>Mandant Löschen - Sicherheitsabfrage</h1>
     <div>
         Soll dieser Mandant ("{{user.mandant}}") wirklich gelöscht werden? Alle damit verbundenen Benutzer und deren Sprachaufnahmen werden dabei ebenfalls unwiderruflich geloescht werden.
+
+        Beachten Sie dabei, dass die Löschung aus Sicherheitsgründen erst nach mindestens 30 Tagen Wartezeit abgeschlossen werden kann. Sie werden nach dieser Wartezeit erneut über ihr Passwort die Löschung bestätigen müssen, um sie abzuschließen.
     </div>
     <br>
     <div>
@@ -16,7 +18,7 @@
     {% if deletion_date and not show_password_field %}
         Es ist bereits ein Loeschvorgang am Laufen. Dieser wurde am  {{ user.mandant.deletion }} eingeleitet.
 
-        Die Löschung kann ab dem {{ deletion_date }} abgeschlossen werden.
+        Bis die Löschung abgeschlossen werden kann dauert es noch: {{ deletion_date|timeuntil }}
     {% elif deletion_date %}
         Die Löschung wurde vor mehr als 30 Tagen eingeleitet und kann nun abgeschlossen werden. Geben Sie Ihr Passwort ein, um die Löschung endgültig und unwiderruflich durchzuführen.
     {% endif %}
@@ -25,8 +27,8 @@
     <form action="" method='POST'>
         {% csrf_token %}
         {% if show_password_field %}{{ form.as_p}}
-        <button type="submit">Mandant Loeschen</button>{% endif %}
+        <button type="submit" class='btn btn-primary'>Mandant Loeschen</button>{% endif %}
         
-        <button type="submit" formaction='{% url 'endnutzer:mandant_loeschung_abbrechen' %}'>Abbrechen</button>
+        <a href='{% url 'endnutzer:mandant_loeschung_abbrechen' %} class='btn btn-primary'>Abbrechen</a>
     </form>
 {% endblock %}

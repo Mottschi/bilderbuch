@@ -1,0 +1,20 @@
+{% extends 'administrator/layout.html' %}
+
+{% block script %}
+
+{% endblock %}
+
+
+{% block content %}
+<h1>Benutzerkonto Löschen - Sicherheitsabfrage</h1>
+<div>
+    Soll das Betreiberkonto ("{{target}}") wirklich gelöscht werden?
+
+    <form action="" method='POST'>
+        {% csrf_token %}
+        <button type="submit" class='btn btn-primary'>Betreiberkonto Löschen</button>
+        
+        <a href="{% url 'administrator:betreiberliste' %}" class='btn btn-primary'>Abbrechen</a>
+    </form>
+
+{% endblock %}

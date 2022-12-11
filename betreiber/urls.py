@@ -20,7 +20,6 @@ urlpatterns = [
     path("mandanten", views.view_mandantenliste, name="mandantenliste"),
     path("mandant/edit/<int:mandant_id>", views.view_edit_mandant, name="edit_mandant"),
     path("mandant/delete/<int:mandant_id>", views.view_delete_mandant, name="delete_mandant"),
-    path("buch/exportcodes/<int:buch_id>", views.api_export_buchcodes, name="api_export_buchcodes"),
     path("buch/generatecodes/<int:buch_id>/api", views.api_generate_buchcodes, name="api_generate_buchcodes"),
     path("buch/seiten/delete/<int:buch_id>/<int:seite_id>/", views.api_delete_buch_seite, name="api_delete_buch_seite"),
     path("buch/seiten/<int:buch_id>", views.api_get_buch_seiten, name="api_get_buch_seiten"),

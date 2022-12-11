@@ -2,6 +2,9 @@ $(document).ready(()=>{
     const csrfmiddlewaretoken = $('input[name="csrfmiddlewaretoken"]').val()
     const buchID = $('#hiddenBuchID').val()
 
+    const formPageNr = $('#formPageNr');
+    const preview = $('#preview');
+
     let seiteID = null;
     let seitenzahl = null;
     $('#id_text').val('');
@@ -10,6 +13,9 @@ $(document).ready(()=>{
     let seiten = [];
 
     function tabelleZeichnen(pages) {
+        formPageNr.val(pages.length + 1);
+        preview.attr('src', '#');
+        
         if (pages.length === 0) {
             const appDiv = $('table')
             appDiv.html('Es wurden noch keine Seiten erstellt.');
@@ -55,8 +61,11 @@ $(document).ready(()=>{
                 // load the page data into the form
                 seiteID = pageID;
                 seitenzahl = pageNr;
+                formPageNr.val(pageNr);
+                preview.attr('src', imgElement.src)
                 $('#id_text').val(text);
                 $('#id_file').val('');
+                
             })
             row.insertCell().appendChild(editElement);
     
@@ -127,6 +136,8 @@ $(document).ready(()=>{
         $('#id_file').val('');
         seiteID = null;
         seitenzahl = null;
+        formPageNr.val(seiten.length + 1);
+        preview.attr('src', '')
     });
 
     $('#btnSavePage').click((event)=>{
@@ -184,4 +195,13 @@ $(document).ready(()=>{
         })
         return false;
     });
+
+    // Code basiert auf einem Beispiel von Stack Overflow: 
+    // https://stackoverflow.com/questions/4459379/preview-an-image-before-it-is-uploaded
+    $('#id_file').change((event)=>{
+        const [file] = document.getElementById('id_file').files;
+        if (file) {
+            preview.attr('src', URL.createObjectURL(file));
+        }
+    })
 })

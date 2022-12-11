@@ -26,6 +26,7 @@
                 <th>Titelseitenpreview</th>
                 <th>Titel</th>
                 <th>Autor</th>
+                <th>Alter</th>
                 <th>Metadaten</th>
                 <th>Aktivierungscodes</th>
                 <th>Löschen</th>
@@ -47,6 +48,9 @@
                         {{autor}}<br />
 
                         {% endfor %}
+                    </td>
+                    <td>
+                        {{buch.age}}
                     </td>
                     <td><a href="{% url 'betreiber:edit_buch_metadaten' buch.id %}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-plus-square-fill" viewBox="0 0 16 16">

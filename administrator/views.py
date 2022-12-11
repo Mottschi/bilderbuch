@@ -26,13 +26,19 @@ def view_login(request):
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             user = authenticate(request, username=username, password=password)
-            if user is not None and is_systemadmin(user):
+            if user is None:
+                if User.objects.filter(username=username).exists():
+                    messages.error(request, 'Ungültiges Passwort!')
+                else:
+                    messages.error(request, 'Ungültiger Benutzername!')
+                return render(request, 'betreiber/login.html', {
+                    'form': LoginForm(),
+                })
+            if is_systemadmin(user):
                 login(request, user)
                 return redirect(reverse('administrator:betreiberliste'))
             else:
-                print('unable to login')
-                # TODO Fehlermeldung soll den Grund beinhalten
-                messages.error(request, 'Fehler beim Einloggen')
+                messages.error(request, 'Der angegebene Benutzername gehört nicht zu einem Systemadministratorkonto!')
                 return render(request, 'administrator/login.html', {
                     'form': LoginForm(),
                 })
@@ -106,8 +112,6 @@ def view_create_betreiber(request):
 
         else:          
             # TODO Grund fuer Fehler anzeigen, evtl. ueber form.errors?
-            print(type(form.errors))
-            print(form.errors)
             for value in form.errors:
                 print(f'key: "{""}", value: "{value}"')
             messages.error(request, f'Beim Erstellen des Benutzers ist ein Fehler aufgetreten.')
@@ -174,15 +178,22 @@ def view_delete_betreiber(request, delete_user_id):
     '''
     /PF0060/ Ein eingeloggter Administrator kann bestehende Betreiberkonten löschen.
     '''
+    delete_user = None
+    try:
+        delete_user = User.objects.get(pk=delete_user_id)
+    except:
+        messages.error(request, f'Das angegebene Betreiberkonto konnte nicht gefunden werden.')
+        return redirect(reverse('administrator:betreiberliste'))
     if request.method == 'POST':
-        try:
-            delete_user = User.objects.get(pk=delete_user_id)
+        if delete_user:
             delete_user.delete()
             messages.success(request, f'Das Betreiberkonto "{delete_user.username}" ({delete_user.first_name} {delete_user.last_name}) wurde erfolgreich gelöscht.')
-        except:
-            messages.error(request, f'Das angegebene Betreiberkonto konnte nicht gelöscht werden.')
-            
-    return redirect(reverse('administrator:betreiberliste'))
+        return redirect(reverse('administrator:betreiberliste'))
+
+    return render(request, 'administrator/betreiber_deletion.html', {
+        'target': delete_user,
+    })
+
 
 def view_access_forbidden(request):
     logout(request)
