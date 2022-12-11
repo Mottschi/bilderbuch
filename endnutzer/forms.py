@@ -54,7 +54,8 @@ class EndnutzerForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
-             field.required = True
+            field.required = True
+        self.fields['sprachen'].required = False
 
     
 class EndnutzerEditForm(forms.ModelForm):
@@ -68,7 +69,9 @@ class EndnutzerEditForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
-             field.required = True
+            field.required = True
+        self.fields['sprachen'].required = False
+        
 
              
 class AktivierungsForm(forms.ModelForm):
