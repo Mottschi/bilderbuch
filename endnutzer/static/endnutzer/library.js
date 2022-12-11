@@ -98,11 +98,6 @@ $(document).ready(() => {
         for (let i = 0; i < buecher.length; i++) {
             const buch = buecher[i];
 
-            // create a div of class col-2
-            // const colDiv = document.createElement('div');
-            // colDiv.classList.add('col');
-            // library.appendChild(colDiv);
-
             // create a div for the card
             const cardDiv = document.createElement('div');
             cardDiv.classList.add('card');
@@ -120,7 +115,6 @@ $(document).ready(() => {
             const thumbnailImg = document.createElement('img');
             thumbnailImg.src = `/static/${buch.thumbnail}`;
             thumbnailImg.classList.add('img-fluid');
-            // thumbnailImg.addEventListener('click', ()=>{ window.open(`buch/${buch.id}/abspielen`, '_self'); return false; });
             cardDiv.appendChild(thumbnailImg);
 
             // create a div for the body, to hold the title
@@ -150,23 +144,7 @@ $(document).ready(() => {
             recordButtonDiv.innerHTML=document.getElementById('recordMic').innerHTML;
             recordAnchor.appendChild(recordButtonDiv);
 
-            // // create a div for the body, to hold the links
-            // cardbodyDiv = document.createElement('div');
-            // cardbodyDiv.classList.add('card-body');
-            // cardDiv.appendChild(cardbodyDiv);
-
-            // // create two links for accessing playing / recording functionality
-            // let cardoptionsAnchor = document.createElement('a');
-            // cardoptionsAnchor.classList.add('card-link');
-            // cardoptionsAnchor.href = `buch/${buch.id}/abspielen`;
-            // cardoptionsAnchor.innerText = 'Abspielen'
-            // cardbodyDiv.appendChild(cardoptionsAnchor);
-
-            // cardoptionsAnchor = document.createElement('a');
-            // cardoptionsAnchor.classList.add('card-link');
-            // cardoptionsAnchor.href = `buch/${buch.id}/aufnehmen`;
-            // cardoptionsAnchor.innerText = 'Aufnehmen'
-            // cardbodyDiv.appendChild(cardoptionsAnchor);
+            
         }
     }
 
