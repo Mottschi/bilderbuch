@@ -30,11 +30,21 @@
         <form action="" id='neueSeiteForm' enctype="multipart/form-data">
             {% csrf_token %}
             <div class="row align-items-center m-1 border">
-                <div class="col-md-3">
+                <div class="col-md-1">
+                    <div class="form-floating">
+                        <input class='form-control' id='formPageNr' disabled value='' />
+                    </div>
+                </div>
+                <div class="col-md-2">
                     <div class="form-floating p-1">
                         {{ form.file }}
-                        <label for="{{ form.file.id_for_label }}">{{ form.file.label }}</label>
+                        <label for="{{ form.file.id_for_label }}">
+                            {{ form.file.label }}
+                        </label>
                     </div>
+                </div>
+                <div class="col-md-2">
+                    <img id='preview' src='#' alt='Vorschau'/>
                 </div>
                 <div class="col-md-5">
                         <div class="form-floating p-1">
@@ -42,12 +52,12 @@
                             <label for="{{ form.text.id_for_label }}">{{ form.text.label }}</label>
                         </div>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-1">
                     <button class="btn btn-success m-1" id='btnSavePage' type="submit"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-save2" width="23" height="23" viewBox="0 0 16 16">
                         <use xlink:href="#bi-save2" />
                       </svg>&nbsp;Speichern</button>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-1">
                       <button class="btn btn-secondary m-1" id='btnDiscardPage' type="submit"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-x-octagon" width="23" height="23" viewBox="0 0 16 16">
                         <use xlink:href="#bi-x-octagon" />
                       </svg>&nbsp;Abbrechen</button>

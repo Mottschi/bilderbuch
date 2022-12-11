@@ -73,7 +73,7 @@ class SeitenForm(forms.ModelForm):
         model = Seite
         fields = ['text']
         widgets = {
-            'text': forms.Textarea(attrs={'rows': 2, 'cols': 40})
+            'text': forms.Textarea(attrs={'rows': 3, 'cols': 40})
         }
     def __init__(self, *args, **kwargs):
         # From Django Documentation: https://docs.djangoproject.com/en/4.1/ref/forms/widgets/#customizing-widget-instances
@@ -91,7 +91,7 @@ class SeitenEditForm(forms.ModelForm):
         model = Seite
         fields = ['text']
         widgets = {
-            'text': forms.Textarea(attrs={'rows': 2, 'cols': 40})
+            'text': forms.Textarea(attrs={'rows': 3, 'cols': 40})
         }
     def __init__(self, *args, **kwargs):
         # From Django Documentation: https://docs.djangoproject.com/en/4.1/ref/forms/widgets/#customizing-widget-instances

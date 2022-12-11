@@ -2,6 +2,9 @@ $(document).ready(()=>{
     const csrfmiddlewaretoken = $('input[name="csrfmiddlewaretoken"]').val()
     const buchID = $('#hiddenBuchID').val()
 
+    const formPageNr = $('#formPageNr');
+    const preview = $('#preview');
+
     let seiteID = null;
     let seitenzahl = null;
     $('#id_text').val('');
@@ -10,6 +13,8 @@ $(document).ready(()=>{
     let seiten = [];
 
     function tabelleZeichnen(pages) {
+        formPageNr.val(pages.length + 1);
+
         if (pages.length === 0) {
             const appDiv = $('table')
             appDiv.html('Es wurden noch keine Seiten erstellt.');
@@ -55,8 +60,10 @@ $(document).ready(()=>{
                 // load the page data into the form
                 seiteID = pageID;
                 seitenzahl = pageNr;
+                formPageNr.val(pageNr);
                 $('#id_text').val(text);
                 $('#id_file').val('');
+                
             })
             row.insertCell().appendChild(editElement);
     
