@@ -29,6 +29,6 @@
         {% if show_password_field %}{{ form.as_p}}
         <button type="submit" class='btn btn-primary'>Mandant Loeschen</button>{% endif %}
         
-        <a href='{% url 'endnutzer:mandant_loeschung_abbrechen' %} class='btn btn-primary'>Abbrechen</a>
+        <a href="{% url 'endnutzer:mandant_loeschung_abbrechen' %}" class='btn btn-primary'>Abbrechen</a>
     </form>
 {% endblock %}

@@ -31,7 +31,7 @@ def view_login(request):
                     messages.error(request, 'Ungültiges Passwort!')
                 else:
                     messages.error(request, 'Ungültiger Benutzername!')
-                return render(request, 'betreiber/login.html', {
+                return render(request, 'administrator/login.html', {
                     'form': LoginForm(),
                 })
             if is_systemadmin(user):
