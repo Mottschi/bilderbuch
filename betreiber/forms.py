@@ -8,6 +8,10 @@ class LoginForm(forms.Form):
 
 	username.widget.attrs.update({'class': 'form-control'})
 	password.widget.attrs.update({'class': 'form-control'})
+    
+	username.widget.attrs['placeholder'] = ''
+	password.widget.attrs['placeholder'] = ''
+
 
 
 class BetreiberForm(forms.ModelForm):
@@ -141,6 +145,8 @@ class EndnutzerForm(forms.ModelForm):
 
 class PasswordResetForm(forms.Form):
     username = forms.CharField(max_length=150, label='Benutzername')
+    username.widget.attrs.update({'class': 'form-control'})
+    username.widget.attrs['placeholder'] = ''
 
 
 class GenerateBuchcodesForm(forms.Form):
