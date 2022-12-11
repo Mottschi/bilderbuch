@@ -194,4 +194,13 @@ $(document).ready(()=>{
         })
         return false;
     });
+
+    // Code basiert auf einem Beispiel von Stack Overflow: 
+    // https://stackoverflow.com/questions/4459379/preview-an-image-before-it-is-uploaded
+    $('#id_file').change((event)=>{
+        const [file] = document.getElementById('id_file').files;
+        if (file) {
+            preview.attr('src', URL.createObjectURL(file));
+        }
+    })
 })
