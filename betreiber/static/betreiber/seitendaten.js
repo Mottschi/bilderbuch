@@ -14,7 +14,8 @@ $(document).ready(()=>{
 
     function tabelleZeichnen(pages) {
         formPageNr.val(pages.length + 1);
-
+        preview.attr('src', '#');
+        
         if (pages.length === 0) {
             const appDiv = $('table')
             appDiv.html('Es wurden noch keine Seiten erstellt.');
