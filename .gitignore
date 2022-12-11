@@ -137,6 +137,7 @@ dmypy.json
 *.jpg
 *.jpeg
 *.png
+*.PNG
 *.bmp
 
 # audio recordings
