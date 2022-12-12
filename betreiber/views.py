@@ -150,7 +150,7 @@ def view_create_buch(request):
             handle_uploaded_file(uploaded_file, filepath)
             return redirect(reverse('betreiber:edit_buch_seitendaten', args=(buch.id,)))
         else:
-            if len(request.POST.get('title').replace(' ', '')) == 0:
+            if len(request.POST.get('title').lstrip()) == 0:
                 del form.errors['title']
                 messages.error(request, f'Bitte den vollen Titel angeben.')
             else:
@@ -206,7 +206,7 @@ def view_edit_buch_metadaten(request, buch_id):
             messages.success(request, f'Das Buch {buch.title} wurde erfolgreich aktualisiert')
             return redirect(reverse('betreiber:buchliste'))
         else:
-            if len(request.POST.get('title').replace(' ', '')) == 0:
+            if len(request.POST.get('title').lstrip()) == 0:
                 del form.errors['title']
                 messages.error(request, f'Bitte den vollen Titel angeben.')
             else:
