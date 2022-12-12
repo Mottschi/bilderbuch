@@ -699,7 +699,6 @@ def view_edit_mandant(request, mandant_id):
         if new_manager:
             mandant.manager = new_manager
             mandant.save()
-            logout(request)
         messages.success(request, f'Der Mandant "{mandant.name}" wurde erfolgreich aktualisiert.')
         return redirect(reverse('betreiber:mandantenliste'))
 
