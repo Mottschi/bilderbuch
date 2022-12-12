@@ -150,7 +150,11 @@ def view_create_buch(request):
             handle_uploaded_file(uploaded_file, filepath)
             return redirect(reverse('betreiber:edit_buch_seitendaten', args=(buch.id,)))
         else:
-            messages.error(request, "Bitte das Form korrekt ausfüllen.")
+            if len(request.POST.get('title').replace(' ', '')) == 0:
+                del form.errors['title']
+                messages.error(request, f'Bitte den vollen Titel angeben.')
+            else:
+                messages.error(request, "Bitte das Form korrekt ausfüllen.")
 
     return render(request, 'betreiber/buch/create.html', {
         'form': form,
@@ -202,7 +206,11 @@ def view_edit_buch_metadaten(request, buch_id):
             messages.success(request, f'Das Buch {buch.title} wurde erfolgreich aktualisiert')
             return redirect(reverse('betreiber:buchliste'))
         else:
-            messages.error(request, f'Die Änderungen konnten nicht gespeichert werden.')
+            if len(request.POST.get('title').replace(' ', '')) == 0:
+                del form.errors['title']
+                messages.error(request, f'Bitte den vollen Titel angeben.')
+            else:
+                messages.error(request, f'Die Änderungen konnten nicht gespeichert werden.')
             return render(request, 'betreiber/buch/metadaten.html', {
                 'form': form,
                 'buch': buch,
