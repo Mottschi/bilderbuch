@@ -176,7 +176,7 @@ def view_edit_buch_metadaten(request, buch_id):
 
                 # step 1: delete old file
                 if conf_settings.RENDER:
-                    file_with_path = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', 'thumbnails', buch.thumbnail)
+                    file_with_path = os.path.join(conf_settings.PERSISTENT_STORAGE_ROOT, 'static', buch.thumbnail)
                 else:
                     file_with_path = os.path.join('betreiber', 'static', buch.thumbnail)
                 if os.path.exists(file_with_path):
