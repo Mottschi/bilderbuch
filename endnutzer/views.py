@@ -590,20 +590,24 @@ def api_modify_recording_visibility(request, buch_id, sprache_id):
     try:
         buch = Buch.objects.get(pk=buch_id)
     except:
-        return JsonResponse(status=400, data={'error': 'Das angegebene Buch konnte nicht gefunden werden!'})
+        return JsonResponse(status=400, data={'error': 'Das angegebene Buch konnte nicht gefunden werden!', 'reload': True})
 
     try:
         sprache = Sprache.objects.get(pk=sprache_id)
     except:
-        return JsonResponse(status=400, data={'error': 'Die angegebene Sprache konnte nicht gefunden werden!'})
+        return JsonResponse(status=400, data={'error': 'Die angegebene Sprache konnte nicht gefunden werden!', 'reload': True})
 
     aufnahmen = Sprachaufnahme.objects.filter(recorded_by=request.user, language=sprache, seite__in=buch.seiten.all())
 
     if len(aufnahmen) == 0:
-        return JsonResponse(status=400, data={'error': f'Es wurden keine Aufzeichnungen dieses Benutzers für das Buch "{buch}" auf {sprache} gefunden!'})
+        return JsonResponse(status=400, data={
+            'error': f'Es wurden keine Aufzeichnungen von Ihnen für das Buch "{buch}" auf {sprache} gefunden!', 
+            'reload': True})
 
     if len(aufnahmen) != len(buch.seiten.all()):
-        return JsonResponse(status=400, data={'error': f'Sie haben noch nicht alle Seiten dieses Buchs auf {sprache} aufgenommen, daher kann das Buch noch nicht sichtbar geschaltet werden.'})
+        return JsonResponse(status=400, data={
+            'error': f'Sie haben noch nicht alle Seiten dieses Buchs auf {sprache} aufgenommen, daher kann das Buch noch nicht sichtbar geschaltet werden.',
+            'reload': False})
 
     aktuelle_sichtbarkeit = aufnahmen[0].is_public
     
