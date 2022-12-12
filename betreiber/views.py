@@ -39,6 +39,8 @@ def view_login(request):
                 })
             if is_betreiber(user):
                 login(request, user)
+                if 'next' in request.GET:
+                    return redirect(request.GET['next'])
                 return redirect(reverse('betreiber:index'))
             else:
                 messages.error(request, 'Der angegebene Benutzername gehört nicht zu einem Betreiberkonto!')

@@ -36,6 +36,8 @@ def view_login(request):
                 })
             if is_systemadmin(user):
                 login(request, user)
+                if 'next' in request.GET:
+                    return redirect(request.GET['next'])
                 return redirect(reverse('administrator:betreiberliste'))
             else:
                 messages.error(request, 'Der angegebene Benutzername gehört nicht zu einem Systemadministratorkonto!')

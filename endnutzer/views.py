@@ -46,6 +46,8 @@ def view_login(request):
                 })
             if is_endnutzer(user):
                 login(request, user)
+                if 'next' in request.GET:
+                    return redirect(request.GET['next'])
                 return redirect(reverse('endnutzer:index'))
             else:
                 messages.error(request, 'Der angegebene Benutzername gehört nicht zu einem Benutzerkonto!')
