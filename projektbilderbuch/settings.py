@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 RENDER = 'RENDER' in os.environ
 
 # If we are not on RENDER, we are in debug environment
-DEBUG = False
+DEBUG = not RENDER
 
 # SECURITY WARNING: keep the secret key used in production secret!
 if RENDER:
@@ -181,8 +181,7 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = None
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_AUTOREFRESH = True
 
-FORMATTERS = (
-    {
+FORMATTERS = {
         "verbose": {
             "format": "{levelname} {asctime:s} {threadName} {thread:d} {module} {filename} {lineno:d} {name} {funcName} {process:d} {message}",
             "style": "{",
@@ -191,10 +190,10 @@ FORMATTERS = (
             "format": "{levelname} {asctime:s} {module} {filename} {lineno:d} {funcName} {message}",
             "style": "{",
         },
-    },
-)
+    }
 
 
+# simple logger based on https://www.youtube.com/watch?v=Z7BOBn8B5qA
 HANDLERS = {
     "console_handler": {
         "class": "logging.StreamHandler",
@@ -207,7 +206,7 @@ HANDLERS = {
         "encoding": "utf-8",
         "formatter": "simple",
         "backupCount": 5,
-        "maxBytes": 1024 * 1024 * 5,  # 5 MB
+        "maxBytes": 1024 * 1024 * 15,  
     },
     "my_handler_detailed": {
         "class": "logging.handlers.RotatingFileHandler",
@@ -215,36 +214,36 @@ HANDLERS = {
         "mode": "a",
         "formatter": "verbose",
         "backupCount": 5,
-        "maxBytes": 1024 * 1024 * 5,  # 5 MB
+        "maxBytes": 1024 * 1024 * 15, 
     },
     'emailAdmins': {
         'class': 'django.utils.log.AdminEmailHandler',
         'level': 'ERROR',
-    }
+        'include_html': True,
+    },
 }
 
-LOGGERS = (
-    {
+LOGGERS = {
         "django": {
             "handlers": ["console_handler", "my_handler_detailed"],
             "level": "INFO",
             "propagate": False,
         },
         "django.request": {
-            "handlers": ["my_handler"],
+            "handlers": ["my_handler", 'emailAdmins'],
             "level": "WARNING",
-            "propagate": False,
+            "propagate": True,
         },
-    },
-)
+    }
+
 
 
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "formatters": FORMATTERS[0],
+    "formatters": FORMATTERS,
     "handlers": HANDLERS,
-    "loggers": LOGGERS[0],
+    "loggers": LOGGERS,
 }
 
-ADMINS = [('Mottschi', 'srophkor@gmail.com')]
+ADMINS = [('Sebastian', 'projekt-bilderbuch@gmail.com')]
