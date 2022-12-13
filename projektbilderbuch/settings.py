@@ -194,14 +194,15 @@ FORMATTERS = {
 
 
 # simple logger based on https://www.youtube.com/watch?v=Z7BOBn8B5qA
-HANDLERS = {
+DEBUG_LOG_LOCATION = '/var/data' if RENDER else BASE_DIR
+HANDLERS = { 
     "console_handler": {
         "class": "logging.StreamHandler",
         "formatter": "simple",
     },
     "my_handler": {
         "class": "logging.handlers.RotatingFileHandler",
-        "filename": f"{BASE_DIR}/logs/debug.log" if not RENDER else '/var/data/logs/debug.log',
+        "filename": f"{DEBUG_LOG_LOCATION}/logs/debug.log",
         "mode": "a",
         "encoding": "utf-8",
         "formatter": "simple",
@@ -210,7 +211,7 @@ HANDLERS = {
     },
     "my_handler_detailed": {
         "class": "logging.handlers.RotatingFileHandler",
-        "filename": f"{BASE_DIR}/logs/debug_detailed.log" if not RENDER else '/var/data/logs/debug_details.log',
+        "filename": f"{DEBUG_LOG_LOCATION}/logs/debug_detailed.log",
         "mode": "a",
         "formatter": "verbose",
         "backupCount": 5,
