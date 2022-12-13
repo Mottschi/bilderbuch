@@ -9,30 +9,42 @@
 
 
 {% block content %}
-    <div><h1>Bibliothek:</h1></div>
+    <div>
+        <h1>Bibliothek:</h1>
+        <h4>Filtern:</h4>
+    </div>
 
-    <div class='row'>
-        <div class='col-1 m-1'><h4>Filtern:</h4></div>
-        <div class='col-3'>
-            <label for="min_age">Alter von</label>
-            <input type="number" name="min_age" id="min_age">
-            <label for="max_age">bis</label>
-            <input type="number" name="max_age" id="max_age">
-            
+    <div class="row align-items-center m-1 p-1 border rounded-2 bg-light">
+        
+        <div class='col-md-2 col-6'>
+            <div class="form-floating my-1">
+                <input type="number" name="min_age" id="min_age" class="form-control " placeholder="1">
+                <label for="min_age">Alter von</label>
+            </div>
         </div>
-        <div class='col-3'>
-            <label for="language">Sprachaufnahmen in:</label>
-            <select name='language' id='language'>
+        <div class='col-md-2 col-6'>
+            <div class="form-floating my-1">
+                <input type="number" name="min_age" id="max_age" class="form-control" placeholder="1">
+                <label for="max_age">bis</label>
+            </div>          
+        </div>
+        <div class='col-md-3 col-6'>
+            <div class="form-floating my-1">        
+            <select class="form-select" name='language' id='language'>
                 <option value="">--Alle Bücher--</option>
                 {% for sprache in sprachen %}
                     <option value='{{sprache.id}}'>{{sprache}}</option>
                 {% endfor %}
             </select>
+            <label for="language">Sprachaufnahmen in:</label>
+            </div>
         </div>
-        <div class='col-2'></div>
-        <div class='col-2'>
-            <label for="suche">Suche:</label>
-            <input type="text" name="search" id="search" value=''>
+        <!-- <div class='col-md-1'></div> -->
+        <div class='col-md-3 col-6'>
+            <div class="form-floating my-1">
+                <input type="text" class="form-control" id="search" name="seach" placeholder="name@example.com">
+                <label for="search">Suche</label>
+            </div>
         </div>
     </div>
 
