@@ -109,11 +109,11 @@ $(document).ready(() => {
             // create a div for the card
             const cardDiv = document.createElement('div');
             cardDiv.classList.add('card');
-            cardDiv.classList.add('h-100');
+            
             cardDiv.classList.add('text-center');
             cardDiv.classList.add('m-1');
             cardDiv.style.width='18rem';
-            cardDiv.style.height='20rem';
+            cardDiv.style.height='23rem';
             cardDiv.addEventListener('click', ()=>{ window.open(`buch/${buch.id}/abspielen`, '_self'); return false; });
             library.appendChild(cardDiv);
 
@@ -122,23 +122,36 @@ $(document).ready(() => {
             // create an img for the books thumbnail
             const thumbnailImg = document.createElement('img');
             thumbnailImg.src = `/static/${buch.thumbnail}`;
+            thumbnailImg.classList.add('card-img-top');
             thumbnailImg.classList.add('img-fluid');
+
+            thumbnailImg.style.maxWidth='100%';
+            thumbnailImg.style.maxHeight='18rem';
+            thumbnailImg.style.objectFit='contain';
+            thumbnailImg.style.width='auto';
+            thumbnailImg.style.height='auto';
+            
+
             cardDiv.appendChild(thumbnailImg);
 
             // create a div for the body, to hold the title
             let cardbodyDiv = document.createElement('div');
-            cardbodyDiv.classList.add('p-1');
+            cardbodyDiv.classList.add('m-1');
             cardbodyDiv.classList.add('d-flex');
             cardbodyDiv.classList.add('align-items-end');
+            cardbodyDiv.classList.add('flex-fill');
+            cardbodyDiv.style.height='5rem';
             cardDiv.appendChild(cardbodyDiv);
 
             // create a div for the title
             const cardtitleDiv = document.createElement('div');
             cardtitleDiv.classList.add('card-title');
             cardtitleDiv.classList.add('col');
+            
             cardtitleDiv.innerHTML = `<h5>${buch.title}</h5>`;
             cardbodyDiv.appendChild(cardtitleDiv);
 
+            // create an anchor for the record button
             recordAnchor = document.createElement('a');
             recordAnchor.href = `buch/${buch.id}/aufnehmen`;
             cardbodyDiv.appendChild(recordAnchor);
