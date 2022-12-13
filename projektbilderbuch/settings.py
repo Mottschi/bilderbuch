@@ -194,7 +194,7 @@ FORMATTERS = {
 
 
 # simple logger based on https://www.youtube.com/watch?v=Z7BOBn8B5qA
-DEBUG_LOG_LOCATION = '/var/data' if RENDER else BASE_DIR
+DEBUG_LOG_LOCATION = BASE_DIR
 HANDLERS = { 
     "console_handler": {
         "class": "logging.StreamHandler",
