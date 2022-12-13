@@ -201,7 +201,7 @@ HANDLERS = {
     },
     "my_handler": {
         "class": "logging.handlers.RotatingFileHandler",
-        "filename": f"{BASE_DIR}/logs/blogthedata.log",
+        "filename": f"{BASE_DIR}/logs/debug.log" if not RENDER else '/var/data/logs/debug.log',
         "mode": "a",
         "encoding": "utf-8",
         "formatter": "simple",
@@ -210,7 +210,7 @@ HANDLERS = {
     },
     "my_handler_detailed": {
         "class": "logging.handlers.RotatingFileHandler",
-        "filename": f"{BASE_DIR}/logs/blogthedata_detailed.log",
+        "filename": f"{BASE_DIR}/logs/debug_detailed.log" if not RENDER else '/var/data/logs/debug_details.log',
         "mode": "a",
         "formatter": "verbose",
         "backupCount": 5,
