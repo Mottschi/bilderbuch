@@ -247,4 +247,4 @@ LOGGING = {
     "loggers": LOGGERS,
 }
 
-ADMINS = [('Sebastian', 'projekt-bilderbuch@gmail.com')]
+ADMINS = [('Sebastian', 'projekt.bilderbuch@gmail.com')]
