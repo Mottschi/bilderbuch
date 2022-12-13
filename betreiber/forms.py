@@ -63,7 +63,8 @@ class BuchForm(forms.ModelForm):
             visible.field.widget.attrs['placeholder'] = ''
         self.fields['author'].widget.attrs['class'] = 'form-select'
         self.fields['author'].widget.attrs['size'] = '5'
-        self.fields['age'].widget.attrs.pop('placeholder', None) 
+        self.fields['age'].widget.attrs.pop('placeholder', None)
+        self.fields['age'].widget.attrs['max'] = '99'
 
 class EditBuchForm(BuchForm):
     file = forms.FileField(label='Titelseite', required=False)

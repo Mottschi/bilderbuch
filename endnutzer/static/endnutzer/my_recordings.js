@@ -87,10 +87,21 @@ $(document).ready(() => {
                         sichtbarkeitBtn.className = (json.sichtbarkeit) ? 'btn btn-success' : 'btn btn-danger';
                     }})
                 .fail((response)=>{
-                    if ('responseJSON' in response) 
-                    {alert(response.responseJSON.error)}
-                    else 
-                    {alert('Das Umschalten der Sichtbarkeit ist fehlgeschlagen!')}
+                    let alert_message;
+                    if ('responseJSON' in response) {
+                        alert_message = response.responseJSON.error;
+                        if (response.responseJSON.reload && confirm(`${alert_message} Es ist möglich, dass die Liste nicht mehr auf dem aktuellen Stand ist, soll die Liste neu vom Server geladen werden?`)) {
+                            getRecordings();
+                        } else {
+                            alert(alert_message);
+                        }
+                    }
+                    else {
+                        alert('Das Umschalten der Sichtbarkeit ist fehlgeschlagen!');
+                        return;
+                    }
+                    
+                    
                 });
             });
 

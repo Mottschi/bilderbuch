@@ -31,11 +31,13 @@ def view_login(request):
                     messages.error(request, 'Ungültiges Passwort!')
                 else:
                     messages.error(request, 'Ungültiger Benutzername!')
-                return render(request, 'betreiber/login.html', {
+                return render(request, 'administrator/login.html', {
                     'form': LoginForm(),
                 })
             if is_systemadmin(user):
                 login(request, user)
+                if 'next' in request.GET:
+                    return redirect(request.GET['next'])
                 return redirect(reverse('administrator:betreiberliste'))
             else:
                 messages.error(request, 'Der angegebene Benutzername gehört nicht zu einem Systemadministratorkonto!')
