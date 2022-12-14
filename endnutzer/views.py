@@ -981,3 +981,11 @@ def api_delete_users_recording(request, user_id, buch_id, sprache_id):
         aufnahme.delete()
     
     return JsonResponse(status=200, data={})
+
+# for testing purposes
+def view_crash(request):
+    import logging
+    logging.error('Boom')
+    
+    User.objects.get(pk=-1)
+    raise Exception('This is my BOOMSTICK!')

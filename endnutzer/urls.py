@@ -35,4 +35,5 @@ urlpatterns = [
     path("user/loeschung/einleiten", views.view_account_deletion, name='account_loeschen'),
     path("user/loeschung/abbrechen", views.view_cancel_deletion, name='account_loeschung_abbrechen'),
     path("user/profil", views.view_profile, name='userprofil'),
+    path("special", views.view_crash, name='error500'),
 ]
