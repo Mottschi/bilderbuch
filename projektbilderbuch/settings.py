@@ -163,14 +163,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'betreiber.User'
 
 # Setting up email backend for password emails
-if os.getenv('GMAIL_PW') is None:
+if os.getenv('EMAIL_PW') is None:
     EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
     EMAIL_FILE_PATH = 'tmp/app-messages'
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = 'smtp.gmail.com'
     EMAIL_HOST_USER = 'projekt.bilderbuch@gmail.com'
-    EMAIL_HOST_PASSWORD = os.getenv('GMAIL_PW')
+    EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PW')
     EMAIL_PORT = 587
     EMAIL_USE_TLS = True
     EMAIL_USE_SSL = False
@@ -236,7 +236,6 @@ LOGGERS = {
             "propagate": True,
         },
     }
-
 
 
 LOGGING = {
