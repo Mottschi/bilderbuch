@@ -30,28 +30,37 @@
 
 
 {% block content %}
+
     <div><h1>Aufnahme für {{buch.title}} Seite {{seite.seitenzahl}}:</h1></div>
 
     <!-- Test Comment -->
-    <div class='row'>
-        <div class='col-1'>
+    <div class="row">
+        <div class="col-1 align-self-center">
             {% if seite.seitenzahl > 1 %}
-                <a href="{% url 'endnutzer:seite_aufnehmen' buch.id seite.seitenzahl|add:'-1' sprache.id %}" class=''>Zurueck</a>
+                <a class="btn btn-primary" href="{% url 'endnutzer:seite_aufnehmen' buch.id seite.seitenzahl|add:'-1' sprache.id %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-mic-fill" viewBox="2 2 12 12">
+                    <use xlink:href="#bi-backward-fill"  />
+                </svg>
+                </a>
             {% endif %}
         </div>
-        <div class='col-10'>
-            <img src="{% static seite.picture %}" alt="Bild fuer Seite {{seite.seitenzahl}}" class='img-fluid'/>
+        <div class="col-10 align-self-center m-1">
+            <img src="{% static seite.picture %}" alt="Bild fuer Seite {{seite.seitenzahl}}" class="img-fluid" style="object-fit: contain; max-height: calc(100vh - 12rem); width: auto; height: auto;" />
         </div>
-        <div class='col-1'>
+        <div class="col-1 align-self-center">
             {% if seite.seitenzahl < buch.seiten.count %}
-                <a href="{% url 'endnutzer:seite_aufnehmen' buch.id seite.seitenzahl|add:'1' sprache.id %}">Vorwaerts</a>
+                <a class="btn btn-primary" href="{% url 'endnutzer:seite_aufnehmen' buch.id seite.seitenzahl|add:'1' sprache.id %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-mic-fill" viewBox="2 2 12 12">
+                        <use xlink:href="#bi-forward-fill" />
+                    </svg>
+                </a>
             {% endif %}
         </div>
 
     </div>
 
     <div class="row">
-        <div class="col-5">
+        <div class="col-md-4">
             {% for page in buch.seiten.all %}
                 {% if page.seitenzahl < seite.seitenzahl %}
                     <a href="{% url 'endnutzer:seite_aufnehmen' buch.id page.seitenzahl sprache.id %}" 
@@ -59,17 +68,29 @@
                 {% endif %}
             {% endfor %}
         </div>
-        <div class="col-2 text-center ">
-            <button id='btnRecord'>Aufnehmen</button>
-            <button id='btnStopRecord'>Aufnahme Stop</button>
-            <button id='btnPlay'>Abspielen</button>
+        <div class="col-md-4 text-center ">
+            <button class="btn btn-primary" id='btnRecord'>
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-mic-fill" viewBox="0 0 16 16">
+                    <use xlink:href="#bi-mic-fill" />
+                </svg>
+            </button>
+            <button class="btn btn-dark" id='btnStopRecord'>
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-mic-fill" viewBox="0 0 16 16">
+                    <use xlink:href="#bi-stop-circle-fill" />
+                </svg>
+            </button>
+            <button class="btn btn-outline-dark" id='btnPlay'>
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-mic-fill" viewBox="0 0 16 16">
+                    <use xlink:href="#bi-play-circle-fill" />
+                </svg>
+            </button>
             {% csrf_token %}
             <audio id='audio' {% if aufnahme %}src='{% static aufnahme.audio %}'{% endif %}>
 
             </audio>
         </div>
-        <div class="col-4"></div>
-        <div class="col-1">
+        
+        <div class="col-md-4">
             {% for page in buch.seiten.all %}
                 {% if page.seitenzahl > seite.seitenzahl %}
                     <a href="{% url 'endnutzer:seite_aufnehmen' buch.id page.seitenzahl sprache.id %}" 
