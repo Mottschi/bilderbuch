@@ -34,8 +34,8 @@
     <div><h1>Aufnahme für {{buch.title}} Seite {{seite.seitenzahl}}:</h1></div>
 
     <!-- Test Comment -->
-    <div class="row">
-        <div class="col-1 align-self-center">
+    <div class="d-flex">
+        <div class="align-self-center">
             {% if seite.seitenzahl > 1 %}
                 <a class="btn btn-primary" href="{% url 'endnutzer:seite_aufnehmen' buch.id seite.seitenzahl|add:'-1' sprache.id %}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-mic-fill" viewBox="2 2 12 12">
@@ -44,10 +44,10 @@
                 </a>
             {% endif %}
         </div>
-        <div class="col-10 align-self-center m-1">
+        <div class="flex-grow-1 d-flex justify-content-center py-1">
             <img src="{% static seite.picture %}" alt="Bild fuer Seite {{seite.seitenzahl}}" class="img-fluid" style="object-fit: contain; max-height: calc(100vh - 12rem); width: auto; height: auto;" />
         </div>
-        <div class="col-1 align-self-center">
+        <div class="align-self-center">
             {% if seite.seitenzahl < buch.seiten.count %}
                 <a class="btn btn-primary" href="{% url 'endnutzer:seite_aufnehmen' buch.id seite.seitenzahl|add:'1' sprache.id %}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-mic-fill" viewBox="2 2 12 12">
