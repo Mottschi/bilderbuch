@@ -15,7 +15,19 @@
 {% block content %}
     <div><h1>Meine Aufnahmen:</h1></div>
 
-    <div id='aufnahmen'></div>
+    <div class="container" id='aufnahmen'></div>
+
+    <div id="editPencil" style="display: none;"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-plus-square-fill" viewBox="0 0 16 16">
+        <use xlink:href="#bi-pencil" />
+    </svg></div>
+    <div id="deleteTrash" style="display: none;"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-plus-square-fill" viewBox="0 0 16 16">
+        <use xlink:href="#bi-trash" />
+    </svg></div>
+    <div id="eyeVisible" style="display: none;"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+        <use xlink:href="#bi-eye-fill" />
+    </svg></div>
+
+
     
     {% csrf_token %}
 {% endblock content %}

@@ -29,6 +29,7 @@ $(document).ready(() => {
         }
 
         const table = document.createElement('table');
+        table.className += "table table-hover align-middle";
         const thead = table.createTHead();
         
         const hrow = thead.insertRow();
@@ -52,23 +53,23 @@ $(document).ready(() => {
 
             const anchorElement = document.createElement('a');
             anchorElement.href = aufnahme.edit_url;
-            anchorElement.innerText = 'Bearbeiten';
+            anchorElement.innerHTML=document.getElementById("editPencil").innerHTML;
+            anchorElement.className = 'btn btn-outline-primary'         
+            editCell.appendChild(anchorElement)
 
+            let titleCell = row.insertCell()
             const imgElement = document.createElement('img');
             imgElement.src = `/static/${aufnahme.thumbnail}`;
             imgElement.width=100;
 
-            anchorElement.appendChild(imgElement);
-
-            editCell.appendChild(anchorElement)
-
-            row.insertCell().appendChild(document.createTextNode(`${aufnahme.title}`));
+            titleCell.appendChild(imgElement);
+            titleCell.appendChild(document.createTextNode(` ${aufnahme.title}`));
 
             row.insertCell().appendChild(document.createTextNode(`${aufnahme.sprache}`));
             row.insertCell().appendChild(document.createTextNode(`${aufnahme.aufnahmen_count}/${aufnahme.seiten_count}`));
 
             const sichtbarkeitBtn = document.createElement('button');
-            sichtbarkeitBtn.innerHTML = 'AUGE'
+            sichtbarkeitBtn.innerHTML = document.getElementById("eyeVisible").innerHTML;
             sichtbarkeitBtn.className = (aufnahme.is_public) ? 'btn btn-success' : 'btn btn-danger';
 
             sichtbarkeitBtn.addEventListener('click', (event)=>{
@@ -108,7 +109,8 @@ $(document).ready(() => {
             row.insertCell().appendChild(sichtbarkeitBtn);
 
             const deleteBtn = document.createElement('button');
-            deleteBtn.innerText = 'Löschen';
+            deleteBtn.innerHTML = document.getElementById("deleteTrash").innerHTML;
+            deleteBtn.className = 'btn btn-outline-danger'
 
             deleteBtn.addEventListener('click', ()=>{
                 if (!window.confirm('Soll diese Aufzeichnung wirklich gelöscht werden?')) {
