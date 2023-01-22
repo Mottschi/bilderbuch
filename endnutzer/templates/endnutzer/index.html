@@ -8,11 +8,43 @@
 {% block content %}
     <div><h1>Index für Endnutzer:</h1></div>
 
-    <a href="{% url 'endnutzer:library' %}">Bibliothek</a>
-    <br>
-    <a href="{% url 'endnutzer:userprofil' %}">Mein Profil</a>
-    <br>
-    <a href="{% url 'endnutzer:eigene_aufnahmen' %}">Meine Aufnahmen</a>
-    <br>
+
+
+
+    <div class="row gap-3">
+        <div class="card" style="width: 15rem;">
+            <a href="{% url 'endnutzer:library' %}">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-book" viewBox="0 0 16 16">
+                <use xlink:href="#bi-book" />
+            </svg>
+            <div class="card-body">
+            <p class="card-text">Rufe die Bibliothek auf.</p>
+            </div>
+            </a>
+        </div>
+        <div class="card" style="width: 15rem;">
+            <a href="{% url 'endnutzer:userprofil' %}">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-book" viewBox="0 0 16 16">
+                <use xlink:href="#bi-person-vcard-fill" />
+            </svg>
+            <div class="card-body">
+            <p class="card-text">Mein Nutzerprofil</p>
+            </div>
+            </a>
+        </div>
+        <div class="card" style="width: 15rem;">
+            <a href="{% url 'endnutzer:userprofil' %}">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-book" viewBox="0 -1 16 16">
+                <use xlink:href="#bi-mic-fill" />
+            </svg>
+            <div class="card-body">
+            <p class="card-text">Meine Aufnahmen</p>
+            </div>
+            </a>
+        </div>
+
+    </div>
+
+
     
 {% endblock content %}
